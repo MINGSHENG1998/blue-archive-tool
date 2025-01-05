@@ -2,6 +2,7 @@ import type { PropsWithChildren, ReactElement } from "react";
 import { StyleSheet } from "react-native";
 import Animated, {
   interpolate,
+  SharedValue,
   useAnimatedRef,
   useAnimatedStyle,
   useScrollViewOffset,
@@ -16,6 +17,13 @@ const HEADER_HEIGHT = 250;
 type Props = PropsWithChildren<{
   noheader?: boolean;
   headerImage?: ReactElement;
+  keyboardShouldPersistTaps?:
+    | boolean
+    | "always"
+    | "never"
+    | "handled"
+    | SharedValue<boolean | "always" | "never" | "handled" | undefined>
+    | undefined;
   headerBackgroundColor?: { dark: string; light: string };
 }>;
 
@@ -23,6 +31,7 @@ export default function ParallaxScrollView({
   children,
   noheader = false,
   headerImage,
+  keyboardShouldPersistTaps,
   headerBackgroundColor,
 }: Props) {
   const colorScheme = useColorScheme() ?? "light";
@@ -57,6 +66,7 @@ export default function ParallaxScrollView({
         scrollEventThrottle={16}
         scrollIndicatorInsets={{ bottom }}
         contentContainerStyle={{ paddingBottom: bottom }}
+        keyboardShouldPersistTaps={keyboardShouldPersistTaps || "always"}
       >
         {!noheader && (
           <Animated.View
