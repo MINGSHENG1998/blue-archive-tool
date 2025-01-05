@@ -17,7 +17,7 @@ export default function HomeScreen() {
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">BLUE ARCHIVE TOOL</ThemedText>
+        <ThemedText type="title">Blue Archive Helper</ThemedText>
         {/* <HelloWave /> */}
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
