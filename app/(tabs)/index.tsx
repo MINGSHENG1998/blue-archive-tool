@@ -4,6 +4,7 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { AdMobBanner } from 'expo-ads-admob';
 
 export default function HomeScreen() {
   return (
@@ -50,6 +51,12 @@ export default function HomeScreen() {
           <ThemedText type="defaultSemiBold">app-example</ThemedText>.
         </ThemedText>
       </ThemedView>
+      {/* <AdMobBanner
+        bannerSize="banner"
+        adUnitID="ca-app-pub-3940256099942544/6300978111" // Replace with your ad unit ID
+        servePersonalizedAds={true} // true or false
+        onDidFailToReceiveAdWithError={(error) => console.log(error)}
+      /> */}
     </ParallaxScrollView>
   );
 }

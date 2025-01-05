@@ -9,13 +9,20 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-7252717983754109~5997726897"
+      },
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-7252717983754109~5997726897"
+      },
+      "package": "com.ms_oldhorse.bluearchivetool"
     },
     "web": {
       "bundler": "metro",
@@ -32,7 +39,14 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      [
+        "expo-dev-launcher",
+        {
+          "launchMode": "most-recent"
+        }
+      ],
+      ["expo-ads-admob"]
     ],
     "experiments": {
       "typedRoutes": true
