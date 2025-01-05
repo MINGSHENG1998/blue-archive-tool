@@ -45,8 +45,7 @@
         {
           "launchMode": "most-recent"
         }
-      ],
-      ["expo-ads-admob"]
+      ]
     ],
     "experiments": {
       "typedRoutes": true
