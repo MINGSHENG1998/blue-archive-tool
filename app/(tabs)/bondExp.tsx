@@ -1,4 +1,4 @@
-import { StyleSheet, Image, Platform } from "react-native";
+import { StyleSheet, Image, Platform, Keyboard } from "react-native";
 
 import { Collapsible } from "@/components/Collapsible";
 import { ExternalLink } from "@/components/ExternalLink";
@@ -30,6 +30,13 @@ export default function BondExpScreen() {
   const [sortDirection, setSortDirection] = useState("desc");
   const [sortedData, setSortedData] = useState(bondResourceTable);
 
+  //days to reach
+  //cafe amt
+  //monthly craftable gift (50 confirm 2star favorite + random)
+  //avg monthly class schedule
+  //fury of set/chokma gift
+  //avg total&grand assault gift
+
   const handleCalculate = () => {
     const fromValue = parseInt(from, 10);
     const toValue = parseInt(to, 10);
@@ -45,6 +52,7 @@ export default function BondExpScreen() {
       const totalExp =
         bondExpData[toValue - 1].totalExp - bondExpData[fromValue - 1].totalExp;
       setTotalExp(totalExp);
+      Keyboard.dismiss();
     } else {
       setError(
         'Please ensure "from" is 1-99, "to" is 2-100, and "from" < "to".'
@@ -168,41 +176,45 @@ export default function BondExpScreen() {
             title={`Required Exp: ${totalExp}`}
             titleStyle={styles.totalExp}
           />
-          <Collapsible title="Required Resources">
-            <DataTable>
-              <DataTable.Header>
-                <DataTable.Title textStyle={styles.header}>
-                  Source
-                </DataTable.Title>
-                <DataTable.Title numeric>Exp</DataTable.Title>
-                <DataTable.Title numeric onPress={handleSortAmount}>
-                  Amount {sortDirection === "asc" ? "↑" : "↓"}
-                </DataTable.Title>
-              </DataTable.Header>
+          <ThemedView style={styles.collapsible}>
+            <Collapsible title="Required Resources">
+              <DataTable style={styles.table}>
+                <DataTable.Header>
+                  <DataTable.Title textStyle={styles.header}>
+                    Source
+                  </DataTable.Title>
+                  <DataTable.Title numeric>Exp</DataTable.Title>
+                  <DataTable.Title numeric onPress={handleSortAmount}>
+                    Amount {sortDirection === "asc" ? "↑" : "↓"}
+                  </DataTable.Title>
+                </DataTable.Header>
 
-              {sortedData.map((item) => (
-                <DataTable.Row key={item.key}>
-                  <DataTable.Cell>
-                    <ThemedView style={styles.sourceImg}>
-                      <Image source={item.img} style={styles.image} />
-                      <ThemedText style={styles.sourceName}>
-                        {" "}
-                        {item.name}
-                      </ThemedText>
-                    </ThemedView>
-                  </DataTable.Cell>
-                  <DataTable.Cell numeric>{item.exp}</DataTable.Cell>
-                  <DataTable.Cell numeric>
-                    {Math.ceil(totalExp / item.exp)}
-                  </DataTable.Cell>
-                </DataTable.Row>
-              ))}
-            </DataTable>
-          </Collapsible>
-          <Collapsible title="Required Days To Reach">
-            <ThemedText>WIP...</ThemedText>
-            {/* section let them change their pat amt/ monthly gift */}
-          </Collapsible>
+                {sortedData.map((item) => (
+                  <DataTable.Row key={item.key}>
+                    <DataTable.Cell>
+                      <ThemedView style={styles.sourceImg}>
+                        <Image source={item.img} style={styles.image} />
+                        <ThemedText style={styles.sourceName}>
+                          {" "}
+                          {item.name}
+                        </ThemedText>
+                      </ThemedView>
+                    </DataTable.Cell>
+                    <DataTable.Cell numeric>{item.exp}</DataTable.Cell>
+                    <DataTable.Cell numeric>
+                      {Math.ceil(totalExp / item.exp)}
+                    </DataTable.Cell>
+                  </DataTable.Row>
+                ))}
+              </DataTable>
+            </Collapsible>
+          </ThemedView>
+          <ThemedView style={styles.collapsible}>
+            <Collapsible title="Required Days To Reach">
+              <ThemedText>WIP...</ThemedText>
+              {/* section let them change their pat amt/ monthly gift */}
+            </Collapsible>
+          </ThemedView>
         </ThemedView>
       )}
 
@@ -310,6 +322,8 @@ const styles = StyleSheet.create({
   totalExp: {
     textAlign: "center",
   },
+  collapsible: { marginBottom: 10 },
+  table: { width: "100%" },
   header: { textAlign: "center", width: "100%" },
   sourceImg: {
     alignItems: "center",
@@ -318,8 +332,8 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   image: {
-    width: 30,
-    height: 30,
+    width: 20,
+    height: 20,
     marginTop: 10,
   },
   sourceName: {
