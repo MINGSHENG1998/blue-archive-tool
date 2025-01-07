@@ -16,9 +16,10 @@ const MAPPING = {
   'heart.fill': 'favorite',
   'diamond.fill': 'diamond',
   'money.fill': 'attach-money',
+  'mics.fill': 'more-horiz'
 } as Partial<
   Record<
-    import('expo-symbols').SymbolViewProps['name'],
+    import('expo-symbols').SymbolViewProps['name'] | any,
     React.ComponentProps<typeof MaterialIcons>['name']
   >
 >;

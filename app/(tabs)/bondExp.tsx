@@ -1,4 +1,11 @@
-import { StyleSheet, Image, Platform, Keyboard } from "react-native";
+import {
+  StyleSheet,
+  Image,
+  Platform,
+  Keyboard,
+  View,
+  Text,
+} from "react-native";
 
 import { Collapsible } from "@/components/Collapsible";
 import { ExternalLink } from "@/components/ExternalLink";
@@ -6,6 +13,8 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useFocusEffect } from "@react-navigation/native";
+import NumberInput from "@/components/NumberInput";
 
 //components
 import {
@@ -14,13 +23,17 @@ import {
   TextInput,
   Button,
   HelperText,
+  Surface,
 } from "react-native-paper";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 //constant
 import { bondExpData, bondResourceTable } from "../../constants/bondData";
+import React from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function BondExpScreen() {
+  const scrollRef = useRef<{ resetScroll: () => void }>(null);
   const [from, setFrom]: any = useState("");
   const [to, setTo]: any = useState("");
   const [error, setError] = useState("");
@@ -36,6 +49,11 @@ export default function BondExpScreen() {
   //avg monthly class schedule
   //fury of set/chokma gift
   //avg total&grand assault gift
+  const [expSource, setExpSource] = useState({ pat: 5, monthlyGift: 50 });
+  const [monthlyExpGain, setMonthlyExpGain] = useState(
+    expSource.pat * 15 + 5410
+  );
+  const insets = useSafeAreaInsets();
 
   const handleCalculate = () => {
     const fromValue = parseInt(from, 10);
@@ -52,6 +70,7 @@ export default function BondExpScreen() {
       const totalExp =
         bondExpData[toValue - 1].totalExp - bondExpData[fromValue - 1].totalExp;
       setTotalExp(totalExp);
+      setMonthlyExpGain(expSource.pat * 15 + 5410);
       Keyboard.dismiss();
     } else {
       setError(
@@ -75,224 +94,204 @@ export default function BondExpScreen() {
     setSortedData(sorted);
   };
 
+  useFocusEffect(
+    React.useCallback(() => {
+      // Reset state and scroll position
+      setFrom("");
+      setTo("");
+      setError("");
+      setTotalExp(null);
+      setSortDirection("desc");
+      scrollRef.current?.resetScroll();
+      return () => {};
+    }, [])
+  );
+
   return (
-    <ParallaxScrollView noheader={true} keyboardShouldPersistTaps="handled">
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Bond Exp Calculator</ThemedText>
-      </ThemedView>
-      <ThemedText>
-        Insert your current bond level and target bond level
-      </ThemedText>
-      <ThemedView style={styles.container}>
-        <ThemedView style={styles.row}>
-          <TextInput
-            mode="outlined"
-            label="Current Level"
-            placeholder="1 - 99"
-            value={from}
-            onChangeText={(text) => {
-              const numericValue = parseInt(text, 10);
-              if (
-                !isNaN(numericValue) &&
-                numericValue >= 1 &&
-                numericValue <= 99
-              ) {
-                setFrom(text);
-              } else if (text === "") {
-                setFrom("");
-              }
-            }}
-            keyboardType="numeric"
-            maxLength={2}
-            style={[styles.input, styles.halfInput]}
-            right={
-              from !== "" && (
-                <TextInput.Icon
-                  icon="close"
-                  size={16}
-                  onPress={() => setFrom("")}
-                  style={{ display: from ? "flex" : "none" }}
-                />
-              )
-            }
-          />
-          <TextInput
-            mode="outlined"
-            label="Target Level"
-            placeholder="2 - 100"
-            value={to}
-            onChangeText={(text) => {
-              const numericValue = parseInt(text, 10);
-              if (
-                !isNaN(numericValue) &&
-                numericValue >= 1 &&
-                numericValue <= 100
-              ) {
-                setTo(text); // Update state only if within range
-              } else if (text === "") {
-                setTo(""); // Allow clearing the input
-              }
-            }}
-            keyboardType="numeric"
-            maxLength={3}
-            style={[styles.input, styles.halfInput]}
-            right={
-              to !== "" && (
-                <TextInput.Icon
-                  icon="close"
-                  size={16}
-                  onPress={() => setTo("")}
-                  style={{ display: from ? "flex" : "none" }}
-                />
-              )
-            }
-          />
+    <ParallaxScrollView
+      noheader={true}
+      keyboardShouldPersistTaps="handled"
+      ref={scrollRef}
+    >
+      <Surface
+        style={[styles.container, { paddingTop: insets.top }]}
+        elevation={0}
+      >
+        <ThemedView style={styles.titleContainer}>
+          <ThemedText type="title">Bond Exp Calculator</ThemedText>
         </ThemedView>
-        {error && (
-          <HelperText type="error" visible={!!error}>
-            {error}
-          </HelperText>
-        )}
-        <ThemedView style={styles.advancedSettings}>
-          <Collapsible
-            title="Advanced Settings"
-            iconSize={12}
-            fontType={"smallSemiBold"}
+        <ThemedText>
+          Insert your current bond level and target bond level
+        </ThemedText>
+        <ThemedView style={styles.container}>
+          <ThemedView style={styles.row}>
+            <TextInput
+              mode="outlined"
+              label="Current Level"
+              placeholder="1 - 99"
+              value={from}
+              onChangeText={(text) => {
+                const numericValue = parseInt(text, 10);
+                if (
+                  !isNaN(numericValue) &&
+                  numericValue >= 1 &&
+                  numericValue <= 99
+                ) {
+                  setFrom(text);
+                } else if (text === "") {
+                  setFrom("");
+                }
+              }}
+              keyboardType="numeric"
+              maxLength={2}
+              style={[styles.input, styles.halfInput]}
+              right={
+                from !== "" && (
+                  <TextInput.Icon
+                    icon="close"
+                    size={16}
+                    onPress={() => setFrom("")}
+                    style={{ display: from ? "flex" : "none" }}
+                  />
+                )
+              }
+            />
+            <TextInput
+              mode="outlined"
+              label="Target Level"
+              placeholder="2 - 100"
+              value={to}
+              onChangeText={(text) => {
+                const numericValue = parseInt(text, 10);
+                if (
+                  !isNaN(numericValue) &&
+                  numericValue >= 1 &&
+                  numericValue <= 100
+                ) {
+                  setTo(text); // Update state only if within range
+                } else if (text === "") {
+                  setTo(""); // Allow clearing the input
+                }
+              }}
+              keyboardType="numeric"
+              maxLength={3}
+              style={[styles.input, styles.halfInput]}
+              right={
+                to !== "" && (
+                  <TextInput.Icon
+                    icon="close"
+                    size={16}
+                    onPress={() => setTo("")}
+                    style={{ display: from ? "flex" : "none" }}
+                  />
+                )
+              }
+            />
+          </ThemedView>
+          {error && (
+            <HelperText type="error" visible={!!error}>
+              {error}
+            </HelperText>
+          )}
+          <ThemedView style={styles.advancedSettings}>
+            <Collapsible
+              title="Advanced Settings"
+              iconSize={12}
+              fontType={"smallSemiBold"}
+            >
+              <Card>
+                <View style={styles.numberInputContainer}>
+                  <NumberInput
+                    value={expSource.pat}
+                    onChange={(value) =>
+                      setExpSource({ ...expSource, pat: value })
+                    }
+                    min={0}
+                    max={6}
+                    label="Cafe Pat /day"
+                  />
+                </View>
+              </Card>
+            </Collapsible>
+          </ThemedView>
+          <Button
+            mode="contained"
+            onPress={handleCalculate}
+            style={styles.button}
           >
-            <ThemedText>WIP...</ThemedText>
-          </Collapsible>
+            Calculate
+          </Button>
         </ThemedView>
-        <Button
-          mode="contained"
-          onPress={handleCalculate}
-          style={styles.button}
-        >
-          Calculate
-        </Button>
-      </ThemedView>
-      {totalExp && (
-        <ThemedView>
-          <Card.Title
+        {totalExp && (
+          <ThemedView style={styles.resultSection}>
+            {/* <Card.Title
             title={`Required Exp: ${totalExp}`}
             titleStyle={styles.totalExp}
-          />
-          <ThemedView style={styles.collapsible}>
-            <Collapsible title="Required Resources">
-              <DataTable style={styles.table}>
-                <DataTable.Header>
-                  <DataTable.Title textStyle={styles.header}>
-                    Source
-                  </DataTable.Title>
-                  <DataTable.Title numeric>Exp</DataTable.Title>
-                  <DataTable.Title numeric onPress={handleSortAmount}>
-                    Amount {sortDirection === "asc" ? "↑" : "↓"}
-                  </DataTable.Title>
-                </DataTable.Header>
+          /> */}
+            <Card style={[styles.card, styles.resultCard]}>
+              <Card.Content>
+                <ThemedText style={styles.resultTitle}>
+                  Required Experience
+                </ThemedText>
+                <ThemedText type="title">
+                  {totalExp.toLocaleString()}
+                </ThemedText>
+                <ThemedText style={styles.estimatedTime}>
+                  Estimated Time:{" "}
+                  {totalExp > monthlyExpGain
+                    ? Math.ceil(totalExp / monthlyExpGain) + "month(s)"
+                    : "less than a month"}
+                </ThemedText>
+              </Card.Content>
+            </Card>
+            <ThemedView style={styles.collapsible}>
+              <Collapsible title="Required Resources" isDefaultOpen={true}>
+                <DataTable style={styles.table}>
+                  <DataTable.Header>
+                    <DataTable.Title textStyle={styles.header}>
+                      Source
+                    </DataTable.Title>
+                    <DataTable.Title numeric>Exp</DataTable.Title>
+                    <DataTable.Title numeric onPress={handleSortAmount}>
+                      Amount {sortDirection === "asc" ? "↑" : "↓"}
+                    </DataTable.Title>
+                  </DataTable.Header>
 
-                {sortedData.map((item) => (
-                  <DataTable.Row key={item.key}>
-                    <DataTable.Cell>
-                      <ThemedView style={styles.sourceImg}>
-                        <Image source={item.img} style={styles.image} />
-                        <ThemedText style={styles.sourceName}>
-                          {" "}
-                          {item.name}
-                        </ThemedText>
-                      </ThemedView>
-                    </DataTable.Cell>
-                    <DataTable.Cell numeric>{item.exp}</DataTable.Cell>
-                    <DataTable.Cell numeric>
-                      {Math.ceil(totalExp / item.exp)}
-                    </DataTable.Cell>
-                  </DataTable.Row>
-                ))}
-              </DataTable>
+                  {sortedData.map((item) => (
+                    <DataTable.Row key={item.key}>
+                      <DataTable.Cell>
+                        <ThemedView style={styles.sourceImg}>
+                          <Image source={item.img} style={styles.sourceImage} />
+                          <ThemedText style={styles.sourceName}>
+                            {item.name}
+                          </ThemedText>
+                        </ThemedView>
+                      </DataTable.Cell>
+                      <DataTable.Cell numeric>{item.exp}</DataTable.Cell>
+                      <DataTable.Cell numeric>
+                        {Math.ceil(totalExp / item.exp)}
+                      </DataTable.Cell>
+                    </DataTable.Row>
+                  ))}
+                </DataTable>
+              </Collapsible>
+            </ThemedView>
+            {/* <ThemedView style={styles.collapsible}>
+            <Collapsible title="Estimated Time To Achieve">
+              <ThemedText>
+                {Math.ceil(totalExp / monthlyExpGain)} month(s)
+              </ThemedText>
             </Collapsible>
+          </ThemedView> */}
           </ThemedView>
-          <ThemedView style={styles.collapsible}>
-            <Collapsible title="Required Days To Reach">
-              <ThemedText>WIP...</ThemedText>
-              {/* section let them change their pat amt/ monthly gift */}
-            </Collapsible>
-          </ThemedView>
-        </ThemedView>
-      )}
-
-      {/* <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible> */}
+        )}
+      </Surface>
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   titleContainer: {
-    marginTop: 20,
     flexDirection: "row",
     gap: 8,
   },
@@ -312,12 +311,53 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 5,
   },
+  //advanced settings
   advancedSettings: {
     marginTop: 10,
     marginBottom: 5,
   },
+  numberInputContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+  },
+  numberInputLabel: {
+    fontSize: 18,
+    marginVertical: 10,
+  },
   button: {
     marginTop: 10,
+  },
+  //result
+  resultSection: {
+    marginTop: 12,
+  },
+  //card
+  card: {
+    marginBottom: 16,
+    borderRadius: 12,
+  },
+  resultCard: {
+    marginTop: 12,
+    backgroundColor: "#4A90E2",
+  },
+  resultTitle: {
+    fontSize: 16,
+    opacity: 0.8,
+    marginBottom: 8,
+    color: "#FFF",
+  },
+  resultExp: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#FFF",
+    marginBottom: 8,
+  },
+  estimatedTime: {
+    fontSize: 14,
+    color: "#FFF",
+    opacity: 0.9,
   },
   totalExp: {
     textAlign: "center",
@@ -326,20 +366,15 @@ const styles = StyleSheet.create({
   table: { width: "100%" },
   header: { textAlign: "center", width: "100%" },
   sourceImg: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 4,
-    width: "100%",
+    gap: 8,
   },
-  image: {
-    width: 20,
-    height: 20,
-    marginTop: 10,
+  sourceImage: {
+    width: 24,
+    height: 24,
   },
   sourceName: {
     fontSize: 12,
-    textAlign: "center",
-    lineHeight: 15,
-    width: "100%",
   },
 });

@@ -11,10 +11,11 @@ interface CollapsibleProps {
   title: string;
   iconSize?: number;
   fontType?: any;
+  isDefaultOpen?: boolean;
 }
 
-export function Collapsible({ children, title, iconSize = 18, fontType = "defaultSemiBold" }: PropsWithChildren<CollapsibleProps> ) {
-  const [isOpen, setIsOpen] = useState(false);
+export function Collapsible({ children, title, iconSize = 18, fontType = "defaultSemiBold", isDefaultOpen = false }: PropsWithChildren<CollapsibleProps> ) {
+  const [isOpen, setIsOpen] = useState(isDefaultOpen);
   const theme = useColorScheme() ?? 'light';
 
   return (

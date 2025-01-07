@@ -41,12 +41,19 @@ export default function TabLayout() {
         }}
       />
        <Tabs.Screen
+        name="other"
+        options={{
+          title: 'Mics',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="mics.fill" color={color} />,
+        }}
+      />
+       {/* <Tabs.Screen
         name="incomeCalc"
         options={{
           title: 'Income Calculator',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="diamond.fill" color={color} />,
         }}
-      />
+      /> */}
     </Tabs>
   );
 }

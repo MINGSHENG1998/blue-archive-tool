@@ -57,6 +57,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
+  cardTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
   link: {
     lineHeight: 30,
     fontSize: 16,
