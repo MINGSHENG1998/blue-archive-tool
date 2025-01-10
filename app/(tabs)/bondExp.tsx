@@ -51,7 +51,7 @@ export default function BondExpScreen() {
   //avg total&grand assault gift
   const [expSource, setExpSource] = useState({ pat: 5, monthlyGift: 50 });
   const [monthlyExpGain, setMonthlyExpGain] = useState(
-    expSource.pat * 15 + 5410
+    expSource.pat * 15 + expSource.monthlyGift * 60 + 2410
   );
   const insets = useSafeAreaInsets();
 

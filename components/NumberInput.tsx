@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 interface NumberInputProps {
@@ -16,13 +16,55 @@ const NumberInput: React.FC<NumberInputProps> = ({
   min = 0,
   max = 100,
 }) => {
+  const [speed, setSpeed] = useState(1);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const speedIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const clearIntervals = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    if (speedIntervalRef.current) {
+      clearInterval(speedIntervalRef.current);
+      speedIntervalRef.current = null;
+    }
+    setSpeed(1);
+  };
+
+  const startAcceleration = (increment: boolean) => {
+    console.log("nigga")
+    clearIntervals();
+
+    // Update value at current speed
+    intervalRef.current = setInterval(() => {
+      const newValue = value + (increment ? speed : -speed);
+      if (newValue <= max && newValue >= min) {
+        console.log(newValue)
+        onChange(newValue);
+      } else {
+        clearIntervals();
+      }
+    }, 100);
+
+    // Increase speed over time
+    speedIntervalRef.current = setInterval(() => {
+      setSpeed(prevSpeed => Math.min(prevSpeed + 1, 10));
+    }, 500);
+  };
+
   const increment = () => value < max && onChange(value + 1);
   const decrement = () => value > min && onChange(value - 1);
 
   return (
     <View style={styles.wrapper}>
       <View style={styles.container}>
-        <TouchableOpacity onPress={decrement} style={styles.button}>
+        <TouchableOpacity 
+          onPress={decrement}
+          onLongPress={() => startAcceleration(false)}
+          onPressOut={clearIntervals}
+          style={styles.button}
+        >
           <Text style={styles.buttonText}>-</Text>
         </TouchableOpacity>
         
@@ -30,7 +72,12 @@ const NumberInput: React.FC<NumberInputProps> = ({
           <Text style={styles.value}>{value}</Text>
         </View>
         
-        <TouchableOpacity onPress={increment} style={styles.button}>
+        <TouchableOpacity 
+          onPress={increment}
+          onLongPress={() => startAcceleration(true)}
+          onPressOut={clearIntervals}
+          style={styles.button}
+        >
           <Text style={styles.buttonText}>+</Text>
         </TouchableOpacity>
       </View>
