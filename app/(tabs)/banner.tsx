@@ -23,12 +23,13 @@ import {
   Portal,
   Modal,
 } from "react-native-paper";
-import { useRef, useState, useCallback, useMemo } from "react";
+import { useRef, useState, useCallback, useMemo, useEffect } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { typeColor } from "@/constants/Colors";
 import { AtkType, DefType } from "@/dto/game.dto";
 import CustomChip from "@/components/ui/customChip";
+import axios from "axios";
 
 // Define types
 interface Character {
@@ -105,6 +106,10 @@ export default function FutureBannerScreen() {
   );
   const [showSortMenu, setShowSortMenu] = useState(false);
 
+  const [banners, setBanners] = useState<Banner[]>(BANNER_DATA);
+  const [loading, setLoading] = useState<boolean>(true); // For handling loading state
+  const [error, setError] = useState<string | null>(null); // For error state
+
   // Format helpers
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -117,10 +122,27 @@ export default function FutureBannerScreen() {
   const renderRarityStars = (rarity: number) => {
     return "★".repeat(rarity);
   };
+  // Fetch banner data from the backend API
+  const fetchBanners = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("YOUR_BACKEND_API_URL"); // Replace with your actual API URL
+      setBanners(response.data); // Assuming the API returns an array of banner data
+    } catch (err) {
+      setError("Failed to load banners");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch data on mount
+  useEffect(() => {
+    fetchBanners();
+  }, [fetchBanners]);
 
   // Filter and sort logic
   const filteredAndSortedBanners = useMemo(() => {
-    let result = [...BANNER_DATA];
+    let result = [...banners];
 
     // Apply search
     if (searchQuery) {
@@ -164,7 +186,7 @@ export default function FutureBannerScreen() {
     }
 
     return result;
-  }, [BANNER_DATA, searchQuery, filterType, sortOption]);
+  }, [banners, searchQuery, filterType, sortOption]);
 
   //   // Character modal
   //   const CharacterModal = () => (
@@ -240,9 +262,7 @@ export default function FutureBannerScreen() {
             <ThemedText type="cardtitle" style={styles.characterName}>
               {character.name}
             </ThemedText>
-            {character.isNew && (
-            <CustomChip label="New"/>
-            )}
+            {character.isNew && <CustomChip label="New" />}
           </ThemedView>
           <ThemedView style={styles.tags}>
             {/* <Chip
