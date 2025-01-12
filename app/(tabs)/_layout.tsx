@@ -34,6 +34,13 @@ export default function TabLayout() {
         }}
       />
        <Tabs.Screen
+        name="banner"
+        options={{
+          title: 'Future Banner',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="date.fill" color={color} />,
+        }}
+      />
+       <Tabs.Screen
         name="bondExp"
         options={{
           title: 'Bond Exp',

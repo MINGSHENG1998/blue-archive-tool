@@ -24,10 +24,10 @@ export default function OtherScreen() {
         elevation={0}
       >
         <ThemedView style={styles.titleContainer}>
-          <ThemedText type="title">Settings & More</ThemedText>
+          <ThemedText type="title">About</ThemedText>
         </ThemedView>
         {/* App Settings Section */}
-        <List.Section>
+        {/* <List.Section>
           <List.Subheader>App Settings</List.Subheader>
           <List.Item
             title="General Settings"
@@ -49,7 +49,7 @@ export default function OtherScreen() {
           />
         </List.Section>
 
-        <Divider style={styles.divider} />
+        <Divider style={styles.divider} /> */}
 
         {/* Support Section */}
         <List.Section>

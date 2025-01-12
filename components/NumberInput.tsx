@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 interface NumberInputProps {
@@ -17,10 +17,15 @@ const NumberInput: React.FC<NumberInputProps> = ({
   max = 100,
 }) => {
   const [speed, setSpeed] = useState(1);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const speedIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const speedIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const longPressTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const currentValueRef = useRef(value);
 
-  const clearIntervals = () => {
+  // Keep the ref in sync with the prop
+  currentValueRef.current = value;
+
+  const clearAllTimers = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -29,40 +34,68 @@ const NumberInput: React.FC<NumberInputProps> = ({
       clearInterval(speedIntervalRef.current);
       speedIntervalRef.current = null;
     }
+    if (longPressTimeoutRef.current) {
+      clearTimeout(longPressTimeoutRef.current);
+      longPressTimeoutRef.current = null;
+    }
     setSpeed(1);
-  };
+  }, []);
 
-  const startAcceleration = (increment: boolean) => {
-    console.log("nigga")
-    clearIntervals();
+  const startAcceleration = useCallback((increment: boolean) => {
+    clearAllTimers();
 
-    // Update value at current speed
+    // Start with immediate first change
+    const newValue = value + (increment ? 1 : -1);
+    if (newValue <= max && newValue >= min) {
+      onChange(newValue);
+    }
+
+    // Set up continuous updates
     intervalRef.current = setInterval(() => {
-      const newValue = value + (increment ? speed : -speed);
-      if (newValue <= max && newValue >= min) {
-        console.log(newValue)
-        onChange(newValue);
+      const nextValue = currentValueRef.current + (increment ? speed : -speed);
+      if (nextValue <= max && nextValue >= min) {
+        onChange(nextValue);
       } else {
-        clearIntervals();
+        clearAllTimers();
       }
     }, 100);
 
-    // Increase speed over time
+    // Gradually increase speed
     speedIntervalRef.current = setInterval(() => {
-      setSpeed(prevSpeed => Math.min(prevSpeed + 1, 10));
+      setSpeed((prevSpeed) => {
+        const newSpeed = prevSpeed * 1.5;
+        return newSpeed > 10 ? 10 : newSpeed;
+      });
     }, 500);
-  };
+  }, [value, min, max, onChange, speed, clearAllTimers]);
 
-  const increment = () => value < max && onChange(value + 1);
-  const decrement = () => value > min && onChange(value - 1);
+  const handleLongPress = useCallback((increment: boolean) => {
+    // Add a small delay before starting acceleration to prevent accidental triggers
+    longPressTimeoutRef.current = setTimeout(() => {
+      startAcceleration(increment);
+    }, 200);
+  }, [startAcceleration]);
+
+  const increment = useCallback(() => {
+    if (value < max) {
+      onChange(value + 1);
+    }
+  }, [value, max, onChange]);
+
+  const decrement = useCallback(() => {
+    if (value > min) {
+      onChange(value - 1);
+    }
+  }, [value, min, onChange]);
 
   return (
     <View style={styles.wrapper}>
       <View style={styles.container}>
         <TouchableOpacity 
           onPress={decrement}
-          onLongPress={() => startAcceleration(false)}
-          onPressOut={clearIntervals}
+          onLongPress={() => handleLongPress(false)}
+          onPressOut={clearAllTimers}
+          delayLongPress={200}
           style={styles.button}
         >
           <Text style={styles.buttonText}>-</Text>
@@ -74,8 +107,9 @@ const NumberInput: React.FC<NumberInputProps> = ({
         
         <TouchableOpacity 
           onPress={increment}
-          onLongPress={() => startAcceleration(true)}
-          onPressOut={clearIntervals}
+          onLongPress={() => handleLongPress(true)}
+          onPressOut={clearAllTimers}
+          delayLongPress={200}
           style={styles.button}
         >
           <Text style={styles.buttonText}>+</Text>

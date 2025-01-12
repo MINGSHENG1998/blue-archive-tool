@@ -27,6 +27,17 @@ export default function HomeScreen() {
         <Card>
           <Text style={styles.cardTitle}>Tools</Text>
           <View style={styles.toolsBtnContainer}>
+          <View style={styles.toolsBtnWrapper}>
+              <IconButton
+                icon="calendar"
+                iconColor="skyblue"
+                size={30}
+                mode="contained"
+                style={styles.toolsBtn}
+                onPress={() => router.replace("/(tabs)/banner")}
+              />
+              <ThemedText style={styles.toolsBtnLabel}>Future Banner</ThemedText>
+            </View>
             <View style={styles.toolsBtnWrapper}>
               <IconButton
                 icon="heart"

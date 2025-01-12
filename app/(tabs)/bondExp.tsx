@@ -24,6 +24,7 @@ import {
   Button,
   HelperText,
   Surface,
+  Divider,
 } from "react-native-paper";
 import { useRef, useState } from "react";
 
@@ -34,8 +35,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function BondExpScreen() {
   const scrollRef = useRef<{ resetScroll: () => void }>(null);
-  const [from, setFrom]: any = useState("");
-  const [to, setTo]: any = useState("");
+  const [from, setFrom]: any = useState("1");
+  const [to, setTo]: any = useState("100");
   const [error, setError] = useState("");
   const [totalExp, setTotalExp]: any = useState(null);
 
@@ -70,7 +71,7 @@ export default function BondExpScreen() {
       const totalExp =
         bondExpData[toValue - 1].totalExp - bondExpData[fromValue - 1].totalExp;
       setTotalExp(totalExp);
-      setMonthlyExpGain(expSource.pat * 15 + 5410);
+      setMonthlyExpGain(expSource.pat * 15 + expSource.monthlyGift * 60 + 2410);
       Keyboard.dismiss();
     } else {
       setError(
@@ -97,8 +98,8 @@ export default function BondExpScreen() {
   useFocusEffect(
     React.useCallback(() => {
       // Reset state and scroll position
-      setFrom("");
-      setTo("");
+      setFrom("1");
+      setTo("100");
       setError("");
       setTotalExp(null);
       setSortDirection("desc");
@@ -168,9 +169,9 @@ export default function BondExpScreen() {
                   numericValue >= 1 &&
                   numericValue <= 100
                 ) {
-                  setTo(text); // Update state only if within range
+                  setTo(text);
                 } else if (text === "") {
-                  setTo(""); // Allow clearing the input
+                  setTo("");
                 }
               }}
               keyboardType="numeric"
@@ -182,7 +183,7 @@ export default function BondExpScreen() {
                     icon="close"
                     size={16}
                     onPress={() => setTo("")}
-                    style={{ display: from ? "flex" : "none" }}
+                    style={{ display: to ? "flex" : "none" }}
                   />
                 )
               }
@@ -193,13 +194,18 @@ export default function BondExpScreen() {
               {error}
             </HelperText>
           )}
+          {/* Advanced Settings */}
           <ThemedView style={styles.advancedSettings}>
             <Collapsible
               title="Advanced Settings"
               iconSize={12}
               fontType={"smallSemiBold"}
             >
-              <Card>
+              <Card style={styles.advancedSettingsCard}>
+                <View style={styles.advancedSettingsSubtitle}>
+                  <ThemedText type="cardtitle">Config for Estimated Days</ThemedText>
+                  <Divider style={styles.advancedSettingsSubtitleDivider}/>
+                </View>
                 <View style={styles.numberInputContainer}>
                   <NumberInput
                     value={expSource.pat}
@@ -209,6 +215,17 @@ export default function BondExpScreen() {
                     min={0}
                     max={6}
                     label="Cafe Pat /day"
+                  />
+                </View>
+                <View style={styles.numberInputContainer}>
+                  <NumberInput
+                    value={expSource.monthlyGift}
+                    onChange={(value) =>
+                      setExpSource({ ...expSource, monthlyGift: value })
+                    }
+                    min={0}
+                    max={200}
+                    label="Gift (60Exp) /month"
                   />
                 </View>
               </Card>
@@ -315,12 +332,22 @@ const styles = StyleSheet.create({
   advancedSettings: {
     marginTop: 10,
     marginBottom: 5,
+  }, 
+  advancedSettingsCard: {
+    padding: 4,
+    paddingBottom: 8
+  }, 
+  advancedSettingsSubtitle: {
+    marginTop: 4,
+  },
+  advancedSettingsSubtitleDivider: {
+    margin: 4,
+    marginBottom: 4
   },
   numberInputContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 16,
+    paddingLeft: 4,
+    paddingTop: 8,
   },
   numberInputLabel: {
     fontSize: 18,

@@ -15,6 +15,7 @@ const MAPPING = {
   'chevron.right': 'chevron-right',
   'heart.fill': 'favorite',
   'diamond.fill': 'diamond',
+  'date.fill': 'date-range',
   'money.fill': 'attach-money',
   'mics.fill': 'more-horiz'
 } as Partial<
