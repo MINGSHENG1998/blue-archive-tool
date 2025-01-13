@@ -30,12 +30,14 @@ import { typeColor } from "@/constants/Colors";
 import { AtkType, DefType } from "@/dto/game.dto";
 import CustomChip from "@/components/ui/customChip";
 import axios from "axios";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebaseConfig";
 
 // Define types
 interface Character {
   id: string;
   name: string;
-  image: ImageSourcePropType;
+  image: string;
   rarity: number;
   atkType: AtkType;
   defType: DefType;
@@ -68,7 +70,7 @@ const BANNER_DATA: Banner[] = [
       {
         id: "char1",
         name: "Arona",
-        image: require("@/assets/images/characters/placeholder.png"),
+        image: "@/assets/images/characters/placeholder.png",
         rarity: 3,
         atkType: "penetration",
         defType: "light",
@@ -78,7 +80,7 @@ const BANNER_DATA: Banner[] = [
       {
         id: "char2",
         name: "Plana",
-        image: require("@/assets/images/characters/placeholder.png"),
+        image: "@/assets/images/characters/placeholder.png",
         rarity: 3,
         atkType: "mystic",
         defType: "elastic",
@@ -126,9 +128,33 @@ export default function FutureBannerScreen() {
   const fetchBanners = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get("YOUR_BACKEND_API_URL"); // Replace with your actual API URL
-      setBanners(response.data); // Assuming the API returns an array of banner data
+      //const response = await axios.get("YOUR_BACKEND_API_URL");
+      //setBanners(response.data);
+
+      // firestore implementation
+      //console.log(db)
+      const usersRef = collection(db, "banners");
+      //console.log(usersRef)
+      const querySnapshot: any = await getDocs(usersRef);
+      const bannersData = querySnapshot.docs.map((doc: any) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          startDate: data.startDate,
+          endDate: data.endDate,
+          type: data.type,
+          characters: data.characters || [],
+          eventDetails: data.eventDetails,
+          rewards: data.rewards || [],
+        };
+      });
+
+      // Set the banners data to state
+      setBanners(bannersData);
+      //setBanners(querySnapshot)
+      
     } catch (err) {
+      console.log(err)
       setError("Failed to load banners");
     } finally {
       setLoading(false);
@@ -249,7 +275,7 @@ export default function FutureBannerScreen() {
     >
       <Card.Content style={styles.characterContent}>
         <View style={styles.imageContainer}>
-          <Image source={character.image} style={styles.characterImage} />
+          <Image source={{ uri: character.image }} style={styles.characterImage} />
           {character.isLimited && (
             <Image
               source={require("@/assets/images/characters/limited_icon.png")}
@@ -416,7 +442,7 @@ export default function FutureBannerScreen() {
                 }
                 left={(props) => (
                   <Image
-                    source={banner.characters[0].image}
+                    source={{ uri: banner.characters[0].image}}
                     style={styles.accordionCharacterImage}
                   />
                 )}

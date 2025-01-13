@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "153272661943",
+    "project_id": "blue-archive-tool",
+    "storage_bucket": "blue-archive-tool.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:153272661943:android:c39a1eb6e6cd86f2d69a32",
+        "android_client_info": {
+          "package_name": "com.ms_oldhorse.bluearchivetool"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6pWCe9NesXPQmKjgJ7dEekSKE03R4DDE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
