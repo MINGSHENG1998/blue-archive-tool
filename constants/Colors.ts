@@ -32,8 +32,8 @@ export const typeColor: Record<AtkType | DefType, { icon: any, background: strin
     icon: require("@/assets/images/icons/explosion_atk_icon.png"),
     background: "#910008"
   },
-  penetration: {
-    icon: require("@/assets/images/icons/penetration_atk_icon.png"),
+  piercing: {
+    icon: require("@/assets/images/icons/piercing_atk_icon.png"),
     background: "#BD8802"
   },
   mystic: {

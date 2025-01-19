@@ -72,7 +72,7 @@ const BANNER_DATA: Banner[] = [
         name: "Arona",
         image: "@/assets/images/characters/placeholder.png",
         rarity: 3,
-        atkType: "penetration",
+        atkType: "piercing",
         defType: "light",
         isNew: true,
         isLimited: true,
