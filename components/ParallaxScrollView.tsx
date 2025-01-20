@@ -4,7 +4,7 @@ import {
   type PropsWithChildren,
   type ReactElement,
 } from "react";
-import { StyleSheet } from "react-native";
+import { RefreshControl, StyleSheet } from "react-native";
 import Animated, {
   interpolate,
   SharedValue,
@@ -30,6 +30,8 @@ type Props = PropsWithChildren<{
     | SharedValue<boolean | "always" | "never" | "handled" | undefined>
     | undefined;
   headerBackgroundColor?: { dark: string; light: string };
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }>;
 
 const ParallaxScrollView = forwardRef(function ParallaxScrollView(
@@ -39,6 +41,8 @@ const ParallaxScrollView = forwardRef(function ParallaxScrollView(
     headerImage,
     keyboardShouldPersistTaps,
     headerBackgroundColor,
+    onRefresh,
+    refreshing = false,
   }: Props,
   ref
 ) {
@@ -81,6 +85,15 @@ const ParallaxScrollView = forwardRef(function ParallaxScrollView(
         scrollIndicatorInsets={{ bottom }}
         contentContainerStyle={{ paddingBottom: bottom }}
         keyboardShouldPersistTaps={keyboardShouldPersistTaps || "always"}
+        refreshControl={
+          onRefresh ? (
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              progressViewOffset={!noheader ? HEADER_HEIGHT : 0}
+            />
+          ) : undefined
+        }
       >
         {!noheader && (
           <Animated.View

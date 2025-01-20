@@ -1,27 +1,23 @@
 import {
   StyleSheet,
   Image,
-  Platform,
   View,
   ScrollView,
-  ImageSourcePropType,
+  RefreshControl,
 } from "react-native";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { useFocusEffect } from "@react-navigation/native";
 import {
   Card,
   Chip,
   Surface,
-  Divider,
-  IconButton,
   List,
   Searchbar,
   Menu,
   Button,
-  Portal,
-  Modal,
+  Divider,
+  ActivityIndicator,
 } from "react-native-paper";
 import { useRef, useState, useCallback, useMemo, useEffect } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -29,9 +25,9 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { typeColor } from "@/constants/Colors";
 import { AtkType, DefType } from "@/dto/game.dto";
 import CustomChip from "@/components/ui/customChip";
-import axios from "axios";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
+import React from "react";
 
 // Define types
 interface Character {
@@ -43,6 +39,7 @@ interface Character {
   defType: DefType;
   isNew?: boolean;
   isLimited?: boolean;
+  class: string;
 }
 
 interface Banner {
@@ -59,38 +56,24 @@ interface Banner {
 type SortOption = "date-asc" | "date-desc" | "name" | "rarity";
 type FilterType = "New" | "Rerun" | "Fes" | "Collab" | "All";
 
-// Mock data
-const BANNER_DATA: Banner[] = [
-  {
-    id: "1",
-    startDate: "2025-01-15",
-    endDate: "2025-02-05",
-    type: "Fes",
-    characters: [
-      {
-        id: "char1",
-        name: "Arona",
-        image: "@/assets/images/characters/placeholder.png",
-        rarity: 3,
-        atkType: "piercing",
-        defType: "light",
-        isNew: true,
-        isLimited: true,
-      },
-      {
-        id: "char2",
-        name: "Plana",
-        image: "@/assets/images/characters/placeholder.png",
-        rarity: 3,
-        atkType: "mystic",
-        defType: "elastic",
-      },
-    ],
-    eventDetails: "6% Rate for Fes characters!",
-    rewards: ["100 Free Pulls"],
-  },
-  // Add more banner data as needed
-];
+const CharacterClassBadge = ({ classType }: { classType: string }) => {
+  const getBadgeStyle = () => {
+    if (classType.toLowerCase() === "striker") {
+      return styles.strikerBadge;
+    } else if (classType.toLowerCase() === "special") {
+      return styles.specialBadge;
+    }
+    return styles.defaultBadge; // Optional default style
+  };
+
+  return (
+    <View style={[styles.classBadge, getBadgeStyle()]}>
+      <ThemedText type="small" style={styles.classText}>
+        {classType.toUpperCase()}
+      </ThemedText>
+    </View>
+  );
+};
 
 export default function FutureBannerScreen() {
   const scrollRef = useRef<{ resetScroll: () => void }>(null);
@@ -103,12 +86,9 @@ export default function FutureBannerScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
   const [filterType, setFilterType] = useState<FilterType>("All");
-  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(
-    null
-  );
   const [showSortMenu, setShowSortMenu] = useState(false);
-
-  const [banners, setBanners] = useState<Banner[]>(BANNER_DATA);
+  const [refreshing, setRefreshing] = useState(false);
+  const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState<boolean>(true); // For handling loading state
   const [error, setError] = useState<string | null>(null); // For error state
 
@@ -121,20 +101,11 @@ export default function FutureBannerScreen() {
     });
   };
 
-  const renderRarityStars = (rarity: number) => {
-    return "★".repeat(rarity);
-  };
   // Fetch banner data from the backend API
   const fetchBanners = useCallback(async () => {
     try {
       setLoading(true);
-      //const response = await axios.get("YOUR_BACKEND_API_URL");
-      //setBanners(response.data);
-
-      // firestore implementation
-      //console.log(db)
       const usersRef = collection(db, "banners");
-      //console.log(usersRef)
       const querySnapshot: any = await getDocs(usersRef);
       const bannersData = querySnapshot.docs.map((doc: any) => {
         const data = doc.data();
@@ -144,22 +115,28 @@ export default function FutureBannerScreen() {
           endDate: data.endDate,
           type: data.type,
           characters: data.characters || [],
-          eventDetails: data.eventDetails,
-          rewards: data.rewards || [],
         };
       });
 
       // Set the banners data to state
       setBanners(bannersData);
       //setBanners(querySnapshot)
-      
     } catch (err) {
-      console.log(err)
+      console.log(err);
       setError("Failed to load banners");
     } finally {
       setLoading(false);
     }
   }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await fetchBanners();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [fetchBanners]);
 
   // Fetch data on mount
   useEffect(() => {
@@ -275,7 +252,10 @@ export default function FutureBannerScreen() {
     >
       <Card.Content style={styles.characterContent}>
         <View style={styles.imageContainer}>
-          <Image source={{ uri: character.image }} style={styles.characterImage} />
+          <Image
+            source={{ uri: character.image }}
+            style={styles.characterImage}
+          />
           {character.isLimited && (
             <Image
               source={require("@/assets/images/characters/limited_icon.png")}
@@ -290,36 +270,15 @@ export default function FutureBannerScreen() {
             </ThemedText>
             {character.isNew && <CustomChip label="New" />}
           </ThemedView>
+          {character?.class && (
+            <CharacterClassBadge classType={character.class} />
+          )}
           <ThemedView style={styles.tags}>
-            {/* <Chip
-              compact={true}
-              style={[
-                styles.atkTypeChip,
-                { backgroundColor: typeColor[character.atkType]?.background },
-              ]}
-              textStyle={{ color: "#fff", fontSize: 10 }}
-            >
-              Atk:{" "}
-              {character.atkType.charAt(0).toUpperCase() +
-                character.atkType.slice(1)}
-            </Chip> */}
             <CustomChip
               bgColor={typeColor[character.atkType]?.background}
               icon={typeColor[character.atkType]?.icon}
               label={character.atkType}
             />
-            {/* <Chip
-              compact={true}
-              style={[
-                styles.defTypeChip,
-                { backgroundColor: typeColor[character.defType]?.background },
-              ]}
-              textStyle={{ color: "#fff", fontSize: 10 }}
-            >
-              Def:{" "}
-              {character.defType.charAt(0).toUpperCase() +
-                character.defType.slice(1)}
-            </Chip> */}
             <CustomChip
               bgColor={typeColor[character.defType]?.background}
               icon={typeColor[character.defType]?.icon}
@@ -331,11 +290,29 @@ export default function FutureBannerScreen() {
     </Card>
   );
 
+  if (loading && !refreshing) {
+    return (
+      <Surface
+        style={[styles.container, { paddingTop: insets.top }]}
+        elevation={0}
+      >
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" />
+          <ThemedText type="default" style={styles.loadingText}>
+            Loading banners...
+          </ThemedText>
+        </View>
+      </Surface>
+    );
+  }
+
   return (
     <ParallaxScrollView
       noheader={true}
       keyboardShouldPersistTaps="handled"
       ref={scrollRef}
+      onRefresh={onRefresh}
+      refreshing={refreshing}
     >
       <Surface
         style={[styles.container, { paddingTop: insets.top, backgroundColor }]}
@@ -343,153 +320,133 @@ export default function FutureBannerScreen() {
       >
         <ThemedView style={styles.titleContainer}>
           <ThemedText type="title">Future Banners</ThemedText>
+          <Button
+            icon="refresh"
+            mode="text"
+            compact={true}
+            onPress={onRefresh}
+            loading={refreshing}
+            disabled={refreshing}
+            labelStyle={styles.refreshBtnLabel}
+            contentStyle={styles.refreshBtnContent}
+          >
+            {""}
+          </Button>
         </ThemedView>
+        {error ? (
+          <View style={styles.errorContainer}>
+            <ThemedText type="default" style={styles.errorText}>
+              {error}
+            </ThemedText>
+            <Button mode="contained" onPress={fetchBanners}>
+              Try Again
+            </Button>
+          </View>
+        ) : (
+          <>
+            {/* Search and Filter Section */}
+            <ThemedView style={styles.filterSection}>
+              <Searchbar
+                placeholder="Search banners..."
+                onChangeText={setSearchQuery}
+                value={searchQuery}
+                style={styles.searchBar}
+              />
 
-        {/* Search and Filter Section */}
-        <ThemedView style={styles.filterSection}>
-          <Searchbar
-            placeholder="Search banners..."
-            onChangeText={setSearchQuery}
-            value={searchQuery}
-            style={styles.searchBar}
-          />
-
-          <ThemedView style={styles.filterRow}>
-            <Menu
-              visible={showSortMenu}
-              onDismiss={() => setShowSortMenu(false)}
-              anchor={
-                <Button
-                  mode="outlined"
-                  onPress={() => setShowSortMenu(true)}
-                  icon="sort"
+              <ThemedView style={styles.filterRow}>
+                <Menu
+                  visible={showSortMenu}
+                  onDismiss={() => setShowSortMenu(false)}
+                  anchor={
+                    <Button
+                      mode="outlined"
+                      onPress={() => setShowSortMenu(true)}
+                      icon="sort"
+                    >
+                      Sort
+                    </Button>
+                  }
                 >
-                  Sort
-                </Button>
-              }
-            >
-              <Menu.Item
-                onPress={() => {
-                  setSortOption("date-desc");
-                  setShowSortMenu(false);
-                }}
-                title="Newest First"
-              />
-              <Menu.Item
-                onPress={() => {
-                  setSortOption("date-asc");
-                  setShowSortMenu(false);
-                }}
-                title="Oldest First"
-              />
-              {/* <Menu.Item
-                onPress={() => {
-                  setSortOption("name");
-                  setShowSortMenu(false);
-                }}
-                title="Name"
-              />
-              <Menu.Item
-                onPress={() => {
-                  setSortOption("rarity");
-                  setShowSortMenu(false);
-                }}
-                title="Rarity"
-              /> */}
-            </Menu>
-
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={styles.filterChips}
-            >
-              {(["All", "New", "Rerun", "Fes", "Collab"] as FilterType[]).map(
-                (type) => (
-                  <Chip
-                    key={type}
-                    selected={filterType === type}
-                    onPress={() => setFilterType(type)}
-                    style={styles.filterChip}
-                  >
-                    {type}
-                  </Chip>
-                )
-              )}
-            </ScrollView>
-          </ThemedView>
-        </ThemedView>
-
-        {/* Banners List */}
-        <View style={styles.bannerList}>
-          {filteredAndSortedBanners.map((banner) => (
-            <Card
-              style={[styles.bannerCard, { backgroundColor: cardBackground }]}
-              key={banner.id}
-            >
-              <List.Accordion
-                title={
-                  banner.characters[0].name + " - " + banner.type + " Banner"
-                }
-                description={`${formatDate(banner.startDate)} - ${formatDate(
-                  banner.endDate
-                )}`}
-                titleNumberOfLines={2}
-                expanded={expandedBanner === banner.id}
-                onPress={() =>
-                  setExpandedBanner(
-                    expandedBanner === banner.id ? null : banner.id
-                  )
-                }
-                left={(props) => (
-                  <Image
-                    source={{ uri: banner.characters[0].image}}
-                    style={styles.accordionCharacterImage}
+                  <Menu.Item
+                    onPress={() => {
+                      setSortOption("date-desc");
+                      setShowSortMenu(false);
+                    }}
+                    title="Newest First"
                   />
-                )}
-              >
-                {/* {banner.eventDetails && (
-                  <Card
-                    style={[
-                      styles.eventCard,
-                      { backgroundColor: cardBackground },
-                    ]}
-                  >
-                    <Card.Content>
-                      {banner.eventDetails && (
-                        <ThemedText type="default" style={styles.eventDetails}>
-                          {banner.eventDetails}
-                        </ThemedText>
-                      )}
-                      {banner.rewards && (
-                        <View style={styles.rewardsContainer}>
-                          <ThemedText
-                            type="cardtitle"
-                            style={styles.rewardsTitle}
-                          >
-                            Rewards:
-                          </ThemedText>
-                          {banner.rewards.map((reward, index) => (
-                            <ThemedText
-                              key={index}
-                              type="default"
-                              style={styles.reward}
-                            >
-                              • {reward}
-                            </ThemedText>
-                          ))}
-                        </View>
-                      )}
-                    </Card.Content>
-                  </Card>
-                )} */}
-                <View style={styles.charactersContainer}>
-                  {banner.characters.map(renderCharacterCard)}
-                </View>
-              </List.Accordion>
-            </Card>
-          ))}
-        </View>
+                  <Menu.Item
+                    onPress={() => {
+                      setSortOption("date-asc");
+                      setShowSortMenu(false);
+                    }}
+                    title="Oldest First"
+                  />
+                </Menu>
 
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.filterChips}
+                >
+                  {(
+                    ["All", "New", "Rerun", "Fes", "Collab"] as FilterType[]
+                  ).map((type) => (
+                    <Chip
+                      key={type}
+                      selected={filterType === type}
+                      onPress={() => setFilterType(type)}
+                      style={styles.filterChip}
+                    >
+                      {type}
+                    </Chip>
+                  ))}
+                </ScrollView>
+              </ThemedView>
+            </ThemedView>
+
+            {/* Banners List */}
+            <View style={styles.bannerList}>
+              {filteredAndSortedBanners.map((banner) => (
+                <Card
+                  style={[
+                    styles.bannerCard,
+                    { backgroundColor: cardBackground },
+                  ]}
+                  key={banner.id}
+                >
+                  <List.Accordion
+                    title={
+                      banner.characters[0].name +
+                      " - " +
+                      banner.type +
+                      " Banner"
+                    }
+                    description={`${formatDate(
+                      banner.startDate
+                    )} - ${formatDate(banner.endDate)}`}
+                    titleNumberOfLines={2}
+                    expanded={expandedBanner === banner.id}
+                    onPress={() =>
+                      setExpandedBanner(
+                        expandedBanner === banner.id ? null : banner.id
+                      )
+                    }
+                    left={(props) => (
+                      <Image
+                        source={{ uri: banner.characters[0].image }}
+                        style={styles.accordionCharacterImage}
+                      />
+                    )}
+                  >
+                    <View style={styles.charactersContainer}>
+                      {banner.characters.map(renderCharacterCard)}
+                    </View>
+                  </List.Accordion>
+                </Card>
+              ))}
+            </View>
+          </>
+        )}
         {/* <CharacterModal /> */}
       </Surface>
     </ParallaxScrollView>
@@ -500,10 +457,39 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 12,
+  },
+  errorContainer: {
+    padding: 20,
+    alignItems: "center",
+    gap: 16,
+  },
+  errorText: {
+    textAlign: "center",
+    color: "#DC2626",
+  },
   titleContainer: {
     flexDirection: "row",
     marginBottom: 16,
     alignItems: "center",
+    justifyContent: "space-between",
+  },
+  refreshBtnContent: {
+    marginHorizontal: 8,
+    borderRadius: 50,
+    padding: 0,
+    flexDirection: "row-reverse",
+  },
+  refreshBtnLabel: {
+    margin: 0,
+    marginHorizontal: 0,
   },
   filterSection: {
     marginBottom: 16,
@@ -582,13 +568,35 @@ const styles = StyleSheet.create({
   characterName: {
     flex: 1,
   },
+  classBadge: {
+    backgroundColor: "#2D3748",
+    paddingHorizontal: 10,
+    paddingVertical: 0,
+    borderRadius: 4,
+    alignSelf: "flex-start",
+  },
+  strikerBadge: {
+    backgroundColor: "red",
+  },
+  specialBadge: {
+    backgroundColor: "blue",
+  },
+  defaultBadge: {
+    backgroundColor: "gray", // Optional default color
+  },
+  classText: {
+    color: "#FFF",
+    fontSize: 10,
+    fontWeight: "600",
+    letterSpacing: 0.5,
+  },
   statusChips: {
     flexDirection: "row",
     gap: 4,
   },
   //   limited
   limitedChip: {
-    backgroundColor: "#FFB74D", // Orange color to distinguish from the 'NEW' chip
+    backgroundColor: "#FFFFFF",
   },
   limitedChipText: {
     color: "white",
@@ -604,7 +612,7 @@ const styles = StyleSheet.create({
   },
   limitedBadge: {
     position: "absolute",
-    bottom: -4,
+    top: 60,
     left: -4,
     backgroundColor: "#FFB74D",
     borderRadius: 12,
@@ -626,7 +634,7 @@ const styles = StyleSheet.create({
   },
   tags: {
     flexDirection: "row",
-    marginTop: 8,
+    marginTop: 4,
     gap: 8,
   },
   atkTypeChip: {
