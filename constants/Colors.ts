@@ -28,8 +28,8 @@ export const Colors = {
 };
 
 export const typeColor: Record<AtkType | DefType, { icon: any, background: string }> = {
-  explosion: {
-    icon: require("@/assets/images/icons/explosion_atk_icon.png"),
+  explosive: {
+    icon: require("@/assets/images/icons/explosive_atk_icon.png"),
     background: "#910008"
   },
   piercing: {
