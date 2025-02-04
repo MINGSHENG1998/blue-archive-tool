@@ -1,11 +1,9 @@
-import { Image, StyleSheet, Platform, View, Text } from "react-native";
-import { useRouter, useFocusEffect } from "expo-router";
-import { HelloWave } from "@/components/HelloWave";
+import { Image, StyleSheet, View, Text } from "react-native";
+import { useRouter } from "expo-router";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import InlineAd from "../ads/InlineAd";
-import { Button, Card, FAB, IconButton, MD3Colors } from "react-native-paper";
+import { Card, IconButton } from "react-native-paper";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -21,13 +19,12 @@ export default function HomeScreen() {
     >
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Blue Archive Helper</ThemedText>
-        {/* <HelloWave /> */}
       </ThemedView>
       <ThemedView style={styles.featureContainer}>
         <Card>
           <Text style={styles.cardTitle}>Tools</Text>
           <View style={styles.toolsBtnContainer}>
-          <View style={styles.toolsBtnWrapper}>
+            <View style={styles.toolsBtnWrapper}>
               <IconButton
                 icon="calendar"
                 iconColor="skyblue"
@@ -36,7 +33,9 @@ export default function HomeScreen() {
                 style={styles.toolsBtn}
                 onPress={() => router.replace("/(tabs)/banner")}
               />
-              <ThemedText style={styles.toolsBtnLabel}>Future Banner</ThemedText>
+              <ThemedText style={styles.toolsBtnLabel}>
+                Future Banner
+              </ThemedText>
             </View>
             <View style={styles.toolsBtnWrapper}>
               <IconButton
@@ -51,51 +50,25 @@ export default function HomeScreen() {
             </View>
             <View style={styles.toolsBtnWrapper}>
               <IconButton
-                icon="wrench"                
+                icon="wrench"
                 size={30}
                 mode="contained"
                 style={styles.toolsBtn}
               />
-              <ThemedText style={styles.toolsBtnLabel}>Wip</ThemedText>
+              <ThemedText style={styles.toolsBtnLabel}>Coming Soon</ThemedText>
             </View>
           </View>
         </Card>
       </ThemedView>
       {/* <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">1: Future Banner List</ThemedText>
-        <ThemedText>
-          Edit{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-          to see changes. Press{" "}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: "cmd + d",
-              android: "cmd + m",
-              web: "F12",
-            })}
-          </ThemedText>{" "}
-          to open developer tools.
-        </ThemedText>
+        <ThemedText type="subtitle">1: Future Banner List (done)</ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">2: Bond Exp Calculator</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this
-          starter app.
-        </ThemedText>
+        <ThemedText type="subtitle">2: Bond Exp Calculator (done)</ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">3: Pyrox Income Calculator</ThemedText>
-        <ThemedText>
-          When you're ready, run{" "}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText>{" "}
-          to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{" "}
-          directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
+        <ThemedText type="subtitle">3: Pyrox Income Calculator (done)</ThemedText>
       </ThemedView> */}
-      <InlineAd />
     </ParallaxScrollView>
   );
 }

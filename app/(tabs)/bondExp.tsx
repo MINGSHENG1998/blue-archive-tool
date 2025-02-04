@@ -256,7 +256,7 @@ export default function BondExpScreen() {
                 <ThemedText style={styles.estimatedTime}>
                   Estimated Time:{" "}
                   {totalExp > monthlyExpGain
-                    ? Math.ceil(totalExp / monthlyExpGain) + "month(s)"
+                    ? Math.ceil(totalExp / monthlyExpGain) + " month(s)"
                     : "less than a month"}
                 </ThemedText>
               </Card.Content>

@@ -84,7 +84,7 @@ export default function FutureBannerScreen() {
   // State
   const [expandedBanner, setExpandedBanner] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOption, setSortOption] = useState<SortOption>("date-desc");
+  const [sortOption, setSortOption] = useState<SortOption>("date-asc");
   const [filterType, setFilterType] = useState<FilterType>("All");
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -107,22 +107,28 @@ export default function FutureBannerScreen() {
       setLoading(true);
       const usersRef = collection(db, "banners");
       const querySnapshot: any = await getDocs(usersRef);
-      const bannersData = querySnapshot.docs.map((doc: any) => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          startDate: data.startDate,
-          endDate: data.endDate,
-          type: data.type,
-          characters: data.characters || [],
-        };
-      });
+      const currentDateTime = new Date();
+      const bannersData = querySnapshot.docs
+        .map((doc: any) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            startDate: data.startDate,
+            endDate: data.endDate,
+            type: data.type,
+            characters: data.characters || [],
+          };
+        })
+        .filter((banner: any) => {
+          let endDate = new Date(banner.endDate);
+          // Ensure the date is valid before comparison
+          return !isNaN(endDate.getTime()) && endDate > currentDateTime;
+        });
 
       // Set the banners data to state
       setBanners(bannersData);
       //setBanners(querySnapshot)
     } catch (err) {
-      console.log(err);
       setError("Failed to load banners");
     } finally {
       setLoading(false);
@@ -369,17 +375,17 @@ export default function FutureBannerScreen() {
                 >
                   <Menu.Item
                     onPress={() => {
-                      setSortOption("date-desc");
-                      setShowSortMenu(false);
-                    }}
-                    title="Newest First"
-                  />
-                  <Menu.Item
-                    onPress={() => {
                       setSortOption("date-asc");
                       setShowSortMenu(false);
                     }}
-                    title="Oldest First"
+                    title="Earliest First"
+                  />
+                  <Menu.Item
+                    onPress={() => {
+                      setSortOption("date-desc");
+                      setShowSortMenu(false);
+                    }}
+                    title="Latest First"
                   />
                 </Menu>
 

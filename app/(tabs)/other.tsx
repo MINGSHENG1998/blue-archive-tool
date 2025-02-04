@@ -1,6 +1,15 @@
 import { StyleSheet, Image, Platform, Linking } from "react-native";
-import { useCallback } from "react";
-import { List, Divider, Surface, IconButton, Button } from "react-native-paper";
+import { useCallback, useState } from "react";
+import {
+  List,
+  Divider,
+  Surface,
+  IconButton,
+  Button,
+  Modal,
+  Portal,
+  Text,
+} from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Collapsible } from "@/components/Collapsible";
@@ -9,12 +18,18 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
+import InlineAd from "../ads/InlineAd";
 
 export default function OtherScreen() {
   const insets = useSafeAreaInsets();
+  const [visible, setVisible] = useState(false);
 
+  const showModal = () => setVisible(true);
+  const hideModal = () => setVisible(false);
   const handleFeedback = useCallback(() => {
-    Linking.openURL("mailto:chillandcodestudio@gmail.com?subject=App (Blue Archive Tool) Feedback");
+    Linking.openURL(
+      "mailto:chillandcodestudio@gmail.com?subject=App (Blue Archive Tool) Feedback"
+    );
   }, []);
 
   return (
@@ -74,19 +89,47 @@ export default function OtherScreen() {
         <Divider style={styles.divider} />
 
         {/* About Section */}
-        <List.Section>
+        <List.Section style={styles.aboutSection}>
           <List.Subheader>About</List.Subheader>
           <List.Item
             title="Version"
             description="1.0.0"
             left={(props) => <List.Icon {...props} icon="information" />}
           />
+          <List.Item
+            title="Disclaimer"
+            description="Tap to view"
+            left={(props) => <List.Icon {...props} icon="folder" />}
+            onPress={showModal}
+          />
+
+          <Portal>
+            <Modal
+              visible={visible}
+              onDismiss={hideModal}
+              contentContainerStyle={{
+                backgroundColor: "#404040",
+                padding: 20,
+                margin: 20,
+                borderRadius: 10,
+              }}
+            >
+              <Text style={{ marginBottom: 20, fontWeight: "bold", color: "white" }}>
+                Disclaimer
+              </Text>
+              <Text style={{ marginBottom: 20, color: "white" }}>
+                This app is just a fan project. I do not own any assets or
+                intellectual property associated with this content.
+              </Text>
+              <Button onPress={hideModal} textColor="white">Close</Button>
+            </Modal>
+          </Portal>
           {/* <List.Item
             title="Terms of Service"
             left={(props) => <List.Icon {...props} icon="file-document" />}
             right={(props) => <List.Icon {...props} icon="chevron-right" />}
           />
-          <List.Item
+         {/*  <List.Item
             title="Privacy Policy"
             left={(props) => <List.Icon {...props} icon="shield-check" />}
             right={(props) => <List.Icon {...props} icon="chevron-right" />}
@@ -101,6 +144,8 @@ export default function OtherScreen() {
         >
           Sign Out
         </Button> */}
+        <Divider style={styles.divider} />
+        <InlineAd />
       </Surface>
     </ParallaxScrollView>
   );
@@ -130,5 +175,8 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: "row",
     gap: 8,
+  },
+  aboutSection: {
+    marginBottom: 8,
   },
 });
