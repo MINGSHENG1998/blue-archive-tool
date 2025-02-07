@@ -585,7 +585,7 @@ const styles = StyleSheet.create({
     backgroundColor: "red",
   },
   specialBadge: {
-    backgroundColor: "blue",
+    backgroundColor: "#007BFF",
   },
   defaultBadge: {
     backgroundColor: "gray", // Optional default color

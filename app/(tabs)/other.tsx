@@ -99,7 +99,7 @@ export default function OtherScreen() {
           <List.Item
             title="Disclaimer"
             description="Tap to view"
-            left={(props) => <List.Icon {...props} icon="folder" />}
+            left={(props) => <List.Icon {...props} icon="hand-front-right" />}
             onPress={showModal}
           />
 

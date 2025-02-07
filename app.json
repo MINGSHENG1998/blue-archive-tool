@@ -2,7 +2,7 @@
   "expo": {
     "name": "blue-archive-tool",
     "slug": "blue-archive-tool",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -26,6 +26,9 @@
       "config": {
         "googleMobileAdsAppId": "ca-app-pub-7252717983754109~5997726897"
       },
+      "permissions": [
+        "com.google.android.gms.permission.AD_ID"
+      ],
       "package": "com.ms_oldhorse.bluearchivetool"
     },
     "web": {
