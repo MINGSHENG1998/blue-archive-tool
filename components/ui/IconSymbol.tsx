@@ -16,6 +16,7 @@ const MAPPING = {
   'heart.fill': 'favorite',
   'diamond.fill': 'diamond',
   'date.fill': 'date-range',
+  'calc.fill': 'assessment',
   'money.fill': 'attach-money',
   'mics.fill': 'more-horiz'
 } as Partial<

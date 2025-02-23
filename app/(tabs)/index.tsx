@@ -50,12 +50,13 @@ export default function HomeScreen() {
             </View>
             <View style={styles.toolsBtnWrapper}>
               <IconButton
-                icon="wrench"
+                icon="chart-box"
                 size={30}
                 mode="contained"
                 style={styles.toolsBtn}
+                onPress={() => router.replace("/(tabs)/resourceCalc")}
               />
-              <ThemedText style={styles.toolsBtnLabel}>Coming Soon</ThemedText>
+              <ThemedText style={styles.toolsBtnLabel}>Chara Builder</ThemedText>
             </View>
           </View>
         </Card>

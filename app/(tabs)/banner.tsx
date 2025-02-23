@@ -28,6 +28,7 @@ import CustomChip from "@/components/ui/customChip";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 import React from "react";
+import InlineAd from "../ads/InlineAd";
 
 // Define types
 interface Character {
@@ -454,6 +455,7 @@ export default function FutureBannerScreen() {
           </>
         )}
         {/* <CharacterModal /> */}
+        <InlineAd />
       </Surface>
     </ParallaxScrollView>
   );
