@@ -11,7 +11,7 @@ import {
   Text,
 } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import appJson from '../../app.json';
+import * as Application from "expo-application";
 import { Collapsible } from "@/components/Collapsible";
 import { ExternalLink } from "@/components/ExternalLink";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
@@ -93,7 +93,7 @@ export default function OtherScreen() {
           <List.Subheader>About</List.Subheader>
           <List.Item
             title="Version"
-            description={appJson.expo.version}
+            description={Application.nativeApplicationVersion || "1.0.2"}
             left={(props) => <List.Icon {...props} icon="information" />}
           />
           <List.Item
@@ -114,14 +114,18 @@ export default function OtherScreen() {
                 borderRadius: 10,
               }}
             >
-              <Text style={{ marginBottom: 20, fontWeight: "bold", color: "white" }}>
+              <Text
+                style={{ marginBottom: 20, fontWeight: "bold", color: "white" }}
+              >
                 Disclaimer
               </Text>
               <Text style={{ marginBottom: 20, color: "white" }}>
                 This app is just a fan project. I do not own any assets or
                 intellectual property associated with this content.
               </Text>
-              <Button onPress={hideModal} textColor="white">Close</Button>
+              <Button onPress={hideModal} textColor="white">
+                Close
+              </Button>
             </Modal>
           </Portal>
           {/* <List.Item
