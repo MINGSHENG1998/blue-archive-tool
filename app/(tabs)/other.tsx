@@ -11,7 +11,7 @@ import {
   Text,
 } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
+import appJson from '../../app.json';
 import { Collapsible } from "@/components/Collapsible";
 import { ExternalLink } from "@/components/ExternalLink";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
@@ -93,7 +93,7 @@ export default function OtherScreen() {
           <List.Subheader>About</List.Subheader>
           <List.Item
             title="Version"
-            description="1.0.0"
+            description={appJson.expo.version}
             left={(props) => <List.Icon {...props} icon="information" />}
           />
           <List.Item
