@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
 import { IconButton } from "react-native-paper";
 import { useEffect, useRef } from "react";
 
@@ -43,7 +42,7 @@ export default function HomeScreen() {
       title: "Future Banner",
       subtitle: "Check upcoming banners",
       icon: "calendar-clock",
-      gradient: ["#667EEA", "#764BA2"],
+      gradient: ["#1E3A8A", "#3B82F6", "#06B6D4"],
       route: "/(tabs)/banner",
     },
     {
@@ -51,7 +50,7 @@ export default function HomeScreen() {
       title: "Bond Experience",
       subtitle: "Calculate bond experience",
       icon: "heart-multiple",
-      gradient: ["#FF6B9D", "#C44569"],
+      gradient: ["#BE185D", "#EC4899", "#F472B6"],
       route: "/(tabs)/bondExp",
     },
     {
@@ -59,7 +58,7 @@ export default function HomeScreen() {
       title: "Character Builder",
       subtitle: "Build your characters",
       icon: "account-cog",
-      gradient: ["#00D4AA", "#00A693"],
+      gradient: ["#059669", "#10B981", "#34D399"],
       route: "/(tabs)/resourceCalc",
     },
   ];
@@ -113,12 +112,11 @@ export default function HomeScreen() {
                 <Text style={styles.cardTitle}>{tool.title}</Text>
                 <Text style={styles.cardSubtitle}>{tool.subtitle}</Text>
               </View>
-
-              <View style={styles.arrowContainer}>
-                <Text style={styles.arrow}>→</Text>
-              </View>
             </View>
           </LinearGradient>
+          
+          {/* Blue Archive style accent border */}
+          <View style={styles.cardAccent} />
         </TouchableOpacity>
       </Animated.View>
     );
@@ -126,7 +124,10 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#F8FAFC" />
+      <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+      
+      {/* Background pattern overlay */}
+      <View style={styles.backgroundPattern} />
       
       <ScrollView 
         style={styles.scrollView}
@@ -149,11 +150,13 @@ export default function HomeScreen() {
               style={styles.avatar}
             />
             <View style={styles.avatarBorder} />
+            <View style={styles.avatarGlow} />
           </View>
           
           <View style={styles.headerText}>
             <Text style={styles.greeting}>Hello Sensei!</Text>
             <Text style={styles.appName}>Blue Archive Helper</Text>
+            <View style={styles.titleUnderline} />
           </View>
         </Animated.View>
 
@@ -167,7 +170,10 @@ export default function HomeScreen() {
             }
           ]}
         >
-          <Text style={styles.sectionTitle}>Quick Tools</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Quick Tools</Text>
+            <View style={styles.sectionAccent} />
+          </View>
           
           <View style={styles.toolsContainer}>
             {tools.map((tool, index) => renderToolCard(tool, index))}
@@ -184,7 +190,16 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
+    backgroundColor: "#0F172A", // Dark navy background
+  },
+  backgroundPattern: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "#0F172A",
+    opacity: 0.8,
   },
   scrollView: {
     flex: 1,
@@ -216,31 +231,58 @@ const styles = StyleSheet.create({
     bottom: -3,
     borderRadius: 31,
     borderWidth: 2,
-    borderColor: "#667EEA",
+    borderColor: "#00F5FF", // Cyan accent
+  },
+  avatarGlow: {
+    position: "absolute",
+    top: -6,
+    left: -6,
+    right: -6,
+    bottom: -6,
+    borderRadius: 34,
+    borderWidth: 1,
+    borderColor: "#00F5FF",
+    opacity: 0.3,
   },
   headerText: {
     flex: 1,
   },
   greeting: {
     fontSize: 16,
-    color: "#64748B",
+    color: "#94A3B8", // Light gray
     fontWeight: "500",
     marginBottom: 4,
   },
   appName: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#1E293B",
+    color: "#F1F5F9", // Near white
     letterSpacing: -0.5,
+    marginBottom: 8,
+  },
+  titleUnderline: {
+    width: 40,
+    height: 3,
+    backgroundColor: "#00F5FF",
+    borderRadius: 2,
   },
   toolsSection: {
     paddingHorizontal: 24,
   },
+  sectionHeader: {
+    marginBottom: 24,
+  },
   sectionTitle: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#1E293B",
-    marginBottom: 24,
+    color: "#F1F5F9",
+    marginBottom: 8,
+  },
+  sectionAccent: {
+    width: 60,
+    height: 2,
+    backgroundColor: "#00F5FF",
+    borderRadius: 1,
   },
   toolsContainer: {
     gap: 16,
@@ -248,14 +290,17 @@ const styles = StyleSheet.create({
   toolCard: {
     borderRadius: 20,
     overflow: "hidden",
-    shadowColor: "#000",
+    shadowColor: "#00F5FF",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 12,
-    elevation: 4,
+    elevation: 8,
+    position: "relative",
   },
   cardGradient: {
     padding: 24,
+    borderWidth: 1,
+    borderColor: "rgba(0, 245, 255, 0.2)", // Subtle cyan border
   },
   cardContent: {
     flexDirection: "row",
@@ -276,12 +321,12 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "white",
+    color: "#F1F5F9", // Near white
     marginBottom: 4,
   },
   cardSubtitle: {
     fontSize: 14,
-    color: "rgba(255, 255, 255, 0.8)",
+    color: "rgba(241, 245, 249, 0.7)", // Translucent white
     fontWeight: "400",
   },
   arrowContainer: {
@@ -296,6 +341,15 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "600",
+  },
+  cardAccent: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 2,
+    backgroundColor: "#00F5FF",
+    opacity: 0.8,
   },
   bottomSpacing: {
     height: 40,

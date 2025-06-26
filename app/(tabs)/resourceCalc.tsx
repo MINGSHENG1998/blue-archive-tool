@@ -37,9 +37,9 @@ export default function ResourceCalcScreen() {
     React.useCallback(() => {
       // Reset state and scroll position
       setCalculatorType("character");
-    
+
       setError("");
-    
+
       scrollRef.current?.resetScroll();
       return () => {};
     }, [])
@@ -48,9 +48,7 @@ export default function ResourceCalcScreen() {
   const renderCalculator = () => {
     switch (calculatorType) {
       case "character":
-        return (
-          <CharaExpCalc />
-        );
+        return <CharaExpCalc />;
       case "skill":
         return <ElephCalc />;
       case "other":
@@ -73,7 +71,7 @@ export default function ResourceCalcScreen() {
         <ThemedView style={styles.titleContainer}>
           <ThemedText type="title">Resource Calculator</ThemedText>
         </ThemedView>
-
+        <View style={styles.sectionAccent} />
         <SegmentedButtons
           value={calculatorType}
           onValueChange={setCalculatorType}
@@ -101,6 +99,12 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flexDirection: "row",
+  },
+  sectionAccent: {
+    width: 60,
+    height: 2,
+    backgroundColor: "#00F5FF",
+    borderRadius: 1,
     marginBottom: 16,
   },
   segmentedButtons: {

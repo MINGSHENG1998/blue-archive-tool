@@ -1,4 +1,4 @@
-import { StyleSheet, Image, Platform, Linking } from "react-native";
+import { StyleSheet, Image, Platform, Linking, View } from "react-native";
 import { useCallback, useState } from "react";
 import {
   List,
@@ -41,6 +41,7 @@ export default function OtherScreen() {
         <ThemedView style={styles.titleContainer}>
           <ThemedText type="title">About</ThemedText>
         </ThemedView>
+         <View style={styles.sectionAccent} />
         {/* App Settings Section */}
         {/* <List.Section>
           <List.Subheader>App Settings</List.Subheader>
@@ -164,6 +165,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginVertical: 16,
     paddingHorizontal: 16,
+  },
+  sectionAccent: {
+    width: 60,
+    height: 2,
+    backgroundColor: "#00F5FF",
+    borderRadius: 1,
+    marginBottom: 16,
   },
   divider: {
     marginVertical: 8,

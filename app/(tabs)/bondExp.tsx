@@ -119,8 +119,9 @@ export default function BondExpScreen() {
         elevation={0}
       >
         <ThemedView style={styles.titleContainer}>
-          <ThemedText type="title">Bond Exp Calculator</ThemedText>
+          <ThemedText type="title">Bond Exp Calculator</ThemedText>         
         </ThemedView>
+         <View style={styles.sectionAccent} />
         <ThemedText>
           Insert your current bond level and target bond level
         </ThemedText>
@@ -311,6 +312,13 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: "row",
     gap: 8,
+  },
+  sectionAccent: {
+    width: 60,
+    height: 2,
+    backgroundColor: "#00F5FF",
+    borderRadius: 1,
+    marginBottom: 16,
   },
   container: {
     flex: 1,
