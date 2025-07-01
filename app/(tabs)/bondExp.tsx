@@ -5,6 +5,9 @@ import {
   Keyboard,
   View,
   Text,
+  Dimensions,
+  Animated,
+  Pressable,
 } from "react-native";
 
 import { Collapsible } from "@/components/Collapsible";
@@ -25,6 +28,7 @@ import {
   HelperText,
   Surface,
   Divider,
+  ActivityIndicator,
 } from "react-native-paper";
 import { useRef, useState } from "react";
 
@@ -32,6 +36,40 @@ import { useRef, useState } from "react";
 import { bondExpData, bondResourceTable } from "../../constants/bondData";
 import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useThemeColor } from "@/hooks/useThemeColor";
+
+const { width } = Dimensions.get("window");
+
+// Animated Card Component (matching banner page)
+const AnimatedCard = ({ children, style, ...props }: any) => {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.98,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  return (
+    <Animated.View style={[{ transform: [{ scale: scaleAnim }] }, style]}>
+      <Pressable
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        {...props}
+      >
+        {children}
+      </Pressable>
+    </Animated.View>
+  );
+};
 
 export default function BondExpScreen() {
   const scrollRef = useRef<{ resetScroll: () => void }>(null);
@@ -39,6 +77,7 @@ export default function BondExpScreen() {
   const [to, setTo]: any = useState("100");
   const [error, setError] = useState("");
   const [totalExp, setTotalExp]: any = useState(null);
+  const [calculating, setCalculating] = useState(false);
 
   //table
   const [sortDirection, setSortDirection] = useState("desc");
@@ -55,8 +94,10 @@ export default function BondExpScreen() {
     expSource.pat * 15 + expSource.monthlyGift * 60 + 2410
   );
   const insets = useSafeAreaInsets();
+  const backgroundColor = useThemeColor({}, "background");
+  const cardBackground = useThemeColor({}, "background");
 
-  const handleCalculate = () => {
+  const handleCalculate = async () => {
     const fromValue = parseInt(from, 10);
     const toValue = parseInt(to, 10);
 
@@ -67,12 +108,21 @@ export default function BondExpScreen() {
       toValue <= 100 &&
       fromValue < toValue
     ) {
+      setCalculating(true);
       setError("");
-      const totalExp =
-        bondExpData[toValue - 1].totalExp - bondExpData[fromValue - 1].totalExp;
-      setTotalExp(totalExp);
-      setMonthlyExpGain(expSource.pat * 15 + expSource.monthlyGift * 60 + 2410);
-      Keyboard.dismiss();
+
+      // Add slight delay for better UX
+      setTimeout(() => {
+        const totalExp =
+          bondExpData[toValue - 1].totalExp -
+          bondExpData[fromValue - 1].totalExp;
+        setTotalExp(totalExp);
+        setMonthlyExpGain(
+          expSource.pat * 15 + expSource.monthlyGift * 60 + 2410
+        );
+        setCalculating(false);
+        Keyboard.dismiss();
+      }, 300);
     } else {
       setError(
         'Please ensure "from" is 1-99, "to" is 2-100, and "from" < "to".'
@@ -95,6 +145,12 @@ export default function BondExpScreen() {
     setSortedData(sorted);
   };
 
+  const getEstimatedDays = () => {
+    if (!totalExp) return null;
+    const dailyExp = expSource.pat * 15 + expSource.monthlyGift * 2 + 80; // Rough daily calculation
+    return Math.ceil(totalExp / dailyExp);
+  };
+
   useFocusEffect(
     React.useCallback(() => {
       // Reset state and scroll position
@@ -114,194 +170,312 @@ export default function BondExpScreen() {
       keyboardShouldPersistTaps="handled"
       ref={scrollRef}
     >
+      <View style={styles.backgroundPattern} />
       <Surface
-        style={[styles.container, { paddingTop: insets.top }]}
+        style={[styles.container, { paddingTop: insets.top, backgroundColor }]}
         elevation={0}
       >
         <ThemedView style={styles.titleContainer}>
-          <ThemedText type="title">Bond Exp Calculator</ThemedText>         
-        </ThemedView>
-         <View style={styles.sectionAccent} />
-        <ThemedText>
-          Insert your current bond level and target bond level
-        </ThemedText>
-        <ThemedView style={styles.container}>
-          <ThemedView style={styles.row}>
-            <TextInput
-              mode="outlined"
-              label="Current Level"
-              placeholder="1 - 99"
-              value={from}
-              onChangeText={(text) => {
-                const numericValue = parseInt(text, 10);
-                if (
-                  !isNaN(numericValue) &&
-                  numericValue >= 1 &&
-                  numericValue <= 99
-                ) {
-                  setFrom(text);
-                } else if (text === "") {
-                  setFrom("");
-                }
-              }}
-              keyboardType="numeric"
-              maxLength={2}
-              style={[styles.input, styles.halfInput]}
-              right={
-                from !== "" && (
-                  <TextInput.Icon
-                    icon="close"
-                    size={16}
-                    onPress={() => setFrom("")}
-                    style={{ display: from ? "flex" : "none" }}
-                  />
-                )
-              }
-            />
-            <TextInput
-              mode="outlined"
-              label="Target Level"
-              placeholder="2 - 100"
-              value={to}
-              onChangeText={(text) => {
-                const numericValue = parseInt(text, 10);
-                if (
-                  !isNaN(numericValue) &&
-                  numericValue >= 1 &&
-                  numericValue <= 100
-                ) {
-                  setTo(text);
-                } else if (text === "") {
-                  setTo("");
-                }
-              }}
-              keyboardType="numeric"
-              maxLength={3}
-              style={[styles.input, styles.halfInput]}
-              right={
-                to !== "" && (
-                  <TextInput.Icon
-                    icon="close"
-                    size={16}
-                    onPress={() => setTo("")}
-                    style={{ display: to ? "flex" : "none" }}
-                  />
-                )
-              }
-            />
-          </ThemedView>
-          {error && (
-            <HelperText type="error" visible={!!error}>
-              {error}
-            </HelperText>
-          )}
-          {/* Advanced Settings */}
-          <ThemedView style={styles.advancedSettings}>
-            <Collapsible
-              title="Advanced Settings"
-              iconSize={12}
-              fontType={"smallSemiBold"}
-            >
-              <Card style={styles.advancedSettingsCard}>
-                <View style={styles.advancedSettingsSubtitle}>
-                  <ThemedText type="cardtitle">Config for Estimated Days</ThemedText>
-                  <Divider style={styles.advancedSettingsSubtitleDivider}/>
-                </View>
-                <View style={styles.numberInputContainer}>
-                  <NumberInput
-                    value={expSource.pat}
-                    onChange={(value) =>
-                      setExpSource({ ...expSource, pat: value })
-                    }
-                    min={0}
-                    max={6}
-                    label="Cafe Pat /day"
-                  />
-                </View>
-                <View style={styles.numberInputContainer}>
-                  <NumberInput
-                    value={expSource.monthlyGift}
-                    onChange={(value) =>
-                      setExpSource({ ...expSource, monthlyGift: value })
-                    }
-                    min={0}
-                    max={200}
-                    label="Gift (60Exp) /month"
-                  />
-                </View>
-              </Card>
-            </Collapsible>
-          </ThemedView>
-          <Button
-            mode="contained"
-            onPress={handleCalculate}
-            style={styles.button}
-          >
-            Calculate
-          </Button>
-        </ThemedView>
-        {totalExp && (
-          <ThemedView style={styles.resultSection}>
-            {/* <Card.Title
-            title={`Required Exp: ${totalExp}`}
-            titleStyle={styles.totalExp}
-          /> */}
-            <Card style={[styles.card, styles.resultCard]}>
-              <Card.Content>
-                <ThemedText style={styles.resultTitle}>
-                  Required Experience
-                </ThemedText>
-                <ThemedText type="title">
-                  {totalExp.toLocaleString()}
-                </ThemedText>
-                <ThemedText style={styles.estimatedTime}>
-                  Estimated Time:{" "}
-                  {totalExp > monthlyExpGain
-                    ? Math.ceil(totalExp / monthlyExpGain) + " month(s)"
-                    : "less than a month"}
-                </ThemedText>
-              </Card.Content>
-            </Card>
-            <ThemedView style={styles.collapsible}>
-              <Collapsible title="Required Resources" isDefaultOpen={true}>
-                <DataTable style={styles.table}>
-                  <DataTable.Header>
-                    <DataTable.Title textStyle={styles.header}>
-                      Source
-                    </DataTable.Title>
-                    <DataTable.Title numeric>Exp</DataTable.Title>
-                    <DataTable.Title numeric onPress={handleSortAmount}>
-                      Amount {sortDirection === "asc" ? "↑" : "↓"}
-                    </DataTable.Title>
-                  </DataTable.Header>
+          <View>
+            <ThemedText type="title" style={styles.mainTitle}>
+              Bond Exp Calculator
+            </ThemedText>
+             <View style={styles.sectionAccent} />
+            <ThemedText type="default" style={styles.subtitle}>
+              Calculate required experience and resources
+            </ThemedText>
+          </View>
+        </ThemedView>       
 
-                  {sortedData.map((item) => (
-                    <DataTable.Row key={item.key}>
-                      <DataTable.Cell>
-                        <ThemedView style={styles.sourceImg}>
-                          <Image source={item.img} style={styles.sourceImage} />
-                          <ThemedText style={styles.sourceName}>
-                            {item.name}
-                          </ThemedText>
-                        </ThemedView>
-                      </DataTable.Cell>
-                      <DataTable.Cell numeric>{item.exp}</DataTable.Cell>
-                      <DataTable.Cell numeric>
-                        {Math.ceil(totalExp / item.exp)}
-                      </DataTable.Cell>
-                    </DataTable.Row>
-                  ))}
-                </DataTable>
-              </Collapsible>
-            </ThemedView>
-            {/* <ThemedView style={styles.collapsible}>
-            <Collapsible title="Estimated Time To Achieve">
-              <ThemedText>
-                {Math.ceil(totalExp / monthlyExpGain)} month(s)
+        {/* Input Section */}
+        <AnimatedCard style={styles.inputCardWrapper}>
+          <Card style={[styles.inputCard, { backgroundColor: cardBackground }]}>
+            <Card.Content style={styles.inputCardContent}>
+              <ThemedText
+                type="defaultSemiBold"
+                style={styles.inputSectionTitle}
+              >
+                Bond Level Range
               </ThemedText>
+              <ThemedView style={styles.inputRow}>
+                <View style={styles.inputWrapper}>
+                  <ThemedText style={styles.inputLabel}>
+                    Current Level
+                  </ThemedText>
+                  <TextInput
+                    mode="outlined"
+                    placeholder="1 - 99"
+                    value={from}
+                    onChangeText={(text) => {
+                      const numericValue = parseInt(text, 10);
+                      if (
+                        !isNaN(numericValue) &&
+                        numericValue >= 1 &&
+                        numericValue <= 99
+                      ) {
+                        setFrom(text);
+                      } else if (text === "") {
+                        setFrom("");
+                      }
+                    }}
+                    keyboardType="numeric"
+                    maxLength={2}
+                    style={styles.textInput}
+                    contentStyle={styles.textInputContent}
+                    outlineStyle={styles.textInputOutline}
+                    right={
+                      from !== "" && (
+                        <TextInput.Icon
+                          icon="close"
+                          size={16}
+                          onPress={() => setFrom("")}
+                          color="#94A3B8"
+                        />
+                      )
+                    }
+                  />
+                </View>
+                <View style={styles.inputArrow}>
+                  <ThemedText style={styles.arrowText}>→</ThemedText>
+                </View>
+                <View style={styles.inputWrapper}>
+                  <ThemedText style={styles.inputLabel}>
+                    Target Level
+                  </ThemedText>
+                  <TextInput
+                    mode="outlined"
+                    placeholder="2 - 100"
+                    value={to}
+                    onChangeText={(text) => {
+                      const numericValue = parseInt(text, 10);
+                      if (
+                        !isNaN(numericValue) &&
+                        numericValue >= 1 &&
+                        numericValue <= 100
+                      ) {
+                        setTo(text);
+                      } else if (text === "") {
+                        setTo("");
+                      }
+                    }}
+                    keyboardType="numeric"
+                    maxLength={3}
+                    style={styles.textInput}
+                    contentStyle={styles.textInputContent}
+                    outlineStyle={styles.textInputOutline}
+                    right={
+                      to !== "" && (
+                        <TextInput.Icon
+                          icon="close"
+                          size={16}
+                          onPress={() => setTo("")}
+                          color="#94A3B8"
+                        />
+                      )
+                    }
+                  />
+                </View>
+              </ThemedView>
+
+              {error && (
+                <View style={styles.errorContainer}>
+                  <HelperText
+                    type="error"
+                    visible={!!error}
+                    style={styles.errorText}
+                  >
+                    {error}
+                  </HelperText>
+                </View>
+              )}
+
+              <Button
+                mode="contained"
+                onPress={handleCalculate}
+                style={styles.calculateButton}
+                contentStyle={styles.calculateButtonContent}
+                labelStyle={styles.calculateButtonLabel}
+                loading={calculating}
+                disabled={calculating || !from || !to}
+                buttonColor="#00F5FF"
+                textColor="#0F172A"
+              >
+                {calculating ? "Calculating..." : "Calculate Experience"}
+              </Button>
+            </Card.Content>
+          </Card>
+        </AnimatedCard>
+
+        {/* Advanced Settings */}
+        <View style={styles.settingsSection}>
+          <Card
+            style={[styles.settingsCard, { backgroundColor: cardBackground }]}
+          >
+            <Collapsible
+              title="Time Estimation Settings"
+              iconSize={14}
+              fontType={"defaultSemiBold"}
+            >
+              <View style={styles.settingsContent}>
+                <View style={styles.settingsGrid}>
+                  <View style={styles.settingItem}>
+                    <NumberInput
+                      value={expSource.pat}
+                      onChange={(value) =>
+                        setExpSource({ ...expSource, pat: value })
+                      }
+                      min={0}
+                      max={6}
+                      label="Cafe Pat /day"
+                    />
+                  </View>
+                  <View style={styles.settingItem}>
+                    <NumberInput
+                      value={expSource.monthlyGift}
+                      onChange={(value) =>
+                        setExpSource({ ...expSource, monthlyGift: value })
+                      }
+                      min={0}
+                      max={200}
+                      label="Gift (60Exp) /month"
+                    />
+                  </View>
+                </View>
+              </View>
             </Collapsible>
-          </ThemedView> */}
-          </ThemedView>
+          </Card>
+        </View>
+
+        {/* Results Section */}
+        {totalExp && (
+          <View style={styles.resultsSection}>
+            {/* Main Result Card */}
+            <AnimatedCard style={styles.resultCardWrapper}>
+              <Card
+                style={[styles.resultCard, { backgroundColor: cardBackground }]}
+              >
+                <Card.Content style={styles.resultCardContent}>
+                  <ThemedText style={styles.resultTitle}>
+                    Required Experience
+                  </ThemedText>
+                  <ThemedText type="title" style={styles.resultValue}>
+                    {totalExp.toLocaleString()}
+                  </ThemedText>
+
+                  <View style={styles.estimationRow}>
+                    <View style={styles.estimationItem}>
+                      <ThemedText style={styles.estimationLabel}>
+                        Time Estimate
+                      </ThemedText>
+                      <ThemedText style={styles.estimationValue}>
+                        {totalExp > monthlyExpGain
+                          ? Math.ceil(totalExp / monthlyExpGain) + " month(s)"
+                          : "< 1 month"}
+                      </ThemedText>
+                    </View>
+                    <View style={styles.estimationDivider} />
+                    <View style={styles.estimationItem}>
+                      <ThemedText style={styles.estimationLabel}>
+                        Days (~)
+                      </ThemedText>
+                      <ThemedText style={styles.estimationValue}>
+                        {getEstimatedDays()} days
+                      </ThemedText>
+                    </View>
+                  </View>
+                </Card.Content>
+              </Card>
+            </AnimatedCard>
+
+            {/* Resources Table */}
+            <View style={styles.resourceSection}>
+              <Card
+                style={[
+                  styles.resourceCard,
+                  { backgroundColor: cardBackground },
+                ]}
+              >
+                <Collapsible
+                  title="Required Resources"
+                  isDefaultOpen={true}
+                  iconSize={14}
+                  fontType={"defaultSemiBold"}
+                >
+                  <View style={styles.tableContainer}>
+                    <DataTable style={styles.dataTable}>
+                      <DataTable.Header style={styles.tableHeader}>
+                        <DataTable.Title
+                          textStyle={styles.tableHeaderText}
+                          style={styles.sourceColumn}
+                        >
+                          Source
+                        </DataTable.Title>
+                        <DataTable.Title
+                          numeric
+                          textStyle={styles.tableHeaderText}
+                          style={styles.expColumn}
+                        >
+                          Exp
+                        </DataTable.Title>
+                        <DataTable.Title
+                          numeric
+                          onPress={handleSortAmount}
+                          textStyle={styles.tableHeaderText}
+                          style={styles.amountColumn}
+                        >
+                          Qty {sortDirection === "asc" ? "↑" : "↓"}
+                        </DataTable.Title>
+                      </DataTable.Header>
+
+                      {sortedData.map((item, index) => (
+                        <DataTable.Row
+                          key={item.key}
+                          style={[
+                            styles.tableRow,
+                            index % 2 === 0 && styles.tableRowEven,
+                          ]}
+                        >
+                          <DataTable.Cell
+                            style={[styles.tableCell, styles.sourceColumn]}
+                          >
+                            <View style={styles.sourceContainer}>
+                              <View style={styles.sourceImageContainer}>
+                                <Image
+                                  source={item.img}
+                                  style={styles.sourceImage}
+                                />
+                              </View>
+                              <ThemedText
+                                style={styles.sourceName}
+                                numberOfLines={2}
+                                ellipsizeMode="tail"
+                              >
+                                {item.name}
+                              </ThemedText>
+                            </View>
+                          </DataTable.Cell>
+                          <DataTable.Cell
+                            numeric
+                            textStyle={styles.tableCellText}
+                            style={styles.expColumn}
+                          >
+                            {item.exp.toLocaleString()}
+                          </DataTable.Cell>
+                          <DataTable.Cell
+                            numeric
+                            textStyle={styles.tableCellTextAmount}
+                            style={styles.amountColumn}
+                          >
+                            {Math.ceil(totalExp / item.exp).toLocaleString()}
+                          </DataTable.Cell>
+                        </DataTable.Row>
+                      ))}
+                    </DataTable>
+                  </View>
+                </Collapsible>
+              </Card>
+            </View>
+          </View>
         )}
       </Surface>
     </ParallaxScrollView>
@@ -309,107 +483,313 @@ export default function BondExpScreen() {
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  sectionAccent: {
-    width: 60,
-    height: 2,
-    backgroundColor: "#00F5FF",
-    borderRadius: 1,
-    marginBottom: 16,
-  },
   container: {
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: "#0F172A",
   },
-  row: {
+  backgroundPattern: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "#0F172A",
+    opacity: 0.8,
+  },
+  titleContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "transparent",
+    paddingHorizontal: 6,
+    marginBottom: 14,
   },
-  input: {
-    marginTop: 5,
+  mainTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#FFFFFF",
   },
-  halfInput: {
-    flex: 1,
-    marginHorizontal: 5,
-  },
-  //advanced settings
-  advancedSettings: {
-    marginTop: 10,
-    marginBottom: 5,
-  }, 
-  advancedSettingsCard: {
-    padding: 4,
-    paddingBottom: 8
-  }, 
-  advancedSettingsSubtitle: {
+  subtitle: {
+    fontSize: 14,
+    color: "#94A3B8",
     marginTop: 4,
   },
-  advancedSettingsSubtitleDivider: {
-    margin: 4,
-    marginBottom: 4
+  sectionAccent: {
+    width: 80,
+    height: 3,
+    backgroundColor: "#00F5FF",
+    borderRadius: 2,
+    shadowColor: "#00F5FF",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
   },
-  numberInputContainer: {
-    flex: 1,
-    paddingLeft: 4,
-    paddingTop: 8,
+
+  // Input Card Styles
+  inputCardWrapper: {
+    marginHorizontal: 4,
+    marginBottom: 20,
   },
-  numberInputLabel: {
+  inputCard: {
+    backgroundColor: "rgba(30, 41, 59, 0.7)",
+    borderRadius: 16,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+  },
+  inputCardContent: {
+    padding: 24,
+  },
+  inputSectionTitle: {
+    color: "#FFFFFF",
     fontSize: 18,
-    marginVertical: 10,
+    marginBottom: 20,
   },
-  button: {
-    marginTop: 10,
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 16,
+    marginBottom: 24,
   },
-  //result
-  resultSection: {
-    marginTop: 12,
+  inputWrapper: {
+    flex: 1,
   },
-  //card
-  card: {
-    marginBottom: 16,
+  inputLabel: {
+    color: "#94A3B8",
+    fontSize: 14,
+    marginBottom: 8,
+    fontWeight: "500",
+  },
+  inputArrow: {
+    paddingBottom: 8,
+  },
+  arrowText: {
+    color: "#00F5FF",
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  textInput: {
+    backgroundColor: "rgba(15, 23, 42, 0.9)",
+  },
+  textInputContent: {
+    color: "#FFFFFF",
+    fontSize: 16,
+  },
+  textInputOutline: {
+    borderColor: "rgba(71, 85, 105, 0.4)",
+    borderWidth: 1,
+  },
+  errorContainer: {
+    marginBottom: 20,
+    backgroundColor: "rgba(220, 38, 38, 0.1)",
+    borderRadius: 8,
+    padding: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: "#DC2626",
+  },
+  errorText: {
+    color: "#DC2626",
+    fontSize: 14,
+    margin: 0,
+  },
+  calculateButton: {
     borderRadius: 12,
+    elevation: 2,
+  },
+  calculateButtonContent: {
+    paddingVertical: 10,
+  },
+  calculateButtonLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+
+  // Settings Section Styles
+  settingsSection: {
+    marginHorizontal: 4,
+    marginBottom: 20,
+  },
+  settingsCard: {
+    backgroundColor: "rgba(30, 41, 59, 0.5)",
+    borderRadius: 12,
+    elevation: 1,
+  },
+  settingsContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    paddingTop: 4,
+  },
+  settingsGrid: {
+    gap: 16,
+  },
+  settingItem: {
+    flex: 1,
+  },
+
+  // Results Section Styles
+  resultsSection: {
+    gap: 20,
+    paddingBottom: 32,
+  },
+  resultCardWrapper: {
+    marginHorizontal: 4,
   },
   resultCard: {
-    marginTop: 12,
-    backgroundColor: "#4A90E2",
+    backgroundColor: "rgba(30, 41, 59, 0.8)",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#00F5FF",
+    elevation: 4,
+    shadowColor: "#00F5FF",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+  },
+  resultCardContent: {
+    padding: 24,
+  },
+  resultHeader: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginBottom: 16,
+  },
+  resultBadge: {
+    backgroundColor: "#00F5FF",
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  resultBadgeText: {
+    color: "#0F172A",
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 1.2,
   },
   resultTitle: {
+    color: "#94A3B8",
     fontSize: 16,
-    opacity: 0.8,
     marginBottom: 8,
-    color: "#FFF",
   },
-  resultExp: {
+  resultValue: {
+    color: "#00F5FF",
     fontSize: 32,
     fontWeight: "bold",
-    color: "#FFF",
-    marginBottom: 8,
+    marginBottom: 24,
   },
-  estimatedTime: {
-    fontSize: 14,
-    color: "#FFF",
-    opacity: 0.9,
-  },
-  totalExp: {
-    textAlign: "center",
-  },
-  collapsible: { marginBottom: 10 },
-  table: { width: "100%" },
-  header: { textAlign: "center", width: "100%" },
-  sourceImg: {
+  estimationRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 20,
+  },
+  estimationItem: {
+    flex: 1,
+    alignItems: "center",
+  },
+  estimationDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: "rgba(71, 85, 105, 0.4)",
+  },
+  estimationLabel: {
+    color: "#94A3B8",
+    fontSize: 12,
+    marginBottom: 6,
+  },
+  estimationValue: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+
+  // Resource Section Styles
+  resourceSection: {
+    marginHorizontal: 4,
+  },
+  resourceCard: {
+    backgroundColor: "rgba(30, 41, 59, 0.5)",
+    borderRadius: 12,
+    elevation: 1,
+  },
+  tableContainer: {
+    paddingHorizontal: 4,
+    paddingBottom: 16,
+    paddingTop: 4,
+  },
+  dataTable: {
+    backgroundColor: "transparent",
+  },
+  tableHeader: {
+    backgroundColor: "rgba(0, 245, 255, 0.1)",
+    borderRadius: 8,
+    marginBottom: 8,
+    paddingLeft: 12,
+    paddingRight: 4,
+  },
+  tableHeaderText: {
+    color: "#00F5FF",
+    fontWeight: "600",
+    fontSize: 13,
+  },
+  tableRow: {
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(71, 85, 105, 0.15)",
+    minHeight: 64,
+    paddingHorizontal: 4,
+  },
+  tableRowEven: {
+    backgroundColor: "rgba(71, 85, 105, 0.05)",
+  },
+  tableCell: {
+    paddingVertical: 12,
+    justifyContent: "center",
+  },
+  tableCellText: {
+    color: "#94A3B8",
+    fontSize: 13,
+  },
+  tableCellTextAmount: {
+    color: "#00F5FF",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+
+  // Column widths for better text display
+  sourceColumn: {
+    flex: 2.2,
+    paddingRight: 8,
+  },
+  expColumn: {
+    flex: 1,
+    paddingHorizontal: 4,
+  },
+  amountColumn: {
+    flex: 1.2,
+    paddingLeft: 4,
+  },
+
+  sourceContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    flex: 1,
+  },
+  sourceImageContainer: {
+    backgroundColor: "rgba(15, 23, 42, 0.6)",
+    borderRadius: 8,
+    padding: 2,
   },
   sourceImage: {
-    width: 24,
-    height: 24,
+    width: 32,
+    height: 32,
+    borderRadius: 6,
   },
   sourceName: {
-    fontSize: 12,
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "500",
+    flex: 1,
+    lineHeight: 16,
   },
 });

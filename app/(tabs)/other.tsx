@@ -94,7 +94,7 @@ export default function OtherScreen() {
           <List.Subheader>About</List.Subheader>
           <List.Item
             title="Version"
-            description={Application.nativeApplicationVersion || "1.0.2"}
+            description={Application.nativeApplicationVersion || "1.0.3"}
             left={(props) => <List.Icon {...props} icon="information" />}
           />
           <List.Item

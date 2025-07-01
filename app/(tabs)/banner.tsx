@@ -276,13 +276,16 @@ export default function FutureBannerScreen() {
                 />
               </View>
             )}
-            <View style={styles.rarityContainer}>
-              {Array.from({ length: character.rarity }, (_, i) => (
-                <ThemedText key={i} style={styles.star}>
-                  ★
-                </ThemedText>
-              ))}
-            </View>
+            {character.isNew && (
+              <View style={styles.newBadge}>
+                <ThemedText style={styles.newBadgeText}>NEW</ThemedText>
+              </View>
+            )}
+            {character?.class && (
+              <View style={styles.classContainer}>
+                <CharacterClassBadge classType={character.class} />
+              </View>
+            )}
           </View>
           <View style={styles.characterInfo}>
             <ThemedView style={styles.characterHeader}>
@@ -293,15 +296,8 @@ export default function FutureBannerScreen() {
               >
                 {character.name}
               </ThemedText>
-              {character.isNew && (
-                <View style={styles.newBadge}>
-                  <ThemedText style={styles.newBadgeText}>NEW</ThemedText>
-                </View>
-              )}
             </ThemedView>
-            {character?.class && (
-              <CharacterClassBadge classType={character.class} />
-            )}
+
             <ThemedView style={styles.tags}>
               <CustomChip
                 bgColor={typeColor[character.atkType]?.background}
@@ -354,6 +350,7 @@ export default function FutureBannerScreen() {
             <ThemedText type="title" style={styles.mainTitle}>
               Future Banners
             </ThemedText>
+            <View style={styles.sectionAccent} />
             <ThemedText type="default" style={styles.subtitle}>
               Upcoming character releases
             </ThemedText>
@@ -372,7 +369,6 @@ export default function FutureBannerScreen() {
             {""}
           </Button>
         </ThemedView>
-        <View style={styles.sectionAccent} />
 
         {error ? (
           <View style={styles.errorContainer}>
@@ -601,7 +597,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     backgroundColor: "transparent",
     paddingHorizontal: 4,
-    marginBottom: 8,
+    marginBottom: 24,
   },
   mainTitle: {
     fontSize: 28,
@@ -618,7 +614,6 @@ const styles = StyleSheet.create({
     height: 3,
     backgroundColor: "#00F5FF",
     borderRadius: 2,
-    marginBottom: 24,
     shadowColor: "#00F5FF",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.5,
@@ -730,7 +725,7 @@ const styles = StyleSheet.create({
     justifyContent: "center", // Center text vertically
   },
   newTypeChip: {
-    backgroundColor: "#10B981",
+    backgroundColor: "#EF4444",
   },
   fesTypeChip: {
     backgroundColor: "#F59E0B",
@@ -871,16 +866,22 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
   },
-  rarityContainer: {
+  newContainer: {
     position: "absolute",
-    bottom: -4,
-    left: 0,
-    right: 0,
+    top: -4,
+    right: -4,
+  },
+  classContainer: {
+    marginTop: 8,
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  rarityContainer: {
     flexDirection: "row",
     justifyContent: "center",
     backgroundColor: "rgba(15, 23, 42, 0.9)",
     borderRadius: 8,
-    paddingVertical: 2,
+    paddingVertical: 1,
   },
   star: {
     color: "#FFD700",
@@ -891,7 +892,6 @@ const styles = StyleSheet.create({
   },
   characterInfo: {
     flex: 1,
-    justifyContent: "space-between",
     paddingVertical: 4,
   },
   characterHeader: {
@@ -908,7 +908,10 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   newBadge: {
-    backgroundColor: "#10B981",
+    position: "absolute",
+    top: -4,
+    left: -8,
+    backgroundColor: "#EF4444",
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
