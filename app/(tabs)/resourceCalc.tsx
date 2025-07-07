@@ -1,39 +1,26 @@
 import React, { useState, useRef } from "react";
 import { 
-  Image, 
   StyleSheet, 
   View, 
-  Keyboard, 
   Animated, 
   Pressable,
-  Dimensions 
 } from "react-native";
 import {
   Card,
-  TextInput,
-  Button,
   HelperText,
   Surface,
-  Divider,
-  SegmentedButtons,
   ActivityIndicator,
-  Chip,
 } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 
 import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { Collapsible } from "@/components/Collapsible";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { charaExpData } from "@/constants/charaLvlData";
 import CharaExpCalc from "../resourceCalc/charaExp";
 import ElephCalc from "../resourceCalc/elephCalc";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
-const { width } = Dimensions.get("window");
-
-// Enhanced calculator types with descriptions and icons
 const CALCULATOR_TYPES = [
   { 
     value: "character", 
@@ -47,7 +34,7 @@ const CALCULATOR_TYPES = [
   },
 ];
 
-// Animated card component matching bond exp design
+// Reusable animated card component
 const AnimatedCard = ({ children, style, ...props }: any) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -78,18 +65,18 @@ const AnimatedCard = ({ children, style, ...props }: any) => {
   );
 };
 
-// Calculator type selector component with bond exp styling
+// Calculator type selector component
 const CalculatorTypeSelector = ({ selectedType, onTypeChange }: any) => {
   const cardBackground = useThemeColor({}, "background");
   
   return (
-    <AnimatedCard style={styles.inputCardWrapper}>
-      <Card style={[styles.inputCard, { backgroundColor: cardBackground }]}>
-        <Card.Content style={styles.inputCardContent}>
-          <ThemedText type="defaultSemiBold" style={styles.inputSectionTitle}>
+    <AnimatedCard style={styles.cardWrapper}>
+      <Card style={[styles.card, { backgroundColor: cardBackground }]}>
+        <Card.Content style={styles.cardContent}>
+          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>
             Choose Calculator Type
           </ThemedText>
-          <View style={styles.typeCardsContainer}>
+          <View style={styles.typeContainer}>
             {CALCULATOR_TYPES.map((type) => (
               <Pressable
                 key={type.value}
@@ -126,48 +113,85 @@ const CalculatorTypeSelector = ({ selectedType, onTypeChange }: any) => {
   );
 };
 
+// Error display component
+const ErrorDisplay = ({ error }: any) => {
+  if (!error) return null;
+  
+  return (
+    <AnimatedCard style={styles.cardWrapper}>
+      <View style={styles.errorContainer}>
+        <HelperText
+          type="error"
+          visible={!!error}
+          style={styles.errorText}
+        >
+          {error}
+        </HelperText>
+      </View>
+    </AnimatedCard>
+  );
+};
+
+// Loading display component
+const LoadingDisplay = () => {
+  const cardBackground = useThemeColor({}, "background");
+  
+  return (
+    <AnimatedCard style={styles.cardWrapper}>
+      <Card style={[styles.card, { backgroundColor: cardBackground }]}>
+        <Card.Content style={styles.loadingContent}>
+          <ActivityIndicator size="large" color="#00F5FF" />
+          <ThemedText style={styles.loadingText}>Calculating...</ThemedText>
+        </Card.Content>
+      </Card>
+    </AnimatedCard>
+  );
+};
+
+// Calculator content component
+const CalculatorContent = ({ calculatorType }: any) => {
+  const cardBackground = useThemeColor({}, "background");
+  const CalculatorComponent = calculatorType === "character" ? CharaExpCalc : ElephCalc;
+  const title = calculatorType === "character" ? "Character EXP Calculator" : "Eleph Resource Calculator";
+  
+  return (
+    <AnimatedCard style={styles.cardWrapper}>
+      <Card style={[styles.card, { backgroundColor: cardBackground }]}>
+        <Card.Content style={styles.cardContent}>
+          <View style={styles.calculatorHeader}>
+            <ThemedText type="defaultSemiBold" style={styles.calculatorTitle}>
+              {title}
+            </ThemedText>
+            <View style={styles.accent} />
+          </View>
+          <CalculatorComponent />
+        </Card.Content>
+      </Card>
+    </AnimatedCard>
+  );
+};
+
 export default function ResourceCalcScreen() {
-  const scrollRef = useRef<{ resetScroll: () => void }>(null);
+  const scrollRef = useRef<{ resetScroll: () => void } | null>(null);
   const insets = useSafeAreaInsets();
   const backgroundColor = useThemeColor({}, "background");
-  const cardBackground = useThemeColor({}, "background");
+  
   const [calculatorType, setCalculatorType] = useState("character");
   const [error, setError] = useState("");
   const [isCalculating, setIsCalculating] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
-      // Reset state and scroll position
+      // Reset state and scroll position when screen comes into focus
       setCalculatorType("character");
       setError("");
       scrollRef.current?.resetScroll();
-      return () => {};
     }, [])
   );
 
-  const handleCalculatorTypeChange = (type: string) => {
+  const handleCalculatorTypeChange = (type: any) => {
     setCalculatorType(type);
     setError("");
-  };
-
-  const renderCalculator = () => {
-    const CalculatorComponent = calculatorType === "character" ? CharaExpCalc : ElephCalc;
-    
-    return (
-      <AnimatedCard style={styles.calculatorWrapper}>
-        <Card style={[styles.calculatorCard, { backgroundColor: cardBackground }]}>
-          <Card.Content style={styles.calculatorContent}>
-            <View style={styles.calculatorHeader}>
-              <ThemedText type="defaultSemiBold" style={styles.calculatorTitle}>
-                {calculatorType === "character" ? "Character EXP Calculator" : "Eleph Resource Calculator"}
-              </ThemedText>
-              <View style={styles.calculatorAccent} />
-            </View>
-            <CalculatorComponent />
-          </Card.Content>
-        </Card>
-      </AnimatedCard>
-    );
   };
 
   return (
@@ -176,58 +200,38 @@ export default function ResourceCalcScreen() {
       keyboardShouldPersistTaps="handled"
       ref={scrollRef}
     >
-      <View style={styles.backgroundPattern} />
       <Surface
         style={[styles.container, { paddingTop: insets.top, backgroundColor }]}
         elevation={0}
       >
-        {/* Header matching bond exp design */}
+        {/* Header */}
         <ThemedView style={styles.titleContainer}>
           <View>
             <ThemedText type="title" style={styles.mainTitle}>
               Resource Calculator
             </ThemedText>
-            <View style={styles.sectionAccent} />
+            <View style={styles.titleAccent} />
             <ThemedText type="default" style={styles.subtitle}>
               Calculate resources for character progression
             </ThemedText>
           </View>
         </ThemedView>
 
-        {/* Calculator Type Selector with bond exp styling */}
+        {/* Calculator Type Selector */}
         <CalculatorTypeSelector 
           selectedType={calculatorType}
           onTypeChange={handleCalculatorTypeChange}
         />
 
-        {/* Error Display matching bond exp style */}
-        {error && (
-          <AnimatedCard style={styles.errorWrapper}>
-            <View style={styles.errorContainer}>
-              <HelperText
-                type="error"
-                visible={!!error}
-                style={styles.errorText}
-              >
-                {error}
-              </HelperText>
-            </View>
-          </AnimatedCard>
-        )}
+        {/* Error Display */}
+        <ErrorDisplay error={error} />
 
         {/* Calculator Content */}
         <ThemedView style={styles.calculatorSection}>
           {isCalculating ? (
-            <AnimatedCard style={styles.loadingWrapper}>
-              <Card style={[styles.loadingCard, { backgroundColor: cardBackground }]}>
-                <Card.Content style={styles.loadingContent}>
-                  <ActivityIndicator size="large" color="#00F5FF" />
-                  <ThemedText style={styles.loadingText}>Calculating...</ThemedText>
-                </Card.Content>
-              </Card>
-            </AnimatedCard>
+            <LoadingDisplay />
           ) : (
-            renderCalculator()
+            <CalculatorContent calculatorType={calculatorType} />
           )}
         </ThemedView>
       </Surface>
@@ -240,19 +244,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#0F172A",
   },
-  backgroundPattern: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "#0F172A",
-    opacity: 0.8,
-  },
+  
+  // Header styles
   titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
     backgroundColor: "transparent",
     paddingHorizontal: 6,
     marginBottom: 14,
@@ -267,7 +261,7 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     marginTop: 4,
   },
-  sectionAccent: {
+  titleAccent: {
     width: 80,
     height: 3,
     backgroundColor: "#00F5FF",
@@ -278,12 +272,12 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
 
-  // Input Card Styles matching bond exp
-  inputCardWrapper: {
+  // Common card styles
+  cardWrapper: {
     marginHorizontal: 4,
     marginBottom: 20,
   },
-  inputCard: {
+  card: {
     backgroundColor: "rgba(30, 41, 59, 0.7)",
     borderRadius: 16,
     elevation: 3,
@@ -292,17 +286,23 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 8,
   },
-  inputCardContent: {
+  cardContent: {
     padding: 24,
   },
-  inputSectionTitle: {
+  sectionTitle: {
     color: "#FFFFFF",
     fontSize: 18,
     marginBottom: 20,
   },
+  accent: {
+    width: 60,
+    height: 2,
+    backgroundColor: "#00F5FF",
+    borderRadius: 1,
+  },
   
   // Type selector styles
-  typeCardsContainer: {
+  typeContainer: {
     flexDirection: "row",
     gap: 16,
   },
@@ -341,11 +341,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
 
-  // Error styles matching bond exp
-  errorWrapper: {
-    marginHorizontal: 4,
-    marginBottom: 20,
-  },
+  // Error styles
   errorContainer: {
     backgroundColor: "rgba(220, 38, 38, 0.1)",
     borderRadius: 8,
@@ -364,22 +360,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "transparent",
   },
-  calculatorWrapper: {
-    marginHorizontal: 4,
-    marginBottom: 20,
-  },
-  calculatorCard: {
-    backgroundColor: "rgba(30, 41, 59, 0.7)",
-    borderRadius: 16,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-  },
-  calculatorContent: {
-    padding: 24,
-  },
   calculatorHeader: {
     marginBottom: 20,
   },
@@ -388,22 +368,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 8,
   },
-  calculatorAccent: {
-    width: 60,
-    height: 2,
-    backgroundColor: "#00F5FF",
-    borderRadius: 1,
-  },
 
-  // Loading styles matching bond exp
-  loadingWrapper: {
-    marginHorizontal: 4,
-  },
-  loadingCard: {
-    backgroundColor: "rgba(30, 41, 59, 0.7)",
-    borderRadius: 16,
-    elevation: 3,
-  },
+  // Loading styles
   loadingContent: {
     padding: 40,
     alignItems: "center",
@@ -412,97 +378,5 @@ const styles = StyleSheet.create({
   loadingText: {
     color: "#94A3B8",
     fontSize: 16,
-  },
-
-  // Legacy styles for backward compatibility (keeping existing component styles)
-  segmentedButtons: {
-    marginBottom: 16,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  input: {
-    marginTop: 5,
-  },
-  halfInput: {
-    flex: 1,
-    marginHorizontal: 5,
-  },
-  advancedSettings: {
-    marginTop: 10,
-    marginBottom: 5,
-  },
-  advancedSettingsCard: {
-    padding: 4,
-    paddingBottom: 8,
-  },
-  advancedSettingsSubtitle: {
-    marginTop: 4,
-  },
-  advancedSettingsSubtitleDivider: {
-    margin: 4,
-    marginBottom: 4,
-  },
-  resourceInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 8,
-    marginHorizontal: 4,
-    backgroundColor: "transparent",
-  },
-  resourceInputIcon: {
-    marginHorizontal: 8,
-    width: 36,
-    height: 36,
-  },
-  resourceInput: {
-    flex: 1,
-  },
-  button: {
-    marginTop: 10,
-  },
-  resultSection: {
-    marginTop: 12,
-  },
-  card: {
-    marginBottom: 16,
-    borderRadius: 12,
-  },
-  resultCard: {
-    marginTop: 12,
-    backgroundColor: "#4A90E2",
-  },
-  resultTitle: {
-    fontSize: 16,
-    opacity: 0.8,
-    marginBottom: 8,
-    color: "#FFF",
-  },
-  resourceTitle: {
-    fontSize: 14,
-    color: "#FFF",
-    marginTop: 12,
-    marginBottom: 4,
-  },
-  resourceList: {
-    backgroundColor: "rgba(255,255,255,0.1)",
-    padding: 12,
-    borderRadius: 8,
-    gap: 4,
-  },
-  resourceItemContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "transparent",
-  },
-  resourceItemIcon: {
-    width: 24,
-    height: 24,
-    marginRight: 4,
-  },
-  resourceItem: {
-    flex: 1,
   },
 });

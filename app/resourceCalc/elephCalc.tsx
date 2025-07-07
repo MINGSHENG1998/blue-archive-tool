@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Image, StyleSheet, View, Keyboard } from "react-native";
+import { Image, StyleSheet, View, Keyboard, Pressable } from "react-native";
 import {
   Card,
   TextInput,
@@ -13,15 +13,18 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Collapsible } from "@/components/Collapsible";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 export default function ElephCalc() {
   const scrollRef = useRef<{ resetScroll: () => void }>(null);
   const [currentRarity, setCurrentRarity]: any = useState("1");
   const [targetRarity, setTargetRarity]: any = useState("5");
   const [currentEleph, setCurrentEleph] = useState("0");
-  const [weaponRank, setWeaponRank]: any = useState("0"); // New state for weapon rank
+  const [weaponRank, setWeaponRank]: any = useState("0");
   const [error, setError] = useState("");
   const [result, setResult]: any = useState(null);
+
+  const cardBackground = useThemeColor({}, "background");
 
   const rarityOptions = [
     { label: "1", value: "1" },
@@ -50,7 +53,7 @@ export default function ElephCalc() {
     "4-5": { fragments: 120, cost: 600 },
   };
 
-  const WEAPON_UPGRADE_COSTS = [120, 180]; // Fragment costs for weapon upgrades (rank 1 and rank 2)
+  const WEAPON_UPGRADE_COSTS = [120, 180];
 
   const calculateEligmaCost = (elephCount: number) => {
     if (elephCount <= 20) return 1;
@@ -64,7 +67,7 @@ export default function ElephCalc() {
     const fromValue = parseInt(currentRarity, 10);
     const toValue = parseInt(targetRarity, 10);
     const currentValue = parseInt(currentEleph, 10) || 0;
-    const weaponRankValue = parseInt(weaponRank, 10); // Get weapon rank value
+    const weaponRankValue = parseInt(weaponRank, 10);
 
     if (
       fromValue >= 1 &&
@@ -87,7 +90,6 @@ export default function ElephCalc() {
       let neededFragments = Math.max(0, requirement.fragments - currentValue);
       let totalEligma = 0;
 
-      // Calculate total eligma cost based on cumulative costs
       let remainingFragments = neededFragments;
       let currentBatch = 0;
 
@@ -99,18 +101,18 @@ export default function ElephCalc() {
         currentBatch += batchSize;
       }
 
-      // Add weapon upgrade costs if target rarity is 5 and weapon rank is specified
       let weaponUpgradeFragments = 0;
       if (toValue === 5 && weaponRankValue > 0) {
-        weaponUpgradeFragments = WEAPON_UPGRADE_COSTS.slice(0, weaponRankValue).reduce(
-          (sum, cost) => sum + cost,
-          0
-        );
+        weaponUpgradeFragments = WEAPON_UPGRADE_COSTS.slice(
+          0,
+          weaponRankValue
+        ).reduce((sum, cost) => sum + cost, 0);
         neededFragments += weaponUpgradeFragments;
       }
 
       setResult({
-        totalFragments: requirement.fragments + (toValue === 5 ? weaponUpgradeFragments : 0),
+        totalFragments:
+          requirement.fragments + (toValue === 5 ? weaponUpgradeFragments : 0),
         neededFragments,
         totalEligma,
         totalCost: requirement.cost,
@@ -127,8 +129,7 @@ export default function ElephCalc() {
   };
 
   const handleElephChange = (text: string) => {
-    // Remove leading zeros and non-numeric characters
-    const cleanedText = text.replace(/^0+|[^0-9]/g, '');
+    const cleanedText = text.replace(/^0+|[^0-9]/g, "");
     setCurrentEleph(cleanedText);
   };
 
@@ -137,7 +138,7 @@ export default function ElephCalc() {
       setCurrentRarity("1");
       setTargetRarity("5");
       setCurrentEleph("0");
-      setWeaponRank("0"); // Reset weapon rank
+      setWeaponRank("0");
       setError("");
       setResult(null);
       scrollRef.current?.resetScroll();
@@ -146,68 +147,82 @@ export default function ElephCalc() {
   );
 
   return (
-    <>
-      <ThemedView style={styles.container}>
-        {error && (
-          <HelperText type="error" visible={!!error}>
+    <ThemedView style={styles.container}>
+      {/* Error Display */}
+      {error && (
+        <View style={styles.errorContainer}>
+          <HelperText type="error" visible={!!error} style={styles.errorText}>
             {error}
           </HelperText>
+        </View>
+      )}
+
+      {/* Input Section */}
+      <View style={styles.inputSection}>
+        <ThemedView style={styles.rarityContainer}>
+          <ThemedView style={styles.rarityField}>
+            <Dropdown
+              mode="outlined"
+              label="Current Rarity"
+              placeholder="1 - 4"
+              options={rarityOptions}
+              value={currentRarity}
+              onSelect={setCurrentRarity}
+              hideMenuHeader={true}
+            />
+          </ThemedView>
+          <ThemedView style={styles.rarityField}>
+            <Dropdown
+              mode="outlined"
+              label="Target Rarity"
+              placeholder="2 - 5"
+              options={rarityOptions}
+              value={targetRarity}
+              onSelect={setTargetRarity}
+              hideMenuHeader={true}
+            />
+          </ThemedView>
+        </ThemedView>
+
+        {/* Weapon Rank Input */}
+        {parseInt(targetRarity, 10) === 5 && (
+          <ThemedView style={styles.weaponRankContainer}>
+            <ThemedText type="defaultSemiBold" style={styles.fieldLabel}>
+              Weapon Upgrade
+            </ThemedText>
+            <Dropdown
+              mode="outlined"
+              label="Weapon Rank"
+              placeholder="0 - 2"
+              options={weaponRankOptions}
+              value={weaponRank}
+              onSelect={setWeaponRank}
+              hideMenuHeader={true}
+            />
+          </ThemedView>
         )}
 
-        <>
-          <ThemedText>Enter current rarity and target rarity</ThemedText>
-
-          <ThemedView style={styles.rarityContainer}>
-            <ThemedView style={styles.rarityField}>
-              <Dropdown
-                mode="outlined"
-                label="Current Rarity"
-                placeholder="1 - 4"
-                options={rarityOptions}
-                value={currentRarity}
-                onSelect={setCurrentRarity}
-                hideMenuHeader={true}
-              />
-            </ThemedView>
-            <ThemedView style={styles.rarityField}>
-              <Dropdown
-                mode="outlined"
-                label="Target Rarity"
-                placeholder="2 - 5"
-                options={rarityOptions}
-                value={targetRarity}
-                onSelect={setTargetRarity}
-                hideMenuHeader={true}
-              />
-            </ThemedView>
-          </ThemedView>
-
-          {/* Weapon Rank Input - Full Width */}
-          {parseInt(targetRarity, 10) === 5 && (
-            <ThemedView style={styles.weaponRankContainer}>
-              <Dropdown
-                mode="outlined"
-                label="Weapon Rank"
-                placeholder="0 - 2"
-                options={weaponRankOptions}
-                value={weaponRank}
-                onSelect={setWeaponRank}
-                hideMenuHeader={true}
-              />
-            </ThemedView>
-          )}
-
-          <ThemedView style={styles.advancedSettings}>
-            <Collapsible
-              title="Current Inventory"
-              iconSize={12}
-              fontType="smallSemiBold"
+        {/* Advanced Settings */}
+        <ThemedView style={styles.advancedSettings}>
+          <Collapsible
+            title="Current Inventory"
+            iconSize={16}
+            fontType="defaultSemiBold"
+          >
+            <Card
+              style={[
+                styles.inventoryCard,
+                { backgroundColor: cardBackground },
+              ]}
             >
-              <Card style={styles.advancedSettingsCard}>
-                <View style={styles.advancedSettingsSubtitle}>
-                  <ThemedText type="cardtitle">Available Resources</ThemedText>
-                  <Divider style={styles.advancedSettingsSubtitleDivider} />
-                </View>
+              <Card.Content style={styles.inventoryContent}>
+                <ThemedText
+                  type="defaultSemiBold"
+                  style={styles.inventoryTitle}
+                >
+                  Available Resources
+                </ThemedText>
+                <Divider style={styles.inventoryDivider} />
                 <ThemedView style={styles.resourceInputContainer}>
                   <Image
                     source={require("../../assets/images/icons/eleph.png")}
@@ -220,192 +235,336 @@ export default function ElephCalc() {
                     onChangeText={handleElephChange}
                     keyboardType="numeric"
                     style={styles.resourceInput}
+                    contentStyle={styles.inputContent}
+                    outlineStyle={styles.inputOutline}
+                    theme={{
+                      colors: {
+                        onSurfaceVariant: "#94A3B8",
+                        primary: "#00F5FF",
+                        outline: "rgba(71, 85, 105, 0.4)",
+                      },
+                    }}
                   />
                 </ThemedView>
-              </Card>
-            </Collapsible>
-          </ThemedView>
-        </>
+              </Card.Content>
+            </Card>
+          </Collapsible>
+        </ThemedView>
 
-        <Button
-          mode="contained"
+        {/* Calculate Button */}
+        <Pressable
+          style={({ pressed }) => [
+            styles.calculateButton,
+            pressed && styles.calculateButtonPressed,
+          ]}
           onPress={handleCalculate}
-          style={styles.button}
         >
-          Calculate
-        </Button>
-      </ThemedView>
+          <ThemedText type="defaultSemiBold" style={styles.calculateButtonText}>
+            Calculate Resources
+          </ThemedText>
+        </Pressable>
+      </View>
 
+      {/* Results Section */}
       {result && (
-        <ThemedView style={styles.resultSection}>
-          <Card style={[styles.card, styles.resultCard]}>
-            <Card.Content>
-              <ThemedText style={styles.resultTitle}>
-                Required Resources
-              </ThemedText>
-              <ThemedText type="title">
-                {result.totalFragments.toLocaleString()} Student Eleph
-              </ThemedText>
-              <ThemedText style={styles.resourceTitle}>
-                Resource Breakdown:
-              </ThemedText>
-              <ThemedView style={styles.resourceList}>
-                <ThemedView style={styles.resourceItemContainer}>
-                  <Image
-                    source={require("../../assets/images/icons/eleph.png")}
-                    style={styles.resourceItemIcon}
-                  />
-                  <ThemedText style={styles.resourceItem}>
-                    Additional Eleph Needed: {result.neededFragments}
-                  </ThemedText>
-                </ThemedView>
-                {result.weaponUpgradeFragments > 0 && (
-                  <ThemedView style={styles.resourceItemContainer}>
+        <View style={styles.resultSection}>
+          <Card
+            style={[styles.resultCard, { backgroundColor: cardBackground }]}
+          >
+            <Card.Content style={styles.resultContent}>
+              <View style={styles.resultHeader}>
+                <ThemedText type="defaultSemiBold" style={styles.resultTitle}>
+                  Required Resources
+                </ThemedText>
+                <View style={styles.resultAccent} />
+              </View>
+
+              <View style={styles.totalRequirement}>
+                <ThemedText type="title" style={styles.totalText}>
+                  {result.totalFragments.toLocaleString()}
+                </ThemedText>
+                <ThemedText style={styles.totalLabel}>
+                  Student Eleph Total
+                </ThemedText>
+              </View>
+
+              <View style={styles.breakdown}>
+                <ThemedText
+                  type="defaultSemiBold"
+                  style={styles.breakdownTitle}
+                >
+                  Resource Breakdown
+                </ThemedText>
+
+                <View style={styles.resourceList}>
+                  <View style={styles.resourceItem}>
                     <Image
                       source={require("../../assets/images/icons/eleph.png")}
-                      style={styles.resourceItemIcon}
+                      style={styles.resourceIcon}
                     />
-                    <ThemedText style={styles.resourceItem}>
-                      Weapon Upgrade Eleph: {result.weaponUpgradeFragments}
-                    </ThemedText>
-                  </ThemedView>
-                )}
-                <ThemedView style={styles.resourceItemContainer}>
-                  <Image
-                    source={require("../../assets/images/icons/eligma.png")}
-                    style={styles.resourceItemIcon}
-                  />
-                  <ThemedText style={styles.resourceItem}>
-                    Estimated Eligma Cost: {result.totalEligma}
-                  </ThemedText>
-                </ThemedView>
-                {/* <ThemedView style={styles.resourceItemContainer}>
-                  <Image
-                    source={require("../../assets/images/icons/credit.png")}
-                    style={styles.resourceItemIcon}
-                  />
-                  <ThemedText style={styles.resourceItem}>
-                    Enhancement Cost: {result.totalCost.toLocaleString()}
-                  </ThemedText>
-                </ThemedView> */}
-              </ThemedView>
+                    <View style={styles.resourceDetails}>
+                      <ThemedText style={styles.resourceName}>
+                        Additional Eleph Needed
+                      </ThemedText>
+                      <ThemedText style={styles.resourceValue}>
+                        {result.neededFragments.toLocaleString()}
+                      </ThemedText>
+                    </View>
+                  </View>
+
+                  {result.weaponUpgradeFragments > 0 && (
+                    <View style={styles.resourceItem}>
+                      <Image
+                        source={require("../../assets/images/icons/eleph.png")}
+                        style={styles.resourceIcon}
+                      />
+                      <View style={styles.resourceDetails}>
+                        <ThemedText style={styles.resourceName}>
+                          Weapon Upgrade Eleph
+                        </ThemedText>
+                        <ThemedText style={styles.resourceValue}>
+                          {result.weaponUpgradeFragments.toLocaleString()}
+                        </ThemedText>
+                      </View>
+                    </View>
+                  )}
+
+                  <View style={styles.resourceItem}>
+                    <Image
+                      source={require("../../assets/images/icons/eligma.png")}
+                      style={styles.resourceIcon}
+                    />
+                    <View style={styles.resourceDetails}>
+                      <ThemedText style={styles.resourceName}>
+                        Estimated Eligma Cost
+                      </ThemedText>
+                      <ThemedText style={styles.resourceValue}>
+                        {result.totalEligma.toLocaleString()}
+                      </ThemedText>
+                    </View>
+                  </View>
+                </View>
+              </View>
             </Card.Content>
           </Card>
-        </ThemedView>
+        </View>
       )}
-    </>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "transparent",
   },
-  titleContainer: {
-    flexDirection: "row",
+
+  // Error styles
+  errorContainer: {
+    backgroundColor: "rgba(220, 38, 38, 0.1)",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    borderLeftWidth: 4,
+    borderLeftColor: "#DC2626",
+  },
+  errorText: {
+    color: "#DC2626",
+    fontSize: 14,
+    margin: 0,
+  },
+
+  // Input section
+  inputSection: {
+    marginBottom: 24,
+  },
+  accent: {
+    width: 60,
+    height: 2,
+    backgroundColor: "#00F5FF",
+    borderRadius: 1,
     marginBottom: 16,
   },
-  segmentedButtons: {
-    marginBottom: 16,
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 4,
-  },
-  input: {
-    marginTop: 5,
-  },
-  halfInput: {
-    flex: 1,
-    marginHorizontal: 5,
-  },
+
+  // Rarity container
   rarityContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    gap: 8,
-    marginVertical: 8,
+    gap: 12,
+    marginBottom: 20,
   },
   rarityField: {
-    flex: 0.48,
+    flex: 1,
   },
+
+  // Weapon rank
   weaponRankContainer: {
-    marginVertical: 8,
+    marginBottom: 20,
   },
+  fieldLabel: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    marginBottom: 8,
+  },
+
+  // Advanced settings
   advancedSettings: {
-    marginTop: 10,
-    marginBottom: 5,
+    marginBottom: 24,
   },
-  advancedSettingsCard: {
-    padding: 4,
-    paddingBottom: 8,
+  inventoryCard: {
+    backgroundColor: "rgba(30, 41, 59, 0.5)",
+    borderRadius: 12,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: "rgba(71, 85, 105, 0.3)",
   },
-  advancedSettingsSubtitle: {
-    marginTop: 4,
+  inventoryContent: {
+    padding: 16,
   },
-  advancedSettingsSubtitleDivider: {
-    margin: 4,
-    marginBottom: 4,
+  inventoryTitle: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  inventoryDivider: {
+    backgroundColor: "rgba(71, 85, 105, 0.4)",
+    marginBottom: 16,
   },
   resourceInputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 8,
-    marginHorizontal: 4,
+    gap: 12,
     backgroundColor: "transparent",
   },
   resourceInputIcon: {
-    marginHorizontal: 8,
-    width: 36,
-    height: 36,
+    width: 32,
+    height: 32,
   },
   resourceInput: {
     flex: 1,
   },
-  button: {
-    marginTop: 10,
+  inputContent: {
+    color: "#FFFFFF",
   },
-  resultSection: {
-    marginTop: 12,
+  inputOutline: {
+    borderColor: "rgba(71, 85, 105, 0.4)",
   },
-  card: {
-    marginBottom: 16,
+
+  // Calculate button
+  calculateButton: {
+    backgroundColor: "#00F5FF",
     borderRadius: 12,
+    padding: 16,
+    alignItems: "center",
+    shadowColor: "#00F5FF",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  calculateButtonPressed: {
+    backgroundColor: "rgba(0, 245, 255, 0.8)",
+    transform: [{ scale: 0.98 }],
+  },
+  calculateButtonText: {
+    color: "#0F172A",
+    fontSize: 16,
+  },
+
+  // Results section
+  resultSection: {
+    marginTop: 24,
   },
   resultCard: {
-    marginTop: 12,
-    backgroundColor: "#4A90E2",
+    backgroundColor: "rgba(30, 41, 59, 0.7)",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(0, 245, 255, 0.2)",
+    shadowColor: "#00F5FF",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  resultContent: {
+    padding: 24,
+  },
+  resultHeader: {
+    marginBottom: 20,
   },
   resultTitle: {
-    fontSize: 16,
-    opacity: 0.8,
+    color: "#FFFFFF",
+    fontSize: 18,
     marginBottom: 8,
-    color: "#FFF",
   },
-  resourceTitle: {
+  resultAccent: {
+    width: 80,
+    height: 2,
+    backgroundColor: "#00F5FF",
+    borderRadius: 1,
+  },
+
+  // Total requirement
+  totalRequirement: {
+    backgroundColor: "rgba(0, 245, 255, 0.1)",
+    borderRadius: 12,
+    padding: 20,
+    alignItems: "center",
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: "rgba(0, 245, 255, 0.2)",
+  },
+  totalText: {
+    color: "#00F5FF",
+    fontSize: 32,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  totalLabel: {
+    color: "#FFFFFF",
     fontSize: 14,
-    color: "#FFF",
-    marginTop: 12,
-    marginBottom: 4,
+    marginTop: 4,
+    opacity: 0.8,
+  },
+
+  // Breakdown
+  breakdown: {
+    gap: 16,
+  },
+  breakdownTitle: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    marginBottom: 12,
   },
   resourceList: {
-    backgroundColor: "rgba(255,255,255,0.1)",
-    padding: 12,
-    borderRadius: 8,
-    gap: 4,
-  },
-  resourceItemContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "transparent",
-  },
-  resourceItemIcon: {
-    width: 24,
-    height: 24,
-    marginRight: 4,
+    backgroundColor: "rgba(15, 23, 42, 0.4)",
+    borderRadius: 12,
+    padding: 16,
+    gap: 16,
   },
   resourceItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  resourceIcon: {
+    width: 28,
+    height: 28,
+  },
+  resourceDetails: {
     flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  resourceName: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    flex: 1,
+  },
+  resourceValue: {
+    color: "#00F5FF",
+    fontSize: 14,
+    fontWeight: "600",
   },
 });
