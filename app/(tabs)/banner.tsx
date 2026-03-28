@@ -3,10 +3,8 @@ import {
   Image,
   View,
   ScrollView,
-  RefreshControl,
   Animated,
   Pressable,
-  Dimensions,
 } from "react-native";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
@@ -19,7 +17,6 @@ import {
   Searchbar,
   Menu,
   Button,
-  Divider,
   ActivityIndicator,
 } from "react-native-paper";
 import { useRef, useState, useCallback, useMemo, useEffect } from "react";
@@ -32,8 +29,10 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 import React from "react";
 import InlineAd from "../ads/InlineAd";
-
-const { width } = Dimensions.get("window");
+import { useLanguage } from "@/contexts/language-context";
+import { i18n, atkTypeLabels, defTypeLabels } from "@/constants/i18n";
+import type { Locale } from "@/constants/i18n";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 // Define types
 interface Character {
@@ -46,6 +45,7 @@ interface Character {
   isNew?: boolean;
   isLimited?: boolean;
   class: string;
+  translations?: Record<string, { name?: string }>;
 }
 
 interface Banner {
@@ -59,8 +59,13 @@ interface Banner {
 }
 
 // Filter types
-type SortOption = "date-asc" | "date-desc" | "name" | "rarity";
+type SortOption = "date-asc" | "date-desc" | "rarity";
 type FilterType = "New" | "Rerun" | "Fes" | "Collab" | "All";
+
+function getCharacterName(char: Character, locale: Locale): string {
+  if (locale === "en") return char.name;
+  return char.translations?.[locale]?.name || char.name;
+}
 
 const CharacterClassBadge = ({ classType }: { classType: string }) => {
   const getBadgeStyle = () => {
@@ -141,6 +146,8 @@ export default function FutureBannerScreen() {
   const insets = useSafeAreaInsets();
   const backgroundColor = useThemeColor({}, "background");
   const cardBackground = useThemeColor({}, "background");
+  const { locale } = useLanguage();
+  const t = i18n[locale];
 
   // State
   const [expandedBanner, setExpandedBanner] = useState<string | null>(null);
@@ -170,36 +177,51 @@ export default function FutureBannerScreen() {
     return diffDays;
   };
 
-  // Fetch banner data from the backend API
   const fetchBanners = useCallback(async () => {
     try {
       setLoading(true);
-      const usersRef = collection(db, "banners");
-      const querySnapshot: any = await getDocs(usersRef);
+
+      const [bannersSnap, charsSnap] = await Promise.all([
+        getDocs(collection(db, "banners")),
+        getDocs(collection(db, "characters")),
+      ]);
+
+      const charMap = new Map<string, Character>(
+        charsSnap.docs.map((d: any) => [d.id, { id: d.id, ...d.data() } as Character]),
+      );
+
       const currentDateTime = new Date();
-      const bannersData = querySnapshot.docs
-        .map((doc: any) => {
-          const data = doc.data();
+      const bannersData = bannersSnap.docs
+        .map((docSnap: any) => {
+          const data = docSnap.data();
+
+          // Resolve characters: prefer characterIds join, fall back to embedded array
+          const fromIds: Character[] = (data.characterIds ?? [])
+            .map((id: string) => charMap.get(id))
+            .filter(Boolean) as Character[];
+          const characters: Character[] =
+            fromIds.length > 0 ? fromIds : (data.characters || []);
+
           return {
-            id: doc.id,
+            id: docSnap.id,
             startDate: data.startDate,
             endDate: data.endDate,
             type: data.type,
-            characters: data.characters || [],
+            characters,
           };
         })
         .filter((banner: any) => {
-          let endDate = new Date(banner.endDate);
+          const endDate = new Date(banner.endDate);
           return !isNaN(endDate.getTime()) && endDate > currentDateTime;
         });
 
       setBanners(bannersData);
-    } catch (err) {
-      setError("Failed to load banners");
+    } catch {
+      setError(t.errorText);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -219,10 +241,15 @@ export default function FutureBannerScreen() {
     let result = [...banners];
 
     if (searchQuery) {
+      const query = searchQuery.toLowerCase();
       result = result.filter((banner) =>
-        banner.characters.some((char) =>
-          char.name.toLowerCase().includes(searchQuery.toLowerCase())
-        )
+        banner.characters.some((char) => {
+          const translated = getCharacterName(char, locale).toLowerCase();
+          return (
+            char.name.toLowerCase().includes(query) ||
+            translated.includes(query)
+          );
+        }),
       );
     }
 
@@ -245,19 +272,15 @@ export default function FutureBannerScreen() {
         break;
       case "rarity":
         result.sort((a, b) => {
-          const maxRarityA = Math.max(
-            ...a.characters.map((char) => char.rarity)
-          );
-          const maxRarityB = Math.max(
-            ...b.characters.map((char) => char.rarity)
-          );
-          return maxRarityB - maxRarityA;
+          const maxA = Math.max(...a.characters.map((c) => c.rarity));
+          const maxB = Math.max(...b.characters.map((c) => c.rarity));
+          return maxB - maxA;
         });
         break;
     }
 
     return result;
-  }, [banners, searchQuery, filterType, sortOption]);
+  }, [banners, searchQuery, filterType, sortOption, locale]);
 
   const renderCharacterCard = (character: Character) => (
     <AnimatedCard key={character.id} style={styles.characterCardWrapper}>
@@ -294,7 +317,7 @@ export default function FutureBannerScreen() {
                 style={styles.characterName}
                 numberOfLines={2}
               >
-                {character.name}
+                {getCharacterName(character, locale)}
               </ThemedText>
             </ThemedView>
 
@@ -302,12 +325,12 @@ export default function FutureBannerScreen() {
               <CustomChip
                 bgColor={typeColor[character.atkType]?.background}
                 icon={typeColor[character.atkType]?.icon}
-                label={character.atkType}
+                label={atkTypeLabels[character.atkType]?.[locale] ?? character.atkType}
               />
               <CustomChip
                 bgColor={typeColor[character.defType]?.background}
                 icon={typeColor[character.defType]?.icon}
-                label={character.defType}
+                label={defTypeLabels[character.defType]?.[locale] ?? character.defType}
               />
             </ThemedView>
           </View>
@@ -325,7 +348,7 @@ export default function FutureBannerScreen() {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#00F5FF" />
           <ThemedText type="default" style={styles.loadingText}>
-            Loading banners...
+            {t.loading}
           </ThemedText>
         </View>
       </Surface>
@@ -348,26 +371,26 @@ export default function FutureBannerScreen() {
         <ThemedView style={styles.titleContainer}>
           <View>
             <ThemedText type="title" style={styles.mainTitle}>
-              Future Banners
+              {t.pageTitle}
             </ThemedText>
             <View style={styles.sectionAccent} />
-            <ThemedText type="default" style={styles.subtitle}>
-              Upcoming character releases
-            </ThemedText>
           </View>
-          <Button
-            icon="refresh"
-            mode="text"
-            compact={true}
-            onPress={onRefresh}
-            loading={refreshing}
-            disabled={refreshing}
-            labelStyle={styles.refreshBtnLabel}
-            contentStyle={styles.refreshBtnContent}
-            buttonColor="rgba(0, 245, 255, 0.1)"
-          >
-            {""}
-          </Button>
+          <View style={styles.titleActions}>
+            <LanguageSwitcher />
+            <Button
+              icon="refresh"
+              mode="text"
+              compact={true}
+              onPress={onRefresh}
+              loading={refreshing}
+              disabled={refreshing}
+              labelStyle={styles.refreshBtnLabel}
+              contentStyle={styles.refreshBtnContent}
+              buttonColor="rgba(0, 245, 255, 0.1)"
+            >
+              {""}
+            </Button>
+          </View>
         </ThemedView>
 
         {error ? (
@@ -381,15 +404,15 @@ export default function FutureBannerScreen() {
               buttonColor="#00F5FF"
               textColor="#0F172A"
             >
-              Try Again
+              {t.retryButton}
             </Button>
           </View>
         ) : (
           <>
-            {/* Enhanced Search and Filter Section */}
+            {/* Search and Filter Section */}
             <ThemedView style={styles.filterSection}>
               <Searchbar
-                placeholder="Search characters..."
+                placeholder={t.searchPlaceholder}
                 onChangeText={setSearchQuery}
                 value={searchQuery}
                 style={styles.searchBar}
@@ -409,7 +432,7 @@ export default function FutureBannerScreen() {
                       style={styles.sortButton}
                       labelStyle={styles.sortButtonLabel}
                     >
-                      Sort
+                      {t.sortButton}
                     </Button>
                   }
                   contentStyle={styles.menuContent}
@@ -419,14 +442,14 @@ export default function FutureBannerScreen() {
                       setSortOption("date-asc");
                       setShowSortMenu(false);
                     }}
-                    title="Earliest First"
+                    title={t.sortEarliest}
                   />
                   <Menu.Item
                     onPress={() => {
                       setSortOption("date-desc");
                       setShowSortMenu(false);
                     }}
-                    title="Latest First"
+                    title={t.sortLatest}
                   />
                 </Menu>
 
@@ -437,8 +460,14 @@ export default function FutureBannerScreen() {
                   contentContainerStyle={styles.filterChipsContent}
                 >
                   {(
-                    ["All", "New", "Rerun", "Fes", "Collab"] as FilterType[]
-                  ).map((type) => (
+                    [
+                      { type: "All" as FilterType, label: t.filterAll },
+                      { type: "New" as FilterType, label: t.filterNew },
+                      { type: "Rerun" as FilterType, label: t.filterRerun },
+                      { type: "Fes" as FilterType, label: t.filterFes },
+                      { type: "Collab" as FilterType, label: t.filterCollab },
+                    ]
+                  ).map(({ type, label }) => (
                     <Chip
                       key={type}
                       selected={filterType === type}
@@ -453,16 +482,16 @@ export default function FutureBannerScreen() {
                         filterType === type && styles.selectedFilterChipText,
                       ]}
                     >
-                      {type}
+                      {label}
                     </Chip>
                   ))}
                 </ScrollView>
               </ThemedView>
             </ThemedView>
 
-            {/* Enhanced Banners List */}
+            {/* Banners List */}
             <View style={styles.bannerList}>
-              {filteredAndSortedBanners.map((banner, index) => {
+              {filteredAndSortedBanners.map((banner) => {
                 const daysUntil = getDaysUntil(banner.startDate);
                 const isActive =
                   daysUntil <= 0 && getDaysUntil(banner.endDate) > 0;
@@ -500,10 +529,12 @@ export default function FutureBannerScreen() {
                       </View>
 
                       <List.Accordion
-                        title={banner.characters[0].name + " Banner"}
-                        description={`${formatDate(
-                          banner.startDate
-                        )} - ${formatDate(banner.endDate)}`}
+                        title={
+                          banner.characters.length > 0
+                            ? `${getCharacterName(banner.characters[0], locale)} - ${banner.type} ${t.bannerSuffix}`
+                            : `${banner.type} ${t.bannerSuffix}`
+                        }
+                        description={`${formatDate(banner.startDate)} - ${formatDate(banner.endDate)}`}
                         titleNumberOfLines={2}
                         expanded={expandedBanner === banner.id}
                         onPress={() =>
@@ -514,12 +545,14 @@ export default function FutureBannerScreen() {
                         style={styles.accordionHeader}
                         titleStyle={styles.accordionTitle}
                         descriptionStyle={styles.accordionDescription}
-                        left={(props) => (
+                        left={() => (
                           <View style={styles.accordionImageContainer}>
-                            <Image
-                              source={{ uri: banner.characters[0].image }}
-                              style={styles.accordionCharacterImage}
-                            />
+                            {banner.characters.length > 0 && (
+                              <Image
+                                source={{ uri: banner.characters[0].image }}
+                                style={styles.accordionCharacterImage}
+                              />
+                            )}
                           </View>
                         )}
                         right={(props) => (
@@ -618,6 +651,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.5,
     shadowRadius: 4,
+  },
+  titleActions: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   refreshBtnContent: {
     marginHorizontal: 8,
@@ -721,8 +758,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
-    height: 24, // Fixed height for consistency
-    justifyContent: "center", // Center text vertically
+    height: 24,
+    justifyContent: "center",
   },
   newTypeChip: {
     backgroundColor: "#EF4444",
@@ -744,28 +781,28 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "700",
     letterSpacing: 0.5,
-    lineHeight: 16, // Ensure text is centered within fixed height
+    lineHeight: 16,
   },
   liveBadge: {
     backgroundColor: "#EF4444",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
-    height: 24, // Match bannerTypeChip height
+    height: 24,
     justifyContent: "center",
   },
   liveBadgeText: {
     color: "#FFFFFF",
     fontSize: 10,
     fontWeight: "700",
-    lineHeight: 16, // Match bannerTypeText
+    lineHeight: 16,
   },
   countdownBadge: {
     backgroundColor: "rgba(0, 245, 255, 0.2)",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
-    height: 24, // Match bannerTypeChip height
+    height: 24,
     justifyContent: "center",
     borderWidth: 1,
     borderColor: "#00F5FF",
@@ -774,7 +811,7 @@ const styles = StyleSheet.create({
     color: "#00F5FF",
     fontSize: 10,
     fontWeight: "600",
-    lineHeight: 16, // Match bannerTypeText
+    lineHeight: 16,
   },
   accordionTitle: {
     color: "#FFFFFF",
