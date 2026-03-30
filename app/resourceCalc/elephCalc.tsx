@@ -14,9 +14,13 @@ import { Collapsible } from "@/components/Collapsible";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { useLanguage } from "@/contexts/language-context";
+import { i18n } from "@/constants/i18n";
 
 export default function ElephCalc() {
   const scrollRef = useRef<{ resetScroll: () => void }>(null);
+  const { locale } = useLanguage();
+  const t = i18n[locale];
   const [currentRarity, setCurrentRarity]: any = useState("1");
   const [targetRarity, setTargetRarity]: any = useState("5");
   const [currentEleph, setCurrentEleph] = useState("0");
@@ -82,7 +86,7 @@ export default function ElephCalc() {
       const requirement = PROMOTION_COSTS[key];
 
       if (!requirement) {
-        setError("Invalid rarity combination");
+        setError(t.elephInvalidCombination);
         setResult(null);
         return;
       }
@@ -122,7 +126,7 @@ export default function ElephCalc() {
       Keyboard.dismiss();
     } else {
       setError(
-        'Please ensure "Current Rarity" is 1-4 and "Target Rarity" is 2-5.'
+        t.elephValidationError
       );
       setResult(null);
     }
@@ -163,7 +167,7 @@ export default function ElephCalc() {
           <ThemedView style={styles.rarityField}>
             <Dropdown
               mode="outlined"
-              label="Current Rarity"
+              label={t.elephCurrentRarity}
               placeholder="1 - 4"
               options={rarityOptions}
               value={currentRarity}
@@ -174,7 +178,7 @@ export default function ElephCalc() {
           <ThemedView style={styles.rarityField}>
             <Dropdown
               mode="outlined"
-              label="Target Rarity"
+              label={t.elephTargetRarity}
               placeholder="2 - 5"
               options={rarityOptions}
               value={targetRarity}
@@ -192,7 +196,7 @@ export default function ElephCalc() {
             </ThemedText>
             <Dropdown
               mode="outlined"
-              label="Weapon Rank"
+              label={t.elephWeaponRank}
               placeholder="0 - 2"
               options={weaponRankOptions}
               value={weaponRank}
@@ -205,7 +209,7 @@ export default function ElephCalc() {
         {/* Advanced Settings */}
         <ThemedView style={styles.advancedSettings}>
           <Collapsible
-            title="Current Inventory"
+            title={t.calcCurrentInventory}
             iconSize={16}
             fontType="defaultSemiBold"
           >
@@ -230,7 +234,7 @@ export default function ElephCalc() {
                   />
                   <TextInput
                     mode="outlined"
-                    label="Current Student Eleph"
+                    label={t.elephCurrentEleph}
                     value={currentEleph}
                     onChangeText={handleElephChange}
                     keyboardType="numeric"
@@ -284,7 +288,7 @@ export default function ElephCalc() {
                   {result.totalFragments.toLocaleString()}
                 </ThemedText>
                 <ThemedText style={styles.totalLabel}>
-                  Student Eleph Total
+                  {t.elephStudentEleph}
                 </ThemedText>
               </View>
 
@@ -293,7 +297,7 @@ export default function ElephCalc() {
                   type="defaultSemiBold"
                   style={styles.breakdownTitle}
                 >
-                  Resource Breakdown
+                  {t.elephResourceBreakdown}
                 </ThemedText>
 
                 <View style={styles.resourceList}>
@@ -304,7 +308,7 @@ export default function ElephCalc() {
                     />
                     <View style={styles.resourceDetails}>
                       <ThemedText style={styles.resourceName}>
-                        Additional Eleph Needed
+                        {t.elephAdditionalEleph}
                       </ThemedText>
                       <ThemedText style={styles.resourceValue}>
                         {result.neededFragments.toLocaleString()}
@@ -320,7 +324,7 @@ export default function ElephCalc() {
                       />
                       <View style={styles.resourceDetails}>
                         <ThemedText style={styles.resourceName}>
-                          Weapon Upgrade Eleph
+                          {t.elephWeaponUpgradeEleph}
                         </ThemedText>
                         <ThemedText style={styles.resourceValue}>
                           {result.weaponUpgradeFragments.toLocaleString()}
@@ -336,7 +340,7 @@ export default function ElephCalc() {
                     />
                     <View style={styles.resourceDetails}>
                       <ThemedText style={styles.resourceName}>
-                        Estimated Eligma Cost
+                        {t.elephEligmaCost}
                       </ThemedText>
                       <ThemedText style={styles.resourceValue}>
                         {result.totalEligma.toLocaleString()}

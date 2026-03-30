@@ -20,6 +20,8 @@ import { ThemedView } from "@/components/ThemedView";
 import CharaExpCalc from "../resourceCalc/charaExp";
 import ElephCalc from "../resourceCalc/elephCalc";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { useLanguage } from "@/contexts/language-context";
+import { i18n } from "@/constants/i18n";
 
 const CALCULATOR_TYPES = [
   { 
@@ -68,7 +70,13 @@ const AnimatedCard = ({ children, style, ...props }: any) => {
 // Calculator type selector component
 const CalculatorTypeSelector = ({ selectedType, onTypeChange }: any) => {
   const cardBackground = useThemeColor({}, "background");
-  
+  const { locale } = useLanguage();
+  const t = i18n[locale];
+  const calculatorTypes = [
+    { value: "character", label: t.resourceCharacter, description: CALCULATOR_TYPES[0].description },
+    { value: "other", label: t.resourceEleph, description: CALCULATOR_TYPES[1].description },
+  ];
+
   return (
     <AnimatedCard style={styles.cardWrapper}>
       <Card style={[styles.card, { backgroundColor: cardBackground }]}>
@@ -77,7 +85,7 @@ const CalculatorTypeSelector = ({ selectedType, onTypeChange }: any) => {
             Choose Calculator Type
           </ThemedText>
           <View style={styles.typeContainer}>
-            {CALCULATOR_TYPES.map((type) => (
+            {calculatorTypes.map((type) => (
               <Pressable
                 key={type.value}
                 style={[
@@ -151,8 +159,10 @@ const LoadingDisplay = () => {
 // Calculator content component
 const CalculatorContent = ({ calculatorType }: any) => {
   const cardBackground = useThemeColor({}, "background");
+  const { locale } = useLanguage();
+  const t = i18n[locale];
   const CalculatorComponent = calculatorType === "character" ? CharaExpCalc : ElephCalc;
-  const title = calculatorType === "character" ? "Character EXP Calculator" : "Eleph Resource Calculator";
+  const title = calculatorType === "character" ? t.resourceCharacter : t.resourceEleph;
   
   return (
     <AnimatedCard style={styles.cardWrapper}>
@@ -175,6 +185,8 @@ export default function ResourceCalcScreen() {
   const scrollRef = useRef<{ resetScroll: () => void } | null>(null);
   const insets = useSafeAreaInsets();
   const backgroundColor = useThemeColor({}, "background");
+  const { locale } = useLanguage();
+  const t = i18n[locale];
   
   const [calculatorType, setCalculatorType] = useState("character");
   const [error, setError] = useState("");
@@ -208,7 +220,7 @@ export default function ResourceCalcScreen() {
         <ThemedView style={styles.titleContainer}>
           <View>
             <ThemedText type="title" style={styles.mainTitle}>
-              Resource Calculator
+              {t.resourcePageTitle}
             </ThemedText>
             <View style={styles.titleAccent} />
             <ThemedText type="default" style={styles.subtitle}>

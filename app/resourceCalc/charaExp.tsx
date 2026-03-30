@@ -14,6 +14,8 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { charaExpData } from "@/constants/charaLvlData";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { useLanguage } from "@/contexts/language-context";
+import { i18n } from "@/constants/i18n";
 
 const EXP_VALUES = {
   pinkBook: 10000,
@@ -108,7 +110,9 @@ const ResultItem = ({ icon, label, value }: any) => (
 // Main result display component
 const ResultDisplay = ({ result }: any) => {
   const cardBackground = useThemeColor({}, "background");
-  
+  const { locale } = useLanguage();
+  const t = i18n[locale];
+
   if (!result) return null;
 
   return (
@@ -117,13 +121,13 @@ const ResultDisplay = ({ result }: any) => {
         <Card.Content style={styles.resultCardContent}>
           <View style={styles.resultHeader}>
             <ThemedText type="defaultSemiBold" style={styles.resultTitle}>
-              Required Experience
+              {t.charaExpInstruction}
             </ThemedText>
             <View style={styles.resultAccent} />
           </View>
-          
+
           <View style={styles.totalExpContainer}>
-            <ThemedText style={styles.totalExpLabel}>Total EXP Needed</ThemedText>
+            <ThemedText style={styles.totalExpLabel}>{t.bondRequiredExp}</ThemedText>
             <ThemedText style={styles.totalExpValue}>
               {result.totalExp.toLocaleString()}
             </ThemedText>
@@ -131,32 +135,32 @@ const ResultDisplay = ({ result }: any) => {
 
           <View style={styles.resourceSection}>
             <ThemedText style={styles.resourceSectionTitle}>
-              Required Resources
+              {t.bondRequiredResources}
             </ThemedText>
             <View style={styles.resourceList}>
               <ResultItem
                 icon={require("../../assets/images/icons/pink_book.png")}
-                label="Superior EXP Reports"
+                label={t.charaExpSuperiorReports}
                 value={result.pinkBooks}
               />
               <ResultItem
                 icon={require("../../assets/images/icons/orange_book.png")}
-                label="Advanced EXP Reports"
+                label={t.charaExpAdvancedReports}
                 value={result.orangeBooks}
               />
               <ResultItem
                 icon={require("../../assets/images/icons/blue_book.png")}
-                label="Normal EXP Reports"
+                label={t.charaExpNormalReports}
                 value={result.blueBooks}
               />
               <ResultItem
                 icon={require("../../assets/images/icons/grey_book.png")}
-                label="Novice EXP Reports"
+                label={t.charaExpNoviceReports}
                 value={result.greyBooks}
               />
               <ResultItem
                 icon={require("../../assets/images/icons/credit.png")}
-                label="Credits"
+                label={t.charaExpCredits}
                 value={result.creditsNeeded}
               />
             </View>
@@ -170,6 +174,8 @@ const ResultDisplay = ({ result }: any) => {
 export default function CharaExpCalc() {
   const scrollRef = useRef<{ resetScroll: () => void } | null>(null);
   const cardBackground = useThemeColor({}, "background");
+  const { locale } = useLanguage();
+  const t = i18n[locale];
   
   const [currentLevel, setCurrentLevel] = useState("1");
   const [targetLevel, setTargetLevel] = useState("90");
@@ -262,7 +268,7 @@ export default function CharaExpCalc() {
       Keyboard.dismiss();
     } else {
       setError(
-        'Please ensure "Current Level" is 1-89 and "Target Level" is 2-90.'
+        t.charaExpValidationError
       );
       setResult(null);
     }
@@ -309,14 +315,14 @@ export default function CharaExpCalc() {
           </ThemedText>
           <ThemedView style={styles.row}>
             <LevelInput
-              label="Current Level"
+              label={t.bondCurrentLevel}
               placeholder="1 - 89"
               value={currentLevel}
               onChangeText={setCurrentLevel}
               onClear={() => setCurrentLevel("")}
             />
             <LevelInput
-              label="Target Level"
+              label={t.bondTargetLevel}
               placeholder="2 - 90"
               value={targetLevel}
               onChangeText={setTargetLevel}
@@ -328,49 +334,49 @@ export default function CharaExpCalc() {
         {/* Inventory Section */}
         <ThemedView style={styles.inventorySection}>
           <Collapsible
-            title="Current Inventory (Optional)"
+            title={t.calcCurrentInventory}
             iconSize={12}
             fontType="smallSemiBold"
           >
             <Card style={[styles.inventoryCard, { backgroundColor: cardBackground }]}>
               <Card.Content style={styles.inventoryContent}>
                 <View style={styles.inventoryHeader}>
-                  <ThemedText style={styles.inventoryTitle}>Available Resources</ThemedText>
+                  <ThemedText style={styles.inventoryTitle}>{t.calcAvailableResources}</ThemedText>
                   <View style={styles.inventoryAccent} />
                 </View>
                 
                 <View style={styles.resourceInputsContainer}>
                   <ResourceInput
                     icon={require("../../assets/images/icons/pink_book.png")}
-                    label="Superior EXP Report"
+                    label={t.charaExpSuperiorReport}
                     value={expSource.pinkBook}
                     onChangeText={handleExpSourceChange}
                     fieldName="pinkBook"
                   />
                   <ResourceInput
                     icon={require("../../assets/images/icons/orange_book.png")}
-                    label="Advanced EXP Report"
+                    label={t.charaExpAdvancedReport}
                     value={expSource.orangeBook}
                     onChangeText={handleExpSourceChange}
                     fieldName="orangeBook"
                   />
                   <ResourceInput
                     icon={require("../../assets/images/icons/blue_book.png")}
-                    label="Normal EXP Report"
+                    label={t.charaExpNormalReport}
                     value={expSource.blueBook}
                     onChangeText={handleExpSourceChange}
                     fieldName="blueBook"
                   />
                   <ResourceInput
                     icon={require("../../assets/images/icons/grey_book.png")}
-                    label="Novice EXP Report"
+                    label={t.charaExpNoviceReport}
                     value={expSource.greyBook}
                     onChangeText={handleExpSourceChange}
                     fieldName="greyBook"
                   />
                   <ResourceInput
                     icon={require("../../assets/images/icons/credit.png")}
-                    label="Credits"
+                    label={t.charaExpCredits}
                     value={expSource.credits}
                     onChangeText={handleExpSourceChange}
                     fieldName="credits"

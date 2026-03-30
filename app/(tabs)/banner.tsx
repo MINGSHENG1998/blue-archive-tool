@@ -32,7 +32,6 @@ import InlineAd from "../ads/InlineAd";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n, atkTypeLabels, defTypeLabels } from "@/constants/i18n";
 import type { Locale } from "@/constants/i18n";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 // Define types
 interface Character {
@@ -376,7 +375,6 @@ export default function FutureBannerScreen() {
             <View style={styles.sectionAccent} />
           </View>
           <View style={styles.titleActions}>
-            <LanguageSwitcher />
             <Button
               icon="refresh"
               mode="text"

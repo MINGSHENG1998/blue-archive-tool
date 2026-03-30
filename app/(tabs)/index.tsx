@@ -13,11 +13,15 @@ import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { IconButton } from "react-native-paper";
 import { useEffect, useRef } from "react";
+import { useLanguage } from "@/contexts/language-context";
+import { i18n } from "@/constants/i18n";
 
 const { width, height } = Dimensions.get("window");
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { locale } = useLanguage();
+  const t = i18n[locale];
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
 
@@ -39,24 +43,24 @@ export default function HomeScreen() {
   const tools = [
     {
       id: "banner",
-      title: "Future Banner",
-      subtitle: "Check upcoming banners",
+      title: t.toolBannerTitle,
+      subtitle: t.toolBannerSubtitle,
       icon: "calendar-clock",
       gradient: ["#1E3A8A", "#3B82F6", "#06B6D4"],
       route: "/(tabs)/banner",
     },
     {
       id: "bond",
-      title: "Bond Experience",
-      subtitle: "Calculate bond experience",
+      title: t.toolBondTitle,
+      subtitle: t.toolBondSubtitle,
       icon: "heart-multiple",
       gradient: ["#BE185D", "#EC4899", "#F472B6"],
       route: "/(tabs)/bondExp",
     },
     {
       id: "builder",
-      title: "Character Builder",
-      subtitle: "Build your characters",
+      title: t.toolCharaTitle,
+      subtitle: t.toolCharaSubtitle,
       icon: "account-cog",
       gradient: ["#059669", "#10B981", "#34D399"],
       route: "/(tabs)/resourceCalc",
@@ -155,7 +159,7 @@ export default function HomeScreen() {
           
           <View style={styles.headerText}>
             <Text style={styles.greeting}>Hello Sensei!</Text>
-            <Text style={styles.appName}>Blue Archive Helper</Text>
+            <Text style={styles.appName}>{t.appTitle} {t.homeSubtitle}</Text>
             <View style={styles.titleUnderline} />
           </View>
         </Animated.View>

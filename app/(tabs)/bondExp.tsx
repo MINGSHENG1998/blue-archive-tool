@@ -37,6 +37,8 @@ import { bondExpData, bondResourceTable } from "../../constants/bondData";
 import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { useLanguage } from "@/contexts/language-context";
+import { i18n } from "@/constants/i18n";
 
 const { width } = Dimensions.get("window");
 
@@ -73,6 +75,8 @@ const AnimatedCard = ({ children, style, ...props }: any) => {
 
 export default function BondExpScreen() {
   const scrollRef = useRef<{ resetScroll: () => void }>(null);
+  const { locale } = useLanguage();
+  const t = i18n[locale];
   const [from, setFrom]: any = useState("1");
   const [to, setTo]: any = useState("100");
   const [error, setError] = useState("");
@@ -125,7 +129,7 @@ export default function BondExpScreen() {
       }, 300);
     } else {
       setError(
-        'Please ensure "from" is 1-99, "to" is 2-100, and "from" < "to".'
+        t.bondValidationError
       );
       setTotalExp(null);
     }
@@ -178,12 +182,9 @@ export default function BondExpScreen() {
         <ThemedView style={styles.titleContainer}>
           <View>
             <ThemedText type="title" style={styles.mainTitle}>
-              Bond Exp Calculator
+              {t.bondPageTitle}
             </ThemedText>
              <View style={styles.sectionAccent} />
-            <ThemedText type="default" style={styles.subtitle}>
-              Calculate required experience and resources
-            </ThemedText>
           </View>
         </ThemedView>       
 
@@ -200,7 +201,7 @@ export default function BondExpScreen() {
               <ThemedView style={styles.inputRow}>
                 <View style={styles.inputWrapper}>
                   <ThemedText style={styles.inputLabel}>
-                    Current Level
+                    {t.bondCurrentLevel}
                   </ThemedText>
                   <TextInput
                     mode="outlined"
@@ -240,7 +241,7 @@ export default function BondExpScreen() {
                 </View>
                 <View style={styles.inputWrapper}>
                   <ThemedText style={styles.inputLabel}>
-                    Target Level
+                    {t.bondTargetLevel}
                   </ThemedText>
                   <TextInput
                     mode="outlined"
@@ -300,7 +301,7 @@ export default function BondExpScreen() {
                 buttonColor="#00F5FF"
                 textColor="#0F172A"
               >
-                {calculating ? "Calculating..." : "Calculate Experience"}
+                {t.bondCalculate}
               </Button>
             </Card.Content>
           </Card>
@@ -312,7 +313,7 @@ export default function BondExpScreen() {
             style={[styles.settingsCard, { backgroundColor: cardBackground }]}
           >
             <Collapsible
-              title="Time Estimation Settings"
+              title={t.bondAdvancedSettings}
               iconSize={14}
               fontType={"defaultSemiBold"}
             >
@@ -326,7 +327,7 @@ export default function BondExpScreen() {
                       }
                       min={0}
                       max={6}
-                      label="Cafe Pat /day"
+                      label={t.bondCafePat}
                     />
                   </View>
                   <View style={styles.settingItem}>
@@ -337,7 +338,7 @@ export default function BondExpScreen() {
                       }
                       min={0}
                       max={200}
-                      label="Gift (60Exp) /month"
+                      label={t.bondGift}
                     />
                   </View>
                 </View>
@@ -356,7 +357,7 @@ export default function BondExpScreen() {
               >
                 <Card.Content style={styles.resultCardContent}>
                   <ThemedText style={styles.resultTitle}>
-                    Required Experience
+                    {t.bondRequiredExp}
                   </ThemedText>
                   <ThemedText type="title" style={styles.resultValue}>
                     {totalExp.toLocaleString()}
@@ -365,12 +366,12 @@ export default function BondExpScreen() {
                   <View style={styles.estimationRow}>
                     <View style={styles.estimationItem}>
                       <ThemedText style={styles.estimationLabel}>
-                        Time Estimate
+                        {t.bondEstimatedTime}
                       </ThemedText>
                       <ThemedText style={styles.estimationValue}>
                         {totalExp > monthlyExpGain
-                          ? Math.ceil(totalExp / monthlyExpGain) + " month(s)"
-                          : "< 1 month"}
+                          ? Math.ceil(totalExp / monthlyExpGain) + " " + t.bondMonths
+                          : t.bondLessMonth}
                       </ThemedText>
                     </View>
                     <View style={styles.estimationDivider} />
@@ -396,7 +397,7 @@ export default function BondExpScreen() {
                 ]}
               >
                 <Collapsible
-                  title="Required Resources"
+                  title={t.bondRequiredResources}
                   isDefaultOpen={true}
                   iconSize={14}
                   fontType={"defaultSemiBold"}
@@ -408,7 +409,7 @@ export default function BondExpScreen() {
                           textStyle={styles.tableHeaderText}
                           style={styles.sourceColumn}
                         >
-                          Source
+                          {t.bondSource}
                         </DataTable.Title>
                         <DataTable.Title
                           numeric

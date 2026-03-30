@@ -19,9 +19,13 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import InlineAd from "../ads/InlineAd";
+import { useLanguage } from "@/contexts/language-context";
+import { i18n } from "@/constants/i18n";
 
 export default function OtherScreen() {
   const insets = useSafeAreaInsets();
+  const { locale } = useLanguage();
+  const t = i18n[locale];
   const [visible, setVisible] = useState(false);
 
   const showModal = () => setVisible(true);
@@ -39,7 +43,7 @@ export default function OtherScreen() {
         elevation={0}
       >
         <ThemedView style={styles.titleContainer}>
-          <ThemedText type="title">About</ThemedText>
+          <ThemedText type="title">{t.miscTitle}</ThemedText>
         </ThemedView>
          <View style={styles.sectionAccent} />
         {/* App Settings Section */}
@@ -69,10 +73,10 @@ export default function OtherScreen() {
 
         {/* Support Section */}
         <List.Section>
-          <List.Subheader>Support</List.Subheader>
+          <List.Subheader>{t.miscSupport}</List.Subheader>
           <List.Item
-            title="Send Feedback"
-            description="Help us improve the app"
+            title={t.miscFeedbackItem}
+            description={t.miscFeedbackItemDesc}
             left={(props) => (
               <List.Icon {...props} icon="message-text" color="#2196F3" />
             )}
@@ -91,15 +95,15 @@ export default function OtherScreen() {
 
         {/* About Section */}
         <List.Section style={styles.aboutSection}>
-          <List.Subheader>About</List.Subheader>
+          <List.Subheader>{t.miscAboutSection}</List.Subheader>
           <List.Item
-            title="Version"
+            title={t.miscVersion}
             description={Application.nativeApplicationVersion || "1.0.3"}
             left={(props) => <List.Icon {...props} icon="information" />}
           />
           <List.Item
-            title="Disclaimer"
-            description="Tap to view"
+            title={t.miscDisclaimer}
+            description={t.miscDisclaimerTap}
             left={(props) => <List.Icon {...props} icon="hand-front-right" />}
             onPress={showModal}
           />
@@ -118,14 +122,13 @@ export default function OtherScreen() {
               <Text
                 style={{ marginBottom: 20, fontWeight: "bold", color: "white" }}
               >
-                Disclaimer
+                {t.miscDisclaimer}
               </Text>
               <Text style={{ marginBottom: 20, color: "white" }}>
-                This app is just a fan project. I do not own any assets or
-                intellectual property associated with this content.
+                {t.miscDisclaimerContent}
               </Text>
               <Button onPress={hideModal} textColor="white">
-                Close
+                {t.miscClose}
               </Button>
             </Modal>
           </Portal>
