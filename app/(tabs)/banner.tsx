@@ -345,7 +345,7 @@ export default function FutureBannerScreen() {
         elevation={0}
       >
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#00F5FF" />
+          <ActivityIndicator size="large" color="#128AFA" />
           <ThemedText type="default" style={styles.loadingText}>
             {t.loading}
           </ThemedText>
@@ -368,7 +368,7 @@ export default function FutureBannerScreen() {
         elevation={0}
       >
         <ThemedView style={styles.titleContainer}>
-          <View>
+          <View style={{ flex: 1 }}>
             <ThemedText type="title" style={styles.mainTitle}>
               {t.pageTitle}
             </ThemedText>
@@ -399,7 +399,7 @@ export default function FutureBannerScreen() {
             <Button
               mode="contained"
               onPress={fetchBanners}
-              buttonColor="#00F5FF"
+              buttonColor="#128AFA"
               textColor="#0F172A"
             >
               {t.retryButton}
@@ -408,17 +408,17 @@ export default function FutureBannerScreen() {
         ) : (
           <>
             {/* Search and Filter Section */}
-            <ThemedView style={styles.filterSection}>
+            <View style={styles.filterPanel}>
               <Searchbar
                 placeholder={t.searchPlaceholder}
                 onChangeText={setSearchQuery}
                 value={searchQuery}
                 style={styles.searchBar}
                 inputStyle={styles.searchInput}
-                iconColor="#00F5FF"
+                iconColor="#128AFA"
               />
 
-              <ThemedView style={styles.filterRow}>
+              <View style={styles.filterRow}>
                 <Menu
                   visible={showSortMenu}
                   onDismiss={() => setShowSortMenu(false)}
@@ -484,8 +484,8 @@ export default function FutureBannerScreen() {
                     </Chip>
                   ))}
                 </ScrollView>
-              </ThemedView>
-            </ThemedView>
+              </View>
+            </View>
 
             {/* Banners List */}
             <View style={styles.bannerList}>
@@ -586,7 +586,7 @@ export default function FutureBannerScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#0A1628",
   },
   backgroundPattern: {
     position: "absolute",
@@ -594,8 +594,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "#0F172A",
-    opacity: 0.8,
+    backgroundColor: "#0A1628",
+    opacity: 1,
   },
   loadingContainer: {
     flex: 1,
@@ -612,7 +612,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 16,
     backgroundColor: "rgba(220, 38, 38, 0.1)",
-    borderRadius: 12,
+    borderRadius: 16,
     margin: 16,
     borderWidth: 1,
     borderColor: "rgba(220, 38, 38, 0.2)",
@@ -631,9 +631,11 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   mainTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
+    fontSize: 24,
+    fontWeight: "800",
     color: "#FFFFFF",
+    fontStyle: "italic",
+    letterSpacing: 0.2,
   },
   subtitle: {
     fontSize: 14,
@@ -641,14 +643,11 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   sectionAccent: {
-    width: 80,
-    height: 3,
-    backgroundColor: "#00F5FF",
+    width: 44,
+    height: 2.5,
+    backgroundColor: "#128AFA",
     borderRadius: 2,
-    shadowColor: "#00F5FF",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
+    marginTop: 6,
   },
   titleActions: {
     flexDirection: "row",
@@ -663,16 +662,23 @@ const styles = StyleSheet.create({
   refreshBtnLabel: {
     margin: 0,
     marginHorizontal: 0,
-    color: "#00F5FF",
+    color: "#128AFA",
   },
-  filterSection: {
+  filterPanel: {
     marginBottom: 24,
-    gap: 12,
+    backgroundColor: "rgba(10, 22, 40, 0.85)",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(18, 138, 250, 0.12)",
+    padding: 12,
+    gap: 10,
   },
   searchBar: {
-    backgroundColor: "rgba(30, 41, 59, 0.8)",
+    backgroundColor: "rgba(10, 22, 40, 0.8)",
     borderRadius: 12,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: "rgba(18, 138, 250, 0.18)",
   },
   searchInput: {
     color: "#FFFFFF",
@@ -690,7 +696,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   menuContent: {
-    backgroundColor: "#1E293B",
+    backgroundColor: "#0D1F3C",
     borderRadius: 8,
   },
   filterChips: {
@@ -701,14 +707,14 @@ const styles = StyleSheet.create({
   },
   filterChip: {
     marginRight: 8,
-    backgroundColor: "rgba(71, 85, 105, 0.3)",
+    backgroundColor: "rgba(18, 138, 250, 0.08)",
     borderRadius: 20,
     height: 32,
     paddingHorizontal: 12,
     justifyContent: "center",
   },
   selectedFilterChip: {
-    backgroundColor: "#00F5FF",
+    backgroundColor: "#128AFA",
   },
   filterChipText: {
     color: "#94A3B8",
@@ -717,7 +723,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   selectedFilterChipText: {
-    color: "#0F172A",
+    color: "#FFFFFF",
     fontWeight: "600",
     lineHeight: 16,
   },
@@ -730,18 +736,19 @@ const styles = StyleSheet.create({
   },
   bannerCard: {
     overflow: "hidden",
-    borderRadius: 16,
-    backgroundColor: "rgba(30, 41, 59, 0.6)",
+    borderRadius: 12,
+    backgroundColor: "#0F2347",
     borderWidth: 1,
-    borderColor: "rgba(71, 85, 105, 0.3)",
+    borderColor: "rgba(18, 138, 250, 0.12)",
   },
   activeBannerCard: {
-    borderColor: "#00F5FF",
+    borderColor: "#128AFA",
     borderWidth: 2,
-    shadowColor: "#00F5FF",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    borderLeftWidth: 3,
+    shadowColor: "#128AFA",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
   },
   bannerHeader: {
     padding: 12,
@@ -803,10 +810,10 @@ const styles = StyleSheet.create({
     height: 24,
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#00F5FF",
+    borderColor: "#128AFA",
   },
   countdownText: {
-    color: "#00F5FF",
+    color: "#128AFA",
     fontSize: 10,
     fontWeight: "600",
     lineHeight: 16,
@@ -817,12 +824,12 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   accordionHeader: {
-    backgroundColor: "#0F172A",
+    backgroundColor: "#0F2347",
   },
   accordionDescription: {
-    color: "#94A3B8",
+    color: "rgba(255,255,255,0.45)",
     fontSize: 12,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#0F2347",
   },
   accordionImageContainer: {
     marginLeft: 8,
@@ -833,7 +840,7 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: "rgba(0, 245, 255, 0.3)",
+    borderColor: "rgba(18, 138, 250, 0.35)",
   },
   accordionArrow: {
     justifyContent: "center",
@@ -852,7 +859,7 @@ const styles = StyleSheet.create({
     gap: 12,
     padding: 12,
     paddingLeft: 12,
-    backgroundColor: "rgba(15, 23, 42, 0.5)",
+    backgroundColor: "rgba(10, 22, 40, 0.7)",
   },
   charactersTitle: {
     color: "#FFFFFF",
@@ -864,10 +871,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 2,
   },
   characterCard: {
-    backgroundColor: "rgba(30, 41, 59, 0.8)",
-    borderRadius: 12,
+    backgroundColor: "#0F2347",
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(71, 85, 105, 0.4)",
+    borderColor: "rgba(18, 138, 250, 0.18)",
   },
   characterContent: {
     flexDirection: "row",
@@ -880,7 +887,7 @@ const styles = StyleSheet.create({
   characterImage: {
     width: 90,
     height: 90,
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 2,
     borderColor: "rgba(148, 163, 184, 0.3)",
   },
@@ -889,7 +896,7 @@ const styles = StyleSheet.create({
     top: -4,
     right: -4,
     backgroundColor: "#F59E0B",
-    borderRadius: 16,
+    borderRadius: 20,
     width: 24,
     height: 24,
     justifyContent: "center",
