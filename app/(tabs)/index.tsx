@@ -10,7 +10,6 @@ import {
   ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
 import { IconButton } from "react-native-paper";
 import { useEffect, useRef } from "react";
 import { useLanguage } from "@/contexts/language-context";
@@ -96,12 +95,7 @@ export default function HomeScreen() {
           onPress={() => navigateTo(tool.route)}
           activeOpacity={0.8}
         >
-          <LinearGradient
-            colors={tool.gradient}
-            style={styles.cardGradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
+          <View style={[styles.cardGradient, { backgroundColor: tool.gradient[1] }]}>
             <View style={styles.cardContent}>
               <View style={styles.iconContainer}>
                 <IconButton
@@ -111,13 +105,13 @@ export default function HomeScreen() {
                   style={{ margin: 0 }}
                 />
               </View>
-              
+
               <View style={styles.textContainer}>
                 <Text style={styles.cardTitle}>{tool.title}</Text>
                 <Text style={styles.cardSubtitle}>{tool.subtitle}</Text>
               </View>
             </View>
-          </LinearGradient>
+          </View>
           
           {/* Blue Archive style accent border */}
           <View style={styles.cardAccent} />
@@ -158,7 +152,7 @@ export default function HomeScreen() {
           </View>
           
           <View style={styles.headerText}>
-            <Text style={styles.greeting}>Hello Sensei!</Text>
+            <Text style={styles.greeting}>{t.greeting}</Text>
             <Text style={styles.appName}>{t.appTitle} {t.homeSubtitle}</Text>
             <View style={styles.titleUnderline} />
           </View>
@@ -175,7 +169,7 @@ export default function HomeScreen() {
           ]}
         >
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Quick Tools</Text>
+            <Text style={styles.sectionTitle}>{t.quickTools}</Text>
             <View style={styles.sectionAccent} />
           </View>
           

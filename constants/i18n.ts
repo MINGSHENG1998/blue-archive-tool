@@ -111,6 +111,10 @@ export interface UIStrings {
   miscFeedbackSent: string;
   miscFeedbackFailed: string;
 
+  // Home screen static text
+  greeting: string;
+  quickTools: string;
+
   // Tab bar
   tabHome: string;
   tabBanner: string;
@@ -197,6 +201,10 @@ export const i18n: Record<Locale, UIStrings> = {
     miscCancel: "Cancel",
     miscFeedbackSent: "Feedback sent! Thank you.",
     miscFeedbackFailed: "Failed to send feedback. Please try again.",
+
+    // Home screen static text
+    greeting: "Hello Sensei!",
+    quickTools: "Quick Tools",
 
     // Tabs
     tabHome: "Home",
@@ -315,6 +323,10 @@ export const i18n: Record<Locale, UIStrings> = {
     miscFeedbackSent: "反馈已发送！感谢您。",
     miscFeedbackFailed: "发送反馈失败，请重试。",
 
+    // Home screen static text
+    greeting: "你好，老师！",
+    quickTools: "快捷工具",
+
     // Tabs
     tabHome: "首页",
     tabBanner: "卡池",
@@ -432,6 +444,10 @@ export const i18n: Record<Locale, UIStrings> = {
     miscFeedbackSent: "피드백이 전송되었습니다! 감사합니다.",
     miscFeedbackFailed: "피드백 전송에 실패했습니다. 다시 시도해 주세요.",
 
+    // Home screen static text
+    greeting: "안녕하세요, 선생님!",
+    quickTools: "빠른 도구",
+
     // Tabs
     tabHome: "홈",
     tabBanner: "배너",
@@ -548,6 +564,10 @@ export const i18n: Record<Locale, UIStrings> = {
     miscCancel: "キャンセル",
     miscFeedbackSent: "フィードバックを送信しました！ありがとうございます。",
     miscFeedbackFailed: "フィードバックの送信に失敗しました。もう一度お試しください。",
+
+    // Home screen static text
+    greeting: "こんにちは、先生！",
+    quickTools: "クイックツール",
 
     // Tabs
     tabHome: "ホーム",
