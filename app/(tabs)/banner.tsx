@@ -14,7 +14,6 @@ import {
   Card,
   Chip,
   Surface,
-  List,
   Searchbar,
   Menu,
   Button,
@@ -544,21 +543,25 @@ export default function FutureBannerScreen() {
                 const daysUntil = getDaysUntil(banner.startDate);
                 const isActive =
                   daysUntil <= 0 && getDaysUntil(banner.endDate) > 0;
+                const isExpanded = expandedBanner === banner.id;
 
                 return (
                   <AnimatedCard
                     key={banner.id}
                     style={styles.bannerCardWrapper}
+                    onPress={() =>
+                      setExpandedBanner(isExpanded ? null : banner.id)
+                    }
                   >
-                    <Card
+                    <View
                       style={[
                         styles.bannerCard,
-                        { backgroundColor: cardBackground },
                         isActive && styles.activeBannerCard,
                       ]}
                     >
-                      <View style={styles.bannerHeader}>
-                        <View style={styles.bannerInfo}>
+                      {/* Badge Row */}
+                      <View style={styles.bannerBadgeRow}>
+                        <View style={styles.bannerBadgeLeft}>
                           <BannerTypeChip type={banner.type} />
                           {isActive && (
                             <View style={styles.liveBadge}>
@@ -577,51 +580,41 @@ export default function FutureBannerScreen() {
                         </View>
                       </View>
 
-                      <List.Accordion
-                        title={
-                          banner.characters.length > 0
-                            ? `${getCharacterName(banner.characters[0], locale)} - ${banner.type} ${t.bannerSuffix}`
-                            : `${banner.type} ${t.bannerSuffix}`
-                        }
-                        description={`${formatDate(banner.startDate)} - ${formatDate(banner.endDate)}`}
-                        titleNumberOfLines={2}
-                        expanded={expandedBanner === banner.id}
-                        onPress={() =>
-                          setExpandedBanner(
-                            expandedBanner === banner.id ? null : banner.id
-                          )
-                        }
-                        style={styles.accordionHeader}
-                        titleStyle={styles.accordionTitle}
-                        descriptionStyle={styles.accordionDescription}
-                        left={() => (
-                          <View style={styles.accordionImageContainer}>
-                            {banner.characters.length > 0 && (
-                              <Image
-                                source={{ uri: banner.characters[0].image }}
-                                style={styles.accordionCharacterImage}
-                              />
-                            )}
-                          </View>
-                        )}
-                        right={(props) => (
-                          <View
-                            style={[
-                              styles.accordionArrow,
-                              props.isExpanded && styles.accordionArrowExpanded,
-                            ]}
-                          >
-                            <ThemedText style={styles.accordionArrowText}>
-                              ▼
-                            </ThemedText>
-                          </View>
-                        )}
-                      >
-                        <View style={styles.charactersContainer}>
-                          {banner.characters.map(renderCharacterCard)}
+                      {/* Info Row */}
+                      <View style={styles.bannerInfoRow}>
+                        <Text style={styles.bannerTitle} numberOfLines={2}>
+                          {banner.characters.length > 0
+                            ? `${getCharacterName(banner.characters[0], locale)} — ${banner.type} ${t.bannerSuffix}`
+                            : `${banner.type} ${t.bannerSuffix}`}
+                        </Text>
+                        <Text style={styles.bannerDateRange}>
+                          {formatDate(banner.startDate)} – {formatDate(banner.endDate)}
+                        </Text>
+                      </View>
+
+                      {/* Preview Row */}
+                      <View style={styles.bannerPreviewRow}>
+                        <PortraitStrip characters={banner.characters} />
+                        <View
+                          style={[
+                            styles.bannerChevron,
+                            isExpanded && styles.bannerChevronExpanded,
+                          ]}
+                        >
+                          <Text style={styles.bannerChevronText}>▼</Text>
                         </View>
-                      </List.Accordion>
-                    </Card>
+                      </View>
+
+                      {/* Expanded Character List */}
+                      {isExpanded && (
+                        <>
+                          <View style={styles.expandDivider} />
+                          <View style={styles.charactersContainer}>
+                            {banner.characters.map(renderCharacterCard)}
+                          </View>
+                        </>
+                      )}
+                    </View>
                   </AnimatedCard>
                 );
               })}
@@ -787,28 +780,70 @@ const styles = StyleSheet.create({
   },
   bannerCard: {
     overflow: "hidden",
-    borderRadius: 12,
-    backgroundColor: "#0F2347",
+    borderRadius: 16,
+    backgroundColor: "rgba(15, 35, 71, 0.85)",
     borderWidth: 1,
-    borderColor: "rgba(18, 138, 250, 0.12)",
+    borderColor: "rgba(18, 138, 250, 0.18)",
   },
   activeBannerCard: {
     borderColor: "#128AFA",
     borderWidth: 2,
-    borderLeftWidth: 3,
     shadowColor: "#128AFA",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.3,
     shadowRadius: 12,
+    elevation: 8,
   },
-  bannerHeader: {
-    padding: 12,
-    paddingBottom: 0,
+  bannerBadgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 14,
+    paddingTop: 12,
+    paddingBottom: 8,
   },
-  bannerInfo: {
+  bannerBadgeLeft: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+  },
+  bannerInfoRow: {
+    paddingHorizontal: 14,
+    paddingBottom: 10,
+    gap: 4,
+  },
+  bannerTitle: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  bannerDateRange: {
+    color: "rgba(255,255,255,0.45)",
+    fontSize: 12,
+  },
+  bannerPreviewRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 14,
+    paddingBottom: 14,
+  },
+  bannerChevron: {
+    justifyContent: "center",
+    alignItems: "center",
+    transform: [{ rotate: "0deg" }],
+  },
+  bannerChevronExpanded: {
+    transform: [{ rotate: "180deg" }],
+  },
+  bannerChevronText: {
+    color: "#94A3B8",
+    fontSize: 12,
+  },
+  expandDivider: {
+    height: 1,
+    backgroundColor: "rgba(18, 138, 250, 0.12)",
+    marginHorizontal: 0,
   },
   bannerTypeChip: {
     paddingHorizontal: 8,
@@ -869,48 +904,10 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     lineHeight: 16,
   },
-  accordionTitle: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  accordionHeader: {
-    backgroundColor: "#0F2347",
-  },
-  accordionDescription: {
-    color: "rgba(255,255,255,0.45)",
-    fontSize: 12,
-    backgroundColor: "#0F2347",
-  },
-  accordionImageContainer: {
-    marginLeft: 8,
-    marginRight: 12,
-  },
-  accordionCharacterImage: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: "rgba(18, 138, 250, 0.35)",
-  },
-  accordionArrow: {
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 8,
-    transform: [{ rotate: "0deg" }],
-  },
-  accordionArrowExpanded: {
-    transform: [{ rotate: "180deg" }],
-  },
-  accordionArrowText: {
-    color: "#94A3B8",
-    fontSize: 12,
-  },
   charactersContainer: {
     gap: 12,
     padding: 12,
-    paddingLeft: 12,
-    backgroundColor: "rgba(10, 22, 40, 0.7)",
+    backgroundColor: "rgba(10, 22, 40, 0.9)",
   },
   charactersTitle: {
     color: "#FFFFFF",
