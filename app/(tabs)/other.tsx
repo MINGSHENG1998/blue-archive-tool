@@ -21,6 +21,7 @@ import {
 } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Application from "expo-application";
+import Constants from "expo-constants";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -343,7 +344,7 @@ export default function OtherScreen() {
           <List.Subheader>{t.miscAboutSection}</List.Subheader>
           <List.Item
             title={t.miscVersion}
-            description={Application.nativeApplicationVersion || "1.0.3"}
+            description={Constants.expoConfig?.version ?? Application.nativeApplicationVersion ?? "1.0.4"}
             left={(props) => <List.Icon {...props} icon="information" />}
           />
           <List.Item
