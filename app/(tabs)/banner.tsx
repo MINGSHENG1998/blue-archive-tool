@@ -5,6 +5,7 @@ import {
   ScrollView,
   Animated,
   Pressable,
+  Text,
 } from "react-native";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
@@ -139,6 +140,56 @@ const BannerTypeChip = ({ type }: { type: string }) => {
     </View>
   );
 };
+
+const PortraitStrip = ({ characters }: { characters: Character[] }) => {
+  const visible = characters.slice(0, 3);
+  const overflow = characters.length - 3;
+
+  return (
+    <View style={portraitStyles.strip}>
+      {visible.map((char, index) => (
+        <Image
+          key={char.id}
+          source={{ uri: char.image }}
+          style={[
+            portraitStyles.avatar,
+            { marginLeft: index === 0 ? 0 : -18 },
+          ]}
+        />
+      ))}
+      {overflow > 0 && (
+        <View style={[portraitStyles.avatar, portraitStyles.overflowCircle, { marginLeft: -18 }]}>
+          <Text style={portraitStyles.overflowText}>+{overflow}</Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
+const portraitStyles = StyleSheet.create({
+  strip: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 2,
+    borderColor: "rgba(18, 138, 250, 0.35)",
+    backgroundColor: "#0F2347",
+  },
+  overflowCircle: {
+    backgroundColor: "rgba(18, 138, 250, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  overflowText: {
+    color: "#128AFA",
+    fontSize: 13,
+    fontWeight: "700",
+  },
+});
 
 export default function FutureBannerScreen() {
   const scrollRef = useRef<{ resetScroll: () => void }>(null);
