@@ -919,7 +919,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 2,
   },
   characterCard: {
-    backgroundColor: "#0F2347",
+    backgroundColor: "rgba(10, 22, 40, 0.85)",
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "rgba(18, 138, 250, 0.18)",
@@ -933,11 +933,11 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   characterImage: {
-    width: 90,
-    height: 90,
+    width: 100,
+    height: 100,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: "rgba(148, 163, 184, 0.3)",
+    borderColor: "rgba(18, 138, 250, 0.4)",
   },
   limitedOverlay: {
     position: "absolute",
