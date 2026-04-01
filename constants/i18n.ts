@@ -51,17 +51,29 @@ export interface UIStrings {
   bondRequiredResources: string;
   bondValidationError: string;
   bondSource: string;
+  bondLevelRange: string;
+  bondDays: string;
+  bondDaysUnit: string;
+  bondExp: string;
+  bondQty: string;
 
   // Resource Calc screen
   resourcePageTitle: string;
   resourceCharacter: string;
   resourceEleph: string;
+  resourceChooseCalc: string;
+  resourceCalculating: string;
+  resourceSubtitle: string;
+  resourceCharDesc: string;
+  resourceElephDesc: string;
+  resourceCalculate: string;
 
   // Shared calc strings (charaExp + elephCalc)
   calcCurrentInventory: string;
   calcAvailableResources: string;
 
   // CharaExp screen
+  charaExpLevelConfig: string;
   charaExpInstruction: string;
   charaExpValidationError: string;
   charaExpSuperiorReport: string;
@@ -87,6 +99,7 @@ export interface UIStrings {
   elephAdditionalEleph: string;
   elephWeaponUpgradeEleph: string;
   elephEligmaCost: string;
+  elephWeaponUpgradeLabel: string;
 
   // Misc / Other screen
   miscTitle: string;
@@ -173,11 +186,22 @@ export const i18n: Record<Locale, UIStrings> = {
     bondRequiredResources: "Required Resources",
     bondValidationError: 'Please ensure "from" is 1-99, "to" is 2-100, and "from" < "to".',
     bondSource: "Source",
+    bondLevelRange: "Bond Level Range",
+    bondDays: "Days (~)",
+    bondDaysUnit: "days",
+    bondExp: "Exp",
+    bondQty: "Qty",
 
     // Resource Calc
     resourcePageTitle: "Resource Calculator",
     resourceCharacter: "Character",
     resourceEleph: "Eleph",
+    resourceChooseCalc: "Choose Calculator Type",
+    resourceCalculating: "Calculating...",
+    resourceSubtitle: "Calculate resources for character progression",
+    resourceCharDesc: "Calculate EXP needed for leveling",
+    resourceElephDesc: "Calculate eleph resources",
+    resourceCalculate: "Calculate Resources",
 
     // Misc
     miscTitle: "About",
@@ -218,6 +242,7 @@ export const i18n: Record<Locale, UIStrings> = {
     calcAvailableResources: "Available Resources",
 
     // CharaExp
+    charaExpLevelConfig: "Level Configuration",
     charaExpInstruction: "Enter current level and target level",
     charaExpValidationError: 'Please ensure "Current Level" is 1-89 and "Target Level" is 2-90.',
     charaExpSuperiorReport: "Superior EXP Report",
@@ -243,6 +268,7 @@ export const i18n: Record<Locale, UIStrings> = {
     elephAdditionalEleph: "Additional Eleph Needed",
     elephWeaponUpgradeEleph: "Weapon Upgrade Eleph",
     elephEligmaCost: "Estimated Eligma Cost",
+    elephWeaponUpgradeLabel: "Weapon Upgrade",
   },
 
   zh: {
@@ -294,11 +320,22 @@ export const i18n: Record<Locale, UIStrings> = {
     bondRequiredResources: "所需资源",
     bondValidationError: '"起始"需为1-99，"目标"需为2-100，且"起始" < "目标"',
     bondSource: "来源",
+    bondLevelRange: "好感度等级范围",
+    bondDays: "天数 (~)",
+    bondDaysUnit: "天",
+    bondExp: "经验",
+    bondQty: "数量",
 
     // Resource Calc
     resourcePageTitle: "资源计算器",
     resourceCharacter: "角色",
     resourceEleph: "秘石",
+    resourceChooseCalc: "选择计算器类型",
+    resourceCalculating: "计算中...",
+    resourceSubtitle: "计算角色成长所需资源",
+    resourceCharDesc: "计算升级所需经验",
+    resourceElephDesc: "计算秘石资源",
+    resourceCalculate: "计算资源",
 
     // Misc
     miscTitle: "关于",
@@ -339,6 +376,7 @@ export const i18n: Record<Locale, UIStrings> = {
     calcAvailableResources: "可用资源",
 
     // CharaExp
+    charaExpLevelConfig: "等级设置",
     charaExpInstruction: "请输入当前等级和目标等级",
     charaExpValidationError: '"当前等级"需为1-89，"目标等级"需为2-90',
     charaExpSuperiorReport: "高级战术教材",
@@ -364,6 +402,7 @@ export const i18n: Record<Locale, UIStrings> = {
     elephAdditionalEleph: "还需秘石",
     elephWeaponUpgradeEleph: "武器升级秘石",
     elephEligmaCost: "预计艾利格玛消耗",
+    elephWeaponUpgradeLabel: "武器升级",
   },
 
   ko: {
@@ -415,11 +454,22 @@ export const i18n: Record<Locale, UIStrings> = {
     bondRequiredResources: "필요 자원",
     bondValidationError: '"시작"은 1-99, "목표"는 2-100이어야 하며, "시작" < "목표"이어야 합니다.',
     bondSource: "출처",
+    bondLevelRange: "호감도 레벨 범위",
+    bondDays: "일수 (~)",
+    bondDaysUnit: "일",
+    bondExp: "경험치",
+    bondQty: "수량",
 
     // Resource Calc
     resourcePageTitle: "자원 계산기",
     resourceCharacter: "캐릭터",
     resourceEleph: "엘레프",
+    resourceChooseCalc: "계산기 유형 선택",
+    resourceCalculating: "계산 중...",
+    resourceSubtitle: "캐릭터 성장에 필요한 자원을 계산하세요",
+    resourceCharDesc: "레벨업에 필요한 경험치 계산",
+    resourceElephDesc: "엘레프 자원 계산",
+    resourceCalculate: "자원 계산",
 
     // Misc
     miscTitle: "정보",
@@ -460,6 +510,7 @@ export const i18n: Record<Locale, UIStrings> = {
     calcAvailableResources: "보유 자원",
 
     // CharaExp
+    charaExpLevelConfig: "레벨 설정",
     charaExpInstruction: "현재 레벨과 목표 레벨을 입력하세요",
     charaExpValidationError: '"현재 레벨"은 1-89, "목표 레벨"은 2-90이어야 합니다.',
     charaExpSuperiorReport: "상급 전술교재",
@@ -485,6 +536,7 @@ export const i18n: Record<Locale, UIStrings> = {
     elephAdditionalEleph: "추가 필요 엘레프",
     elephWeaponUpgradeEleph: "무기 강화 엘레프",
     elephEligmaCost: "예상 엘리그마 소모",
+    elephWeaponUpgradeLabel: "무기 강화",
   },
 
   ja: {
@@ -536,11 +588,22 @@ export const i18n: Record<Locale, UIStrings> = {
     bondRequiredResources: "必要リソース",
     bondValidationError: '"開始"は1〜99、"目標"は2〜100で、"開始" < "目標"にしてください。',
     bondSource: "ソース",
+    bondLevelRange: "絆レベル範囲",
+    bondDays: "日数 (~)",
+    bondDaysUnit: "日",
+    bondExp: "経験値",
+    bondQty: "数量",
 
     // Resource Calc
     resourcePageTitle: "リソース計算機",
     resourceCharacter: "キャラクター",
     resourceEleph: "エレフ",
+    resourceChooseCalc: "計算タイプを選択",
+    resourceCalculating: "計算中...",
+    resourceSubtitle: "キャラクター育成に必要なリソースを計算",
+    resourceCharDesc: "レベルアップに必要な経験値を計算",
+    resourceElephDesc: "エレフリソースを計算",
+    resourceCalculate: "リソースを計算",
 
     // Misc
     miscTitle: "情報",
@@ -581,6 +644,7 @@ export const i18n: Record<Locale, UIStrings> = {
     calcAvailableResources: "所持リソース",
 
     // CharaExp
+    charaExpLevelConfig: "レベル設定",
     charaExpInstruction: "現在レベルと目標レベルを入力してください",
     charaExpValidationError: '"現在レベル"は1〜89、"目標レベル"は2〜90にしてください。',
     charaExpSuperiorReport: "上級戦術教材",
@@ -606,6 +670,7 @@ export const i18n: Record<Locale, UIStrings> = {
     elephAdditionalEleph: "追加必要エレフ",
     elephWeaponUpgradeEleph: "武器強化エレフ",
     elephEligmaCost: "推定エリグマ消費",
+    elephWeaponUpgradeLabel: "武器強化",
   },
 };
 
@@ -615,6 +680,18 @@ export const atkTypeLabels: Record<string, Record<Locale, string>> = {
   mystic:    { en: "Mystic",    zh: "神秘", ko: "신비", ja: "神秘" },
   sonic:     { en: "Sonic",     zh: "振动", ko: "진동", ja: "振動" },
   chemical:  { en: "Chemical",  zh: "化学", ko: "화학", ja: "化学" },
+};
+
+export const bondResourceNames: Record<string, Record<Locale, string>> = {
+  checkIn:       { en: "Cafe Check-In",      zh: "咖啡厅摸头",    ko: "카페 체크인",       ja: "カフェ撫で" },
+  mehGift2Star:  { en: "Small 2★ Gift",      zh: "普通2星礼物",   ko: "보통 2성 선물",     ja: "普通2★ギフト" },
+  likeGift2Star: { en: "Normal 2★ Gift",     zh: "喜爱2星礼物",   ko: "좋아하는 2성 선물", ja: "好き2★ギフト" },
+  favorite2Star: { en: "Great 2★ Gift",      zh: "最爱2星礼物",   ko: "최애 2성 선물",     ja: "大好き2★ギフト" },
+  loved2Star:    { en: "Amazing 2★ Gift",    zh: "至爱2星礼物",   ko: "최고 2성 선물",     ja: "最愛2★ギフト" },
+  mehGift3Star:  { en: "Small 3★ Gift",      zh: "普通3星礼物",   ko: "보통 3성 선물",     ja: "普通3★ギフト" },
+  likeGift3Star: { en: "Normal 3★ Gift",     zh: "喜爱3星礼物",   ko: "좋아하는 3성 선물", ja: "好き3★ギフト" },
+  favorite3Star: { en: "Great 3★ Gift",      zh: "最爱3星礼物",   ko: "최애 3성 선물",     ja: "大好き3★ギフト" },
+  loved3Star:    { en: "Amazing 3★ Gift",    zh: "至爱3星礼物",   ko: "최고 3성 선물",     ja: "最愛3★ギフト" },
 };
 
 export const defTypeLabels: Record<string, Record<Locale, string>> = {

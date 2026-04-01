@@ -46,7 +46,7 @@ Path alias `@/*` maps to the project root (defined in `tsconfig.json`).
 
 - **Firebase/Firestore** (`firebaseConfig.js`, initialized in `app/_layout.tsx`) — used for remote data
 - **`constants/`** — Static game data: character level tables (`charaLvlData.ts`), bond exp data (`bondData.ts`), color mappings (`Colors.ts`)
-- **`dto/game.dto.ts`** — Core TypeScript types: `WeaponType`, `AtkType`, `DefType`
+- **`dto/game.dto.ts`** — Core TypeScript types: `AtkType`, `DefType`
 
 ### UI
 

@@ -5,8 +5,8 @@
 
 import { AtkType, DefType } from "@/dto/game.dto";
 
-const tintColorLight = "#0a7ea4";
-const tintColorDark = "#fff";
+const tintColorLight = "#128AFA";
+const tintColorDark = "#128AFA";
 
 export const Colors = {
   light: {
@@ -47,6 +47,10 @@ export const typeColor: Record<
     icon: require("@/assets/images/icons/sonic_atk_icon.png"),
     background: "#94519E",
   },
+  chemical: {
+    icon: require("@/assets/images/icons/chemical_atk_icon.png"),
+    background: "#11736B",
+  },
   light: {
     icon: require("@/assets/images/icons/light_def_icon.png"),
     background: "#910008",
@@ -62,5 +66,9 @@ export const typeColor: Record<
   elastic: {
     icon: require("@/assets/images/icons/elastic_def_icon.png"),
     background: "#94519E",
+  },
+  composite: {
+    icon: require("@/assets/images/icons/composite_def_icon.png"),
+    background: "#11736B",
   },
 };

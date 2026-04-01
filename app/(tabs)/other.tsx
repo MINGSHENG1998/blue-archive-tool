@@ -118,7 +118,7 @@ function LanguageDrawer({
               key={code}
               label={label}
               value={code}
-              color="#2196F3"
+              color="#128AFA"
               labelStyle={styles.drawerItemLabel}
               style={styles.drawerItem}
             />
@@ -208,8 +208,8 @@ const FeedbackDrawer = memo(function FeedbackDrawer({
         }}
         mode="outlined"
         style={styles.input}
-        outlineColor="#555"
-        activeOutlineColor="#2196F3"
+        outlineColor="rgba(18, 138, 250, 0.3)"
+        activeOutlineColor="#128AFA"
         textColor="white"
         theme={{ colors: { onSurfaceVariant: "#aaa" } }}
         error={!!titleError}
@@ -231,8 +231,8 @@ const FeedbackDrawer = memo(function FeedbackDrawer({
         multiline
         numberOfLines={4}
         style={[styles.input, styles.descInput]}
-        outlineColor="#555"
-        activeOutlineColor="#2196F3"
+        outlineColor="rgba(18, 138, 250, 0.3)"
+        activeOutlineColor="#128AFA"
         textColor="white"
         theme={{ colors: { onSurfaceVariant: "#aaa" } }}
         error={!!descError}
@@ -252,6 +252,8 @@ const FeedbackDrawer = memo(function FeedbackDrawer({
           onPress={validateAndSend}
           loading={sending}
           disabled={sending}
+          buttonColor="#128AFA"
+          textColor="#FFFFFF"
         >
           {t.miscSubmit}
         </Button>
@@ -313,7 +315,7 @@ export default function OtherScreen() {
             title={t.language}
             description={LOCALE_LABELS[locale]}
             left={(props) => (
-              <List.Icon {...props} icon="translate" color="#2196F3" />
+              <List.Icon {...props} icon="translate" color="#128AFA" />
             )}
             onPress={() => setOpenDrawer("language")}
             right={(props) => <List.Icon {...props} icon="chevron-right" />}
@@ -328,7 +330,7 @@ export default function OtherScreen() {
             title={t.miscFeedbackItem}
             description={t.miscFeedbackItemDesc}
             left={(props) => (
-              <List.Icon {...props} icon="message-text" color="#2196F3" />
+              <List.Icon {...props} icon="message-text" color="#128AFA" />
             )}
             onPress={() => setOpenDrawer("feedback")}
             right={(props) => <List.Icon {...props} icon="chevron-right" />}
@@ -384,10 +386,10 @@ export default function OtherScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   sectionAccent: {
-    width: 60,
-    height: 2,
-    backgroundColor: "#00F5FF",
-    borderRadius: 1,
+    width: 44,
+    height: 2.5,
+    backgroundColor: "#128AFA",
+    borderRadius: 2,
     marginBottom: 16,
   },
   divider: { marginVertical: 8 },
@@ -404,9 +406,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#1e1e2e",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: "#0D1F3C",
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
     paddingHorizontal: 24,
     paddingBottom: 36,
     paddingTop: 12,
@@ -414,7 +416,7 @@ const styles = StyleSheet.create({
   drawerHandle: {
     width: 40,
     height: 4,
-    backgroundColor: "#555",
+    backgroundColor: "rgba(18, 138, 250, 0.3)",
     borderRadius: 2,
     alignSelf: "center",
     marginBottom: 20,
@@ -437,12 +439,12 @@ const styles = StyleSheet.create({
 
   // Feedback inputs
   input: {
-    backgroundColor: "#2a2a3a",
+    backgroundColor: "rgba(10, 22, 40, 0.9)",
     marginTop: 8,
   },
   descInput: { minHeight: 100 },
 
   // Disclaimer
   disclaimerScroll: { maxHeight: 200, marginBottom: 8 },
-  disclaimerBody: { color: "#ccc", lineHeight: 22 },
+  disclaimerBody: { color: "rgba(255,255,255,0.6)", lineHeight: 22 },
 });

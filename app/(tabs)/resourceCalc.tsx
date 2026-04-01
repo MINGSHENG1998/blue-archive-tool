@@ -23,18 +23,6 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n } from "@/constants/i18n";
 
-const CALCULATOR_TYPES = [
-  { 
-    value: "character", 
-    label: "Character", 
-    description: "Calculate EXP needed for leveling",
-  },
-  { 
-    value: "other", 
-    label: "Eleph", 
-    description: "Calculate eleph resources",
-  },
-];
 
 // Reusable animated card component
 const AnimatedCard = ({ children, style, ...props }: any) => {
@@ -73,8 +61,8 @@ const CalculatorTypeSelector = ({ selectedType, onTypeChange }: any) => {
   const { locale } = useLanguage();
   const t = i18n[locale];
   const calculatorTypes = [
-    { value: "character", label: t.resourceCharacter, description: CALCULATOR_TYPES[0].description },
-    { value: "other", label: t.resourceEleph, description: CALCULATOR_TYPES[1].description },
+    { value: "character", label: t.resourceCharacter, description: t.resourceCharDesc },
+    { value: "other", label: t.resourceEleph, description: t.resourceElephDesc },
   ];
 
   return (
@@ -82,7 +70,7 @@ const CalculatorTypeSelector = ({ selectedType, onTypeChange }: any) => {
       <Card style={[styles.card, { backgroundColor: cardBackground }]}>
         <Card.Content style={styles.cardContent}>
           <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>
-            Choose Calculator Type
+            {t.resourceChooseCalc}
           </ThemedText>
           <View style={styles.typeContainer}>
             {calculatorTypes.map((type) => (
@@ -143,13 +131,15 @@ const ErrorDisplay = ({ error }: any) => {
 // Loading display component
 const LoadingDisplay = () => {
   const cardBackground = useThemeColor({}, "background");
-  
+  const { locale } = useLanguage();
+  const t = i18n[locale];
+
   return (
     <AnimatedCard style={styles.cardWrapper}>
       <Card style={[styles.card, { backgroundColor: cardBackground }]}>
         <Card.Content style={styles.loadingContent}>
-          <ActivityIndicator size="large" color="#00F5FF" />
-          <ThemedText style={styles.loadingText}>Calculating...</ThemedText>
+          <ActivityIndicator size="large" color="#128AFA" />
+          <ThemedText style={styles.loadingText}>{t.resourceCalculating}</ThemedText>
         </Card.Content>
       </Card>
     </AnimatedCard>
@@ -224,7 +214,7 @@ export default function ResourceCalcScreen() {
             </ThemedText>
             <View style={styles.titleAccent} />
             <ThemedText type="default" style={styles.subtitle}>
-              Calculate resources for character progression
+              {t.resourceSubtitle}
             </ThemedText>
           </View>
         </ThemedView>
@@ -254,7 +244,7 @@ export default function ResourceCalcScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#0A1628",
   },
   
   // Header styles
@@ -264,21 +254,21 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   mainTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
+    fontSize: 24,
+    fontWeight: "800", fontStyle: "italic", letterSpacing: 0.2,
     color: "#FFFFFF",
   },
   subtitle: {
     fontSize: 14,
-    color: "#94A3B8",
+    color: "rgba(255,255,255,0.45)",
     marginTop: 4,
   },
   titleAccent: {
-    width: 80,
+    width: 44,
     height: 3,
-    backgroundColor: "#00F5FF",
+    backgroundColor: "#128AFA",
     borderRadius: 2,
-    shadowColor: "#00F5FF",
+    shadowColor: "#128AFA",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.5,
     shadowRadius: 4,
@@ -290,7 +280,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   card: {
-    backgroundColor: "rgba(30, 41, 59, 0.7)",
+    backgroundColor: "#0F2347",
     borderRadius: 16,
     elevation: 3,
     shadowColor: "#000",
@@ -309,7 +299,7 @@ const styles = StyleSheet.create({
   accent: {
     width: 60,
     height: 2,
-    backgroundColor: "#00F5FF",
+    backgroundColor: "#128AFA",
     borderRadius: 1,
   },
   
@@ -320,15 +310,15 @@ const styles = StyleSheet.create({
   },
   typeButton: {
     flex: 1,
-    backgroundColor: "rgba(15, 23, 42, 0.6)",
+    backgroundColor: "rgba(10, 22, 40, 0.7)",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "rgba(71, 85, 105, 0.4)",
+    borderColor: "rgba(18, 138, 250, 0.18)",
     padding: 16,
   },
   selectedTypeButton: {
     backgroundColor: "rgba(0, 245, 255, 0.1)",
-    borderColor: "#00F5FF",
+    borderColor: "#128AFA",
     borderWidth: 2,
   },
   typeButtonContent: {
@@ -341,10 +331,10 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   selectedTypeTitle: {
-    color: "#00F5FF",
+    color: "#128AFA",
   },
   typeDescription: {
-    color: "#94A3B8",
+    color: "rgba(255,255,255,0.45)",
     fontSize: 12,
     textAlign: "center",
     lineHeight: 16,
@@ -388,7 +378,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   loadingText: {
-    color: "#94A3B8",
+    color: "rgba(255,255,255,0.45)",
     fontSize: 16,
   },
 });

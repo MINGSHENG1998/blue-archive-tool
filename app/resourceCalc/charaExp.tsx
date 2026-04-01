@@ -47,7 +47,7 @@ const ResourceInput = ({ icon, label, value, onChangeText, fieldName }: any) => 
       style={styles.resourceInput}
       theme={{
         colors: {
-          primary: '#00F5FF',
+          primary: '#128AFA',
           outline: 'rgba(71, 85, 105, 0.6)',
           onSurface: '#FFFFFF',
           surface: 'rgba(15, 23, 42, 0.8)',
@@ -71,7 +71,7 @@ const LevelInput = ({ label, placeholder, value, onChangeText, onClear }: any) =
     style={[styles.input, styles.halfInput]}
     theme={{
       colors: {
-        primary: '#00F5FF',
+        primary: '#128AFA',
         outline: 'rgba(71, 85, 105, 0.6)',
         onSurface: '#FFFFFF',
         surface: 'rgba(15, 23, 42, 0.8)',
@@ -311,7 +311,7 @@ export default function CharaExpCalc() {
         {/* Level Input Section */}
         <View style={styles.section}>
           <ThemedText style={styles.sectionLabel}>
-            Level Configuration
+            {t.charaExpLevelConfig}
           </ThemedText>
           <ThemedView style={styles.row}>
             <LevelInput
@@ -392,11 +392,11 @@ export default function CharaExpCalc() {
           mode="contained"
           onPress={handleCalculate}
           style={styles.calculateButton}
-          buttonColor="#00F5FF"
+          buttonColor="#128AFA"
           textColor="#0F172A"
           labelStyle={styles.calculateButtonText}
         >
-          Calculate Resources
+          {t.resourceCalculate}
         </Button>
       </ThemedView>
 
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
   inventoryAccent: {
     width: 40,
     height: 2,
-    backgroundColor: "#00F5FF",
+    backgroundColor: "#128AFA",
     borderRadius: 1,
   },
 
@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 12,
     elevation: 3,
-    shadowColor: "#00F5FF",
+    shadowColor: "#128AFA",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -565,7 +565,7 @@ const styles = StyleSheet.create({
   resultAccent: {
     width: 60,
     height: 2,
-    backgroundColor: "#00F5FF",
+    backgroundColor: "#128AFA",
     borderRadius: 1,
   },
   
@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
   totalExpValue: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#00F5FF",
+    color: "#128AFA",
   },
 
   // Resource section
@@ -628,6 +628,6 @@ const styles = StyleSheet.create({
   },
   resourceValue: {
     fontWeight: "600",
-    color: "#00F5FF",
+    color: "#128AFA",
   },
 });

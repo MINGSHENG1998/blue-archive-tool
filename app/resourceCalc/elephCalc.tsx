@@ -192,7 +192,7 @@ export default function ElephCalc() {
         {parseInt(targetRarity, 10) === 5 && (
           <ThemedView style={styles.weaponRankContainer}>
             <ThemedText type="defaultSemiBold" style={styles.fieldLabel}>
-              Weapon Upgrade
+              {t.elephWeaponUpgradeLabel}
             </ThemedText>
             <Dropdown
               mode="outlined"
@@ -224,7 +224,7 @@ export default function ElephCalc() {
                   type="defaultSemiBold"
                   style={styles.inventoryTitle}
                 >
-                  Available Resources
+                  {t.calcAvailableResources}
                 </ThemedText>
                 <Divider style={styles.inventoryDivider} />
                 <ThemedView style={styles.resourceInputContainer}>
@@ -244,7 +244,7 @@ export default function ElephCalc() {
                     theme={{
                       colors: {
                         onSurfaceVariant: "#94A3B8",
-                        primary: "#00F5FF",
+                        primary: "#128AFA",
                         outline: "rgba(71, 85, 105, 0.4)",
                       },
                     }}
@@ -264,7 +264,7 @@ export default function ElephCalc() {
           onPress={handleCalculate}
         >
           <ThemedText type="defaultSemiBold" style={styles.calculateButtonText}>
-            Calculate Resources
+            {t.resourceCalculate}
           </ThemedText>
         </Pressable>
       </View>
@@ -278,7 +278,7 @@ export default function ElephCalc() {
             <Card.Content style={styles.resultContent}>
               <View style={styles.resultHeader}>
                 <ThemedText type="defaultSemiBold" style={styles.resultTitle}>
-                  Required Resources
+                  {t.bondRequiredResources}
                 </ThemedText>
                 <View style={styles.resultAccent} />
               </View>
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
   accent: {
     width: 60,
     height: 2,
-    backgroundColor: "#00F5FF",
+    backgroundColor: "#128AFA",
     borderRadius: 1,
     marginBottom: 16,
   },
@@ -456,11 +456,11 @@ const styles = StyleSheet.create({
 
   // Calculate button
   calculateButton: {
-    backgroundColor: "#00F5FF",
+    backgroundColor: "#128AFA",
     borderRadius: 12,
     padding: 16,
     alignItems: "center",
-    shadowColor: "#00F5FF",
+    shadowColor: "#128AFA",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "rgba(0, 245, 255, 0.2)",
-    shadowColor: "#00F5FF",
+    shadowColor: "#128AFA",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
   resultAccent: {
     width: 80,
     height: 2,
-    backgroundColor: "#00F5FF",
+    backgroundColor: "#128AFA",
     borderRadius: 1,
   },
 
@@ -519,7 +519,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(0, 245, 255, 0.2)",
   },
   totalText: {
-    color: "#00F5FF",
+    color: "#128AFA",
     fontSize: 32,
     fontWeight: "bold",
     textAlign: "center",
@@ -567,7 +567,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   resourceValue: {
-    color: "#00F5FF",
+    color: "#128AFA",
     fontSize: 14,
     fontWeight: "600",
   },

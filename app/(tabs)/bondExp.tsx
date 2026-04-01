@@ -38,7 +38,7 @@ import React from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useLanguage } from "@/contexts/language-context";
-import { i18n } from "@/constants/i18n";
+import { i18n, bondResourceNames } from "@/constants/i18n";
 
 const { width } = Dimensions.get("window");
 
@@ -180,7 +180,7 @@ export default function BondExpScreen() {
         elevation={0}
       >
         <ThemedView style={styles.titleContainer}>
-          <View>
+          <View style={{ flex: 1 }}>
             <ThemedText type="title" style={styles.mainTitle}>
               {t.bondPageTitle}
             </ThemedText>
@@ -196,7 +196,7 @@ export default function BondExpScreen() {
                 type="defaultSemiBold"
                 style={styles.inputSectionTitle}
               >
-                Bond Level Range
+                {t.bondLevelRange}
               </ThemedText>
               <ThemedView style={styles.inputRow}>
                 <View style={styles.inputWrapper}>
@@ -298,7 +298,7 @@ export default function BondExpScreen() {
                 labelStyle={styles.calculateButtonLabel}
                 loading={calculating}
                 disabled={calculating || !from || !to}
-                buttonColor="#00F5FF"
+                buttonColor="#128AFA"
                 textColor="#0F172A"
               >
                 {t.bondCalculate}
@@ -377,10 +377,10 @@ export default function BondExpScreen() {
                     <View style={styles.estimationDivider} />
                     <View style={styles.estimationItem}>
                       <ThemedText style={styles.estimationLabel}>
-                        Days (~)
+                        {t.bondDays}
                       </ThemedText>
                       <ThemedText style={styles.estimationValue}>
-                        {getEstimatedDays()} days
+                        {getEstimatedDays()} {t.bondDaysUnit}
                       </ThemedText>
                     </View>
                   </View>
@@ -416,7 +416,7 @@ export default function BondExpScreen() {
                           textStyle={styles.tableHeaderText}
                           style={styles.expColumn}
                         >
-                          Exp
+                          {t.bondExp}
                         </DataTable.Title>
                         <DataTable.Title
                           numeric
@@ -424,7 +424,7 @@ export default function BondExpScreen() {
                           textStyle={styles.tableHeaderText}
                           style={styles.amountColumn}
                         >
-                          Qty {sortDirection === "asc" ? "↑" : "↓"}
+                          {t.bondQty} {sortDirection === "asc" ? "↑" : "↓"}
                         </DataTable.Title>
                       </DataTable.Header>
 
@@ -451,7 +451,7 @@ export default function BondExpScreen() {
                                 numberOfLines={2}
                                 ellipsizeMode="tail"
                               >
-                                {item.name}
+                                {bondResourceNames[item.key]?.[locale] ?? item.name}
                               </ThemedText>
                             </View>
                           </DataTable.Cell>
@@ -486,7 +486,7 @@ export default function BondExpScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#0A1628",
   },
   backgroundPattern: {
     position: "absolute",
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "#0F172A",
+    backgroundColor: "#0A1628",
     opacity: 0.8,
   },
   titleContainer: {
@@ -506,21 +506,21 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   mainTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
+    fontSize: 24,
+    fontWeight: "800", fontStyle: "italic", letterSpacing: 0.2,
     color: "#FFFFFF",
   },
   subtitle: {
     fontSize: 14,
-    color: "#94A3B8",
+    color: "rgba(255,255,255,0.45)",
     marginTop: 4,
   },
   sectionAccent: {
-    width: 80,
-    height: 3,
-    backgroundColor: "#00F5FF",
+    width: 44,
+    height: 2.5,
+    backgroundColor: "#128AFA",
     borderRadius: 2,
-    shadowColor: "#00F5FF",
+    shadowColor: "#128AFA",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.5,
     shadowRadius: 4,
@@ -567,7 +567,7 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   arrowText: {
-    color: "#00F5FF",
+    color: "#128AFA",
     fontSize: 20,
     fontWeight: "bold",
   },
@@ -579,7 +579,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   textInputOutline: {
-    borderColor: "rgba(71, 85, 105, 0.4)",
+    borderColor: "rgba(18, 138, 250, 0.18)",
     borderWidth: 1,
   },
   errorContainer: {
@@ -613,7 +613,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   settingsCard: {
-    backgroundColor: "rgba(30, 41, 59, 0.5)",
+    backgroundColor: "rgba(13, 31, 60, 0.85)",
     borderRadius: 12,
     elevation: 1,
   },
@@ -638,12 +638,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   resultCard: {
-    backgroundColor: "rgba(30, 41, 59, 0.8)",
+    backgroundColor: "#0F2347",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#00F5FF",
+    borderColor: "#128AFA",
     elevation: 4,
-    shadowColor: "#00F5FF",
+    shadowColor: "#128AFA",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -657,7 +657,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   resultBadge: {
-    backgroundColor: "#00F5FF",
+    backgroundColor: "#128AFA",
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 16,
@@ -674,7 +674,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   resultValue: {
-    color: "#00F5FF",
+    color: "#128AFA",
     fontSize: 32,
     fontWeight: "bold",
     marginBottom: 24,
@@ -709,7 +709,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   resourceCard: {
-    backgroundColor: "rgba(30, 41, 59, 0.5)",
+    backgroundColor: "rgba(13, 31, 60, 0.85)",
     borderRadius: 12,
     elevation: 1,
   },
@@ -729,7 +729,7 @@ const styles = StyleSheet.create({
     paddingRight: 4,
   },
   tableHeaderText: {
-    color: "#00F5FF",
+    color: "#128AFA",
     fontWeight: "600",
     fontSize: 13,
   },
@@ -751,7 +751,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   tableCellTextAmount: {
-    color: "#00F5FF",
+    color: "#128AFA",
     fontSize: 14,
     fontWeight: "600",
   },
