@@ -412,7 +412,6 @@ export default function FutureBannerScreen() {
       onRefresh={onRefresh}
       refreshing={refreshing}
     >
-      <View style={styles.backgroundPattern} />
       <Surface
         style={[styles.container, { paddingTop: insets.top, backgroundColor }]}
         elevation={0}
@@ -631,15 +630,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#0A1628",
-  },
-  backgroundPattern: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "#0A1628",
-    opacity: 1,
   },
   loadingContainer: {
     flex: 1,
@@ -908,12 +898,6 @@ const styles = StyleSheet.create({
     gap: 12,
     padding: 12,
     backgroundColor: "rgba(10, 22, 40, 0.9)",
-  },
-  charactersTitle: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 8,
   },
   characterCardWrapper: {
     marginHorizontal: 2,
