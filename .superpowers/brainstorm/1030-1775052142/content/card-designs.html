@@ -1,0 +1,318 @@
+<style>
+  body { background: #0A1628; }
+  .screen { padding: 16px 0; }
+  .screen h2 { color: #fff; font-size: 17px; margin-bottom: 4px; }
+  .screen p.sub { color: rgba(255,255,255,0.45); font-size: 13px; margin-bottom: 20px; }
+
+  /* ── Shared card shell ── */
+  .demo-wrap { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 420px; }
+
+  /* ══ OPTION A — Clean Icon Row ══ */
+  .card-a {
+    background: #0F2347;
+    border-radius: 14px;
+    border: 1px solid rgba(18,138,250,0.12);
+    border-left: 3px solid var(--accent);
+    display: flex;
+    align-items: center;
+    padding: 14px 16px 14px 0;
+    gap: 0;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .card-a:hover { transform: scale(0.985); }
+  .card-a .a-strip {
+    width: 3px; align-self: stretch; background: var(--accent);
+    border-radius: 2px; margin-right: 14px; flex-shrink: 0;
+  }
+  .card-a .a-icon {
+    width: 46px; height: 46px; border-radius: 12px;
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-right: 14px; flex-shrink: 0;
+  }
+  .card-a .a-text { flex: 1; }
+  .card-a .a-title { color: #fff; font-size: 15px; font-weight: 700; margin-bottom: 3px; letter-spacing: 0.1px; }
+  .card-a .a-sub { color: rgba(255,255,255,0.4); font-size: 12px; line-height: 1.45; }
+  .card-a .a-right { display: flex; flex-direction: column; align-items: center; gap: 6px; padding-left: 10px; }
+  .card-a .a-label {
+    font-size: 9px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 4px;
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent);
+  }
+  .card-a .a-arrow {
+    width: 28px; height: 28px; border-radius: 7px;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent); font-size: 18px; font-weight: 300; line-height: 1;
+  }
+
+  /* ══ OPTION B — Accent Hero Panel ══ */
+  .card-b {
+    background: #0F2347;
+    border-radius: 14px;
+    border: 1px solid rgba(18,138,250,0.12);
+    overflow: hidden;
+    display: flex;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .card-b:hover { transform: scale(0.985); }
+  .card-b .b-hero {
+    width: 68px; flex-shrink: 0;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 30%, #0A1628), color-mix(in srgb, var(--accent) 15%, #0A1628));
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; padding: 14px 0;
+    border-right: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+  .card-b .b-hero-icon { font-size: 22px; }
+  .card-b .b-hero-label {
+    font-size: 8px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
+    color: var(--accent); opacity: 0.9;
+  }
+  .card-b .b-content {
+    flex: 1; padding: 14px 14px 14px 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card-b .b-text { flex: 1; }
+  .card-b .b-title { color: #fff; font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .card-b .b-sub { color: rgba(255,255,255,0.4); font-size: 12px; line-height: 1.45; }
+  .card-b .b-arrow {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent); font-size: 18px; font-weight: 300;
+  }
+
+  /* ══ OPTION C — Top-band Card ══ */
+  .card-c {
+    background: #0F2347;
+    border-radius: 14px;
+    border: 1px solid rgba(18,138,250,0.12);
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .card-c:hover { transform: scale(0.985); }
+  .card-c .c-band {
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 20%, transparent));
+  }
+  .card-c .c-body {
+    display: flex; align-items: center;
+    padding: 13px 14px; gap: 12px;
+  }
+  .card-c .c-icon {
+    width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
+  }
+  .card-c .c-text { flex: 1; }
+  .card-c .c-top { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+  .card-c .c-title { color: #fff; font-size: 15px; font-weight: 700; }
+  .card-c .c-tag {
+    font-size: 8.5px; font-weight: 800; letter-spacing: 1.3px; text-transform: uppercase;
+    padding: 1.5px 6px; border-radius: 3px;
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    color: var(--accent);
+  }
+  .card-c .c-sub { color: rgba(255,255,255,0.4); font-size: 12px; line-height: 1.45; }
+  .card-c .c-arrow {
+    width: 30px; height: 30px; border-radius: 7px;
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent); font-size: 18px; font-weight: 300;
+  }
+
+  /* ── option wrapper ── */
+  .opt-section { margin-bottom: 28px; }
+  .opt-label {
+    font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+    color: rgba(255,255,255,0.3); margin-bottom: 10px;
+  }
+  .opt-desc {
+    font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 10px; line-height: 1.5;
+  }
+
+  /* clickable option wrapper */
+  .pick-wrap {
+    border-radius: 16px;
+    border: 2px solid transparent;
+    padding: 12px;
+    transition: border-color 0.2s, background 0.2s;
+    cursor: pointer;
+  }
+  .pick-wrap:hover { background: rgba(255,255,255,0.03); border-color: rgba(18,138,250,0.2); }
+  .pick-wrap.selected { border-color: #128AFA; background: rgba(18,138,250,0.06); }
+</style>
+
+<h2>Quick Tool Card — 3 Layout Options</h2>
+<p class="sub">Click a design to select it. These are pixel-accurate mockups using the app's actual colors.</p>
+
+<div class="options" style="display:flex;flex-direction:column;gap:0">
+
+  <!-- Option A -->
+  <div class="option" data-choice="a" onclick="toggleSelect(this)" style="display:block;border-radius:16px;margin-bottom:6px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div class="letter">A</div>
+      <div>
+        <strong style="color:#fff">Clean Row</strong>
+        <div style="font-size:12px;color:rgba(255,255,255,0.45)">Label + arrow stacked right — current direction, polished</div>
+      </div>
+    </div>
+    <div class="demo-wrap">
+      <div class="card-a" style="--accent:#128AFA" onclick="event.stopPropagation()">
+        <div class="a-strip"></div>
+        <div class="a-icon">📅</div>
+        <div class="a-text">
+          <div class="a-title">Banner Tracker</div>
+          <div class="a-sub">Check current & upcoming gacha banners</div>
+        </div>
+        <div class="a-right">
+          <div class="a-label">GACHA</div>
+          <div class="a-arrow">›</div>
+        </div>
+      </div>
+      <div class="card-a" style="--accent:#E879A0" onclick="event.stopPropagation()">
+        <div class="a-strip"></div>
+        <div class="a-icon">💗</div>
+        <div class="a-text">
+          <div class="a-title">Bond EXP Calc</div>
+          <div class="a-sub">Plan gifts to maximise bond levels</div>
+        </div>
+        <div class="a-right">
+          <div class="a-label">BOND</div>
+          <div class="a-arrow">›</div>
+        </div>
+      </div>
+      <div class="card-a" style="--accent:#3DD68C" onclick="event.stopPropagation()">
+        <div class="a-strip"></div>
+        <div class="a-icon">⚙️</div>
+        <div class="a-text">
+          <div class="a-title">Chara Builder</div>
+          <div class="a-sub">Skill & level resource planner</div>
+        </div>
+        <div class="a-right">
+          <div class="a-label">BUILD</div>
+          <div class="a-arrow">›</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="option" data-choice="b" onclick="toggleSelect(this)" style="display:block;border-radius:16px;margin-bottom:6px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div class="letter">B</div>
+      <div>
+        <strong style="color:#fff">Accent Hero Panel</strong>
+        <div style="font-size:12px;color:rgba(255,255,255,0.45)">Icon + label in a left hero column — game UI feel</div>
+      </div>
+    </div>
+    <div class="demo-wrap">
+      <div class="card-b" style="--accent:#128AFA" onclick="event.stopPropagation()">
+        <div class="b-hero">
+          <div class="b-hero-icon">📅</div>
+          <div class="b-hero-label">GACHA</div>
+        </div>
+        <div class="b-content">
+          <div class="b-text">
+            <div class="b-title">Banner Tracker</div>
+            <div class="b-sub">Check current & upcoming gacha banners</div>
+          </div>
+          <div class="b-arrow">›</div>
+        </div>
+      </div>
+      <div class="card-b" style="--accent:#E879A0" onclick="event.stopPropagation()">
+        <div class="b-hero">
+          <div class="b-hero-icon">💗</div>
+          <div class="b-hero-label">BOND</div>
+        </div>
+        <div class="b-content">
+          <div class="b-text">
+            <div class="b-title">Bond EXP Calc</div>
+            <div class="b-sub">Plan gifts to maximise bond levels</div>
+          </div>
+          <div class="b-arrow">›</div>
+        </div>
+      </div>
+      <div class="card-b" style="--accent:#3DD68C" onclick="event.stopPropagation()">
+        <div class="b-hero">
+          <div class="b-hero-icon">⚙️</div>
+          <div class="b-hero-label">BUILD</div>
+        </div>
+        <div class="b-content">
+          <div class="b-text">
+            <div class="b-title">Chara Builder</div>
+            <div class="b-sub">Skill & level resource planner</div>
+          </div>
+          <div class="b-arrow">›</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="option" data-choice="c" onclick="toggleSelect(this)" style="display:block;border-radius:16px;margin-bottom:6px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div class="letter">C</div>
+      <div>
+        <strong style="color:#fff">Top-Band + Inline Tag</strong>
+        <div style="font-size:12px;color:rgba(255,255,255,0.45)">Thin accent top stripe, label sits inline next to title</div>
+      </div>
+    </div>
+    <div class="demo-wrap">
+      <div class="card-c" style="--accent:#128AFA" onclick="event.stopPropagation()">
+        <div class="c-band"></div>
+        <div class="c-body">
+          <div class="c-icon">📅</div>
+          <div class="c-text">
+            <div class="c-top">
+              <span class="c-title">Banner Tracker</span>
+              <span class="c-tag">GACHA</span>
+            </div>
+            <div class="c-sub">Check current & upcoming gacha banners</div>
+          </div>
+          <div class="c-arrow">›</div>
+        </div>
+      </div>
+      <div class="card-c" style="--accent:#E879A0" onclick="event.stopPropagation()">
+        <div class="c-band"></div>
+        <div class="c-body">
+          <div class="c-icon">💗</div>
+          <div class="c-text">
+            <div class="c-top">
+              <span class="c-title">Bond EXP Calc</span>
+              <span class="c-tag">BOND</span>
+            </div>
+            <div class="c-sub">Plan gifts to maximise bond levels</div>
+          </div>
+          <div class="c-arrow">›</div>
+        </div>
+      </div>
+      <div class="card-c" style="--accent:#3DD68C" onclick="event.stopPropagation()">
+        <div class="c-band"></div>
+        <div class="c-body">
+          <div class="c-icon">⚙️</div>
+          <div class="c-text">
+            <div class="c-top">
+              <span class="c-title">Chara Builder</span>
+              <span class="c-tag">BUILD</span>
+            </div>
+            <div class="c-sub">Skill & level resource planner</div>
+          </div>
+          <div class="c-arrow">›</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

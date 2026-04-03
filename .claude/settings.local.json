@@ -1,7 +1,33 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ls -la \"c:\\\\project\\\\blue-archive-tool\\\\app\\\\\\(tabs\\)\")"
+      "Bash(ls -la \"c:\\\\project\\\\blue-archive-tool\\\\app\\\\\\(tabs\\)\")",
+      "Bash(git add:*)",
+      "Bash(npm show:*)",
+      "Bash(find node_modules/react-native-google-mobile-ads -name NativeAppModule*)",
+      "Bash(find node_modules/react-native-google-mobile-ads/src -name NativeAppModule*)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\(''''codegenConfig'''', {}\\), indent=2\\)\\)\")",
+      "Bash(node -e \"const d=require\\(''./node_modules/react-native-google-mobile-ads/package.json''\\); console.log\\(JSON.stringify\\(d.codegenConfig, null, 2\\)\\)\")",
+      "Bash(npx patch-package:*)",
+      "Bash(node -e \"const d=require\\(''./app.json''\\); const plugin = d.expo.plugins?.find\\(p => Array.isArray\\(p\\) && p[0]===''react-native-google-mobile-ads''\\); console.log\\(JSON.stringify\\(plugin, null, 2\\)\\)\")",
+      "Bash(node -e \"const d=require\\(''./app.json''\\); console.log\\(JSON.stringify\\(d.expo.plugins, null, 2\\)\\)\")",
+      "Bash(node -e \"const d=require\\(''''./app.json''''\\); console.log\\(JSON.stringify\\({android: d.expo.android, ios: d.expo.ios}, null, 2\\)\\)\")",
+      "Bash(node -e \"const d=require\\(''./node_modules/react-native-google-mobile-ads/package.json''\\); console.log\\(d.version\\)\")",
+      "Bash(python -c \"import json,sys; p=json.load\\(sys.stdin\\); print\\(''''version:'''', p.get\\(''''version''''\\)\\); print\\(''''sdkVersions:'''', json.dumps\\(p.get\\(''''sdkVersions'''', {}\\), indent=2\\)\\)\")",
+      "Bash(python -c \"import json,sys; v=json.load\\(sys.stdin\\); print\\(''''\\\\n''''.join\\(v[-10:]\\)\\)\")",
+      "Bash(python -c \"import json; p=json.load\\(open\\(''c:/project/blue-archive-tool/node_modules/react-native-google-mobile-ads/package.json''\\)\\); print\\(json.dumps\\(p.get\\(''codegenConfig'', {}\\), indent=2\\)\\)\")",
+      "Bash(find c:/project/blue-archive-tool/node_modules/react-native/android -name TurboReactPackage*)",
+      "Bash(xargs -I{} bash -c \"jar tf {} 2>/dev/null | grep -i \"\"TurboReactPackage\"\" | head -3\")",
+      "Bash(find c:/project/blue-archive-tool/node_modules/react-native -name *.kt -o -name *.java)",
+      "Bash(find c:/project/blue-archive-tool/node_modules/@react-native/codegen -name *.js)",
+      "Bash(python -c \"import json,sys; p=json.load\\(sys.stdin\\); android=p.get\\(''''expo'''',{}\\).get\\(''''android'''',{}\\); print\\(json.dumps\\(android, indent=2\\)\\)\")",
+      "Read(//c/project/blue-archive-tool/**)",
+      "Bash(find c:/project/blue-archive-tool/node_modules/react-native/android -name ViewGroupManager*)",
+      "Bash(find c:/project/blue-archive-tool/node_modules/react-native -name BaseViewManagerInterface*)",
+      "Bash(find c:/project/blue-archive-tool/node_modules/react-native/ReactAndroid -name ViewGroupManager*)",
+      "Bash(sed -n '519,532p' c:/project/blue-archive-tool/node_modules/react-native-google-mobile-ads/src/specs/modules/NativeConsentModule.ts)",
+      "Bash(sed -n '101,125p' c:/project/blue-archive-tool/node_modules/react-native-google-mobile-ads/src/specs/modules/NativeConsentModule.ts)",
+      "Bash(node -e \":*)"
     ]
   }
 }

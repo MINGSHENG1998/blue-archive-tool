@@ -1,0 +1,47 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//c/project/blue-archive-tool/**)",
+      "Bash(done)",
+      "Bash(grep -n '\"\"from\"\"\\\\|validation\\\\|setError' \"app/\\(tabs\\)/bondExp.tsx\")",
+      "Bash(npm install:*)",
+      "Bash(python \"C:\\\\Users\\\\khawm\\\\.claude\\\\skills\\\\ui-ux-pro-max\\\\scripts\\\\search.py\" \"gaming mobile app anime dark blue theme\" --design-system -p \"Blue Archive Tool\")",
+      "Bash(sed -i 's/#00F5FF/#128AFA/g; s/#2196F3/#128AFA/g' \"app/\\(tabs\\)/other.tsx\")",
+      "Bash(sed -i 's/#00F5FF/#128AFA/g' \"app/\\(tabs\\)/bondExp.tsx\" \"app/\\(tabs\\)/resourceCalc.tsx\" \"app/resourceCalc/charaExp.tsx\" \"app/resourceCalc/elephCalc.tsx\")",
+      "WebFetch(domain:bluearchive.wiki)",
+      "WebSearch",
+      "WebFetch(domain:www.therookies.co)",
+      "WebFetch(domain:en.namu.wiki)",
+      "WebFetch(domain:extensions.blender.org)",
+      "WebFetch(domain:lab.nulla.top)",
+      "WebFetch(domain:www.figma.com)",
+      "WebFetch(domain:bluearchive.fandom.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.gameuidatabase.com)",
+      "WebFetch(domain:steamcommunity.com)",
+      "Read(//c/Users/khawm/.claude/skills/subagent-driven-development/**)",
+      "Bash(git add:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npm run:*)",
+      "Read(//c/Users/khawm/.claude/skills/brainstorming/**)",
+      "Bash(bash C:/Users/khawm/.claude/skills/brainstorming/scripts/start-server.sh --project-dir c:/project/blue-archive-tool)",
+      "Bash(cat C:/project/blue-archive-tool/.superpowers/brainstorm/*/state/server-info)",
+      "WebFetch(domain:schale.gg)",
+      "WebFetch(domain:bluearchive.gg)",
+      "WebFetch(domain:www.appgamer.com)",
+      "WebFetch(domain:dotgg.gg)",
+      "WebFetch(domain:schaledb.com)",
+      "WebFetch(domain:logos.fandom.com)",
+      "WebFetch(domain:educationsurvey.steelcase.com)",
+      "WebFetch(domain:static.wikia.nocookie.net)",
+      "Bash(curl -s https://schaledb.com/data/en/config.min.json)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d, indent=2\\)\\)\")"
+    ],
+    "additionalDirectories": [
+      "\\tmp",
+      "C:\\Users\\khawm\\AppData\\Local\\Temp"
+    ]
+  }
+}
