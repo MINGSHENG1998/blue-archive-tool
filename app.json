@@ -8,9 +8,10 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "react-native-google-mobile-ads": {
+      "android_app_id": "ca-app-pub-7252717983754109~5997726897"
+    },
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "config": {
         "googleMobileAdsAppId": "ca-app-pub-7252717983754109~5997726897"
@@ -26,9 +27,7 @@
       "config": {
         "googleMobileAdsAppId": "ca-app-pub-7252717983754109~5997726897"
       },
-      "permissions": [
-        "com.google.android.gms.permission.AD_ID"
-      ],
+      "permissions": ["com.google.android.gms.permission.AD_ID"],
       "package": "com.ms_oldhorse.bluearchivetool"
     },
     "web": {
@@ -60,7 +59,7 @@
           "android": {
             "compileSdkVersion": 35,
             "targetSdkVersion": 35,
-            "kotlinVersion": "1.9.24"
+            "kotlinVersion": "1.9.25"
           }
         }
       ]
