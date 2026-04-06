@@ -124,6 +124,24 @@ export interface UIStrings {
   miscFeedbackSent: string;
   miscFeedbackFailed: string;
 
+  // Buy Me a Coffee
+  miscCoffeeItem: string;
+  miscCoffeeItemDesc: string;
+  miscCoffeeDrawerTitle: string;
+  miscCoffeeDrawerDesc: string;
+  miscCoffeeSmallLabel: string;
+  miscCoffeeLargeLabel: string;
+  miscCoffeeBadge: string;
+  miscCoffeeAdFreeNote: string;
+  miscCoffeeButton: string;
+  miscCoffeeRestore: string;
+  miscCoffeeThankYouTitle: string;
+  miscCoffeeThankYouDesc: string;
+  miscCoffeeDone: string;
+  miscCoffeeRestoreSuccess: string;
+  miscCoffeeRestoreFail: string;
+  miscCoffeeAlreadyOwned: string;
+
   // Home screen static text
   greeting: string;
   quickTools: string;
@@ -225,6 +243,24 @@ export const i18n: Record<Locale, UIStrings> = {
     miscCancel: "Cancel",
     miscFeedbackSent: "Feedback sent! Thank you.",
     miscFeedbackFailed: "Failed to send feedback. Please try again.",
+
+    // Buy Me a Coffee
+    miscCoffeeItem: 'Buy Me a Coffee',
+    miscCoffeeItemDesc: 'Support the developer · Remove ads',
+    miscCoffeeDrawerTitle: 'Buy Me a Coffee',
+    miscCoffeeDrawerDesc: 'Enjoying the app? A small tip removes ads forever.',
+    miscCoffeeSmallLabel: 'Kopi Ice',
+    miscCoffeeLargeLabel: 'Chicken Rice',
+    miscCoffeeBadge: 'BEST VALUE!',
+    miscCoffeeAdFreeNote: 'Both tiers remove all ads permanently',
+    miscCoffeeButton: 'Support',
+    miscCoffeeRestore: 'Restore Purchase',
+    miscCoffeeThankYouTitle: 'Thank You!',
+    miscCoffeeThankYouDesc: 'Ads removed. You\'re the best!',
+    miscCoffeeDone: 'Done',
+    miscCoffeeRestoreSuccess: 'Purchase restored! Ads removed.',
+    miscCoffeeRestoreFail: 'No previous purchase found.',
+    miscCoffeeAlreadyOwned: 'You already support this app!',
 
     // Home screen static text
     greeting: "Hello Sensei!",
@@ -360,6 +396,24 @@ export const i18n: Record<Locale, UIStrings> = {
     miscFeedbackSent: "反馈已发送！感谢您。",
     miscFeedbackFailed: "发送反馈失败，请重试。",
 
+    // Buy Me a Coffee
+    miscCoffeeItem: '请我喝杯茶',
+    miscCoffeeItemDesc: '支持开发者 · 永久移除广告',
+    miscCoffeeDrawerTitle: '请我喝杯茶',
+    miscCoffeeDrawerDesc: '觉得好用？请我喝杯茶，永久移除广告。',
+    miscCoffeeSmallLabel: '奶茶',
+    miscCoffeeLargeLabel: '鸡饭',
+    miscCoffeeBadge: '好吃！',
+    miscCoffeeAdFreeNote: '两档均可永久移除广告',
+    miscCoffeeButton: '请我',
+    miscCoffeeRestore: '恢复购买',
+    miscCoffeeThankYouTitle: '谢谢！',
+    miscCoffeeThankYouDesc: '广告已移除，感谢您的支持！',
+    miscCoffeeDone: '完成',
+    miscCoffeeRestoreSuccess: '购买已恢复！广告已移除。',
+    miscCoffeeRestoreFail: '未找到购买记录。',
+    miscCoffeeAlreadyOwned: '您已经支持此应用！',
+
     // Home screen static text
     greeting: "你好，老师！",
     quickTools: "快捷工具",
@@ -494,6 +548,24 @@ export const i18n: Record<Locale, UIStrings> = {
     miscFeedbackSent: "피드백이 전송되었습니다! 감사합니다.",
     miscFeedbackFailed: "피드백 전송에 실패했습니다. 다시 시도해 주세요.",
 
+    // Buy Me a Coffee
+    miscCoffeeItem: '커피 한 잔 사줘요',
+    miscCoffeeItemDesc: '개발자 응원 · 광고 제거',
+    miscCoffeeDrawerTitle: '커피 한 잔 사줘요',
+    miscCoffeeDrawerDesc: '앱이 마음에 드셨나요? 작은 응원이 광고를 영원히 없애줍니다.',
+    miscCoffeeSmallLabel: '아메리카노',
+    miscCoffeeLargeLabel: '치킨',
+    miscCoffeeBadge: '맛있어!',
+    miscCoffeeAdFreeNote: '두 가격 모두 광고를 영구 제거합니다',
+    miscCoffeeButton: '결제',
+    miscCoffeeRestore: '구매 복원',
+    miscCoffeeThankYouTitle: '감사합니다！',
+    miscCoffeeThankYouDesc: '광고가 제거되었습니다. 최고예요!',
+    miscCoffeeDone: '완료',
+    miscCoffeeRestoreSuccess: '구매가 복원되었습니다! 광고 제거 완료.',
+    miscCoffeeRestoreFail: '이전 구매 내역을 찾을 수 없습니다.',
+    miscCoffeeAlreadyOwned: '이미 앱을 응원해 주셨습니다!',
+
     // Home screen static text
     greeting: "안녕하세요, 선생님!",
     quickTools: "빠른 도구",
@@ -627,6 +699,24 @@ export const i18n: Record<Locale, UIStrings> = {
     miscCancel: "キャンセル",
     miscFeedbackSent: "フィードバックを送信しました！ありがとうございます。",
     miscFeedbackFailed: "フィードバックの送信に失敗しました。もう一度お試しください。",
+
+    // Buy Me a Coffee
+    miscCoffeeItem: 'コーヒーをおごって',
+    miscCoffeeItemDesc: '開発者を応援 · 広告を削除',
+    miscCoffeeDrawerTitle: 'コーヒーをおごって',
+    miscCoffeeDrawerDesc: 'アプリを気に入っていただけましたか？広告を永久に削除します。',
+    miscCoffeeSmallLabel: 'コーヒー',
+    miscCoffeeLargeLabel: 'ラーメン',
+    miscCoffeeBadge: 'うまい！',
+    miscCoffeeAdFreeNote: 'どちらも広告を永久に削除します',
+    miscCoffeeButton: '支払う',
+    miscCoffeeRestore: '購入を復元',
+    miscCoffeeThankYouTitle: 'ありがとう！',
+    miscCoffeeThankYouDesc: '広告を削除しました。ありがとうございます！',
+    miscCoffeeDone: '完了',
+    miscCoffeeRestoreSuccess: '購入が復元されました！広告を削除しました。',
+    miscCoffeeRestoreFail: '以前の購入が見つかりませんでした。',
+    miscCoffeeAlreadyOwned: 'すでにこのアプリを応援しています！',
 
     // Home screen static text
     greeting: "こんにちは、先生！",
