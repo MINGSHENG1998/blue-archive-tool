@@ -50,6 +50,7 @@ function BottomDrawer({
   children: React.ReactNode;
 }) {
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (visible) {
@@ -82,7 +83,11 @@ function BottomDrawer({
         <View style={styles.drawerOverlay} />
       </TouchableWithoutFeedback>
       <Animated.View
-        style={[styles.drawerContainer, { transform: [{ translateY }] }]}
+        style={[
+          styles.drawerContainer,
+          { paddingBottom: 36 + insets.bottom },
+          { transform: [{ translateY }] },
+        ]}
       >
         <View style={styles.drawerHandle} />
         {children}
@@ -411,7 +416,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     paddingHorizontal: 24,
-    paddingBottom: 36,
     paddingTop: 12,
   },
   drawerHandle: {
