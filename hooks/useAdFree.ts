@@ -44,15 +44,18 @@ export function useAdFree(): AdFreeHookResult {
 
     const init = async () => {
       const cached = await AsyncStorage.getItem(STORAGE_KEY);
-      if (mounted && cached === 'true') setIsAdFree(true);
+      if (!mounted) return;
+      if (cached === 'true') setIsAdFree(true);
 
       await initConnection();
+      if (!mounted) return;
 
       const purchases = await getAvailablePurchases();
+      if (!mounted) return;
       const owned = purchases.some((p) =>
         ALL_SKUS.includes(p.productId as SkuValue)
       );
-      if (mounted && owned) await markAdFree();
+      if (owned) await markAdFree();
     };
 
     init().catch(console.warn);
@@ -77,6 +80,8 @@ export function useAdFree(): AdFreeHookResult {
 
     return () => {
       mounted = false;
+      pendingRef.current?.resolve('cancelled'); // drain in-flight purchase promise
+      pendingRef.current = null;
       purchaseSub.remove();
       errorSub.remove();
       endConnection();
@@ -85,6 +90,9 @@ export function useAdFree(): AdFreeHookResult {
 
   const purchaseTip = useCallback(
     (sku: string): Promise<'success' | 'cancelled'> => {
+      if (pendingRef.current) {
+        return Promise.reject('Purchase already in progress');
+      }
       return new Promise((resolve, reject) => {
         pendingRef.current = { resolve, reject };
         requestPurchase({ sku }).catch((err: Error) => {

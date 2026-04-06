@@ -26,11 +26,15 @@ const mockGetAvailablePurchases = RNIap.getAvailablePurchases as jest.Mock;
 const mockPurchaseUpdatedListener = RNIap.purchaseUpdatedListener as jest.Mock;
 const mockPurchaseErrorListener = RNIap.purchaseErrorListener as jest.Mock;
 
+const mockRequestPurchase = RNIap.requestPurchase as jest.Mock;
+
 beforeEach(() => {
   jest.clearAllMocks();
   mockGetAvailablePurchases.mockResolvedValue([]);
   mockPurchaseUpdatedListener.mockReturnValue({ remove: jest.fn() });
   mockPurchaseErrorListener.mockReturnValue({ remove: jest.fn() });
+  // Return a never-settling promise so listener callbacks control resolution
+  mockRequestPurchase.mockReturnValue(new Promise(() => {}));
   (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
   (AsyncStorage.setItem as jest.Mock).mockResolvedValue(undefined);
 });
@@ -83,5 +87,91 @@ describe('useAdFree', () => {
     });
     expect(outcome).toBe('success');
     expect(result.current.isAdFree).toBe(true);
+  });
+});
+
+describe('purchaseTip', () => {
+  it('resolves "success" when purchaseUpdatedListener fires with a receipt', async () => {
+    let capturedPurchaseCallback: ((purchase: any) => void) | null = null;
+    const mockRNIap = require('react-native-iap');
+    mockRNIap.purchaseUpdatedListener.mockImplementation((cb: any) => {
+      capturedPurchaseCallback = cb;
+      return { remove: jest.fn() };
+    });
+
+    const { result } = renderHook(() => useAdFree());
+    await act(async () => {});
+
+    let outcome: string | undefined;
+    await act(async () => {
+      const promise = result.current.purchaseTip('tip_kopi_ice');
+      // simulate the purchase completing
+      capturedPurchaseCallback?.({ transactionReceipt: 'receipt123', productId: 'tip_kopi_ice' });
+      outcome = await promise;
+    });
+
+    expect(outcome).toBe('success');
+    expect(result.current.isAdFree).toBe(true);
+  });
+
+  it('resolves "cancelled" when purchaseErrorListener fires with E_USER_CANCELLED', async () => {
+    let capturedErrorCallback: ((error: any) => void) | null = null;
+    const mockRNIap = require('react-native-iap');
+    mockRNIap.purchaseErrorListener.mockImplementation((cb: any) => {
+      capturedErrorCallback = cb;
+      return { remove: jest.fn() };
+    });
+
+    const { result } = renderHook(() => useAdFree());
+    await act(async () => {});
+
+    let outcome: string | undefined;
+    await act(async () => {
+      const promise = result.current.purchaseTip('tip_kopi_ice');
+      capturedErrorCallback?.({ code: 'E_USER_CANCELLED', message: 'cancelled' });
+      outcome = await promise;
+    });
+
+    expect(outcome).toBe('cancelled');
+  });
+
+  it('rejects when purchaseErrorListener fires with a non-cancellation error', async () => {
+    let capturedErrorCallback: ((error: any) => void) | null = null;
+    const mockRNIap = require('react-native-iap');
+    mockRNIap.purchaseErrorListener.mockImplementation((cb: any) => {
+      capturedErrorCallback = cb;
+      return { remove: jest.fn() };
+    });
+
+    const { result } = renderHook(() => useAdFree());
+    await act(async () => {});
+
+    let error: string | undefined;
+    await act(async () => {
+      const promise = result.current.purchaseTip('tip_kopi_ice').catch((e) => {
+        error = e;
+      });
+      capturedErrorCallback?.({ code: 'E_UNKNOWN', message: 'something went wrong' });
+      await promise;
+    });
+
+    expect(error).toBe('something went wrong');
+  });
+
+  it('rejects immediately if called while another purchase is in progress', async () => {
+    const { result } = renderHook(() => useAdFree());
+    await act(async () => {});
+
+    let error: string | undefined;
+    await act(async () => {
+      // Start first purchase (never resolves in this test)
+      result.current.purchaseTip('tip_kopi_ice');
+      // Second call should reject immediately
+      await result.current.purchaseTip('tip_chicken_rice').catch((e) => {
+        error = e;
+      });
+    });
+
+    expect(error).toBe('Purchase already in progress');
   });
 });
