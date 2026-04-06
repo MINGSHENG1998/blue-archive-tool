@@ -5,14 +5,15 @@ import {
   Text,
   Animated,
   Pressable,
-  StatusBar,
   ScrollView,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { IconButton } from "react-native-paper";
 import { useEffect, useRef } from "react";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n } from "@/constants/i18n";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const PRIMARY = "#128AFA";
 const PRIMARY_LIGHT = "#4AAEFF";
@@ -108,6 +109,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const { locale } = useLanguage();
   const t = i18n[locale];
+  const insets = useSafeAreaInsets();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(28)).current;
 
@@ -120,7 +122,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={NAVY} />
+      <StatusBar style="light" />
 
       {/* ── Decorative background layer ── */}
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
@@ -157,7 +159,7 @@ export default function HomeScreen() {
       >
         {/* ── Header ── */}
         <Animated.View
-          style={[styles.header, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
+          style={[styles.header, { paddingTop: insets.top + 16, opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
         >
           {/* Avatar — Blue Archive halo ring frame */}
           <View style={styles.avatarFrame}>
@@ -262,7 +264,6 @@ const styles = StyleSheet.create({
   // ── Header ──────────────────────────────────────────────────────
   header: {
     paddingHorizontal: 24,
-    paddingTop: 56,
     paddingBottom: 32,
     flexDirection: "row",
     alignItems: "center",
