@@ -310,12 +310,14 @@ const CoffeeDrawer = memo(function CoffeeDrawer({
   const [drawerState, setDrawerState] = useState<CoffeeState>("idle");
   const [error, setError] = useState("");
   const [restoreMsg, setRestoreMsg] = useState("");
+  const [restoreStatus, setRestoreStatus] = useState<"success" | "fail" | null>(null);
 
   useEffect(() => {
     if (!visible) {
       setDrawerState("idle");
       setError("");
       setRestoreMsg("");
+      setRestoreStatus(null);
     }
   }, [visible]);
 
@@ -327,20 +329,26 @@ const CoffeeDrawer = memo(function CoffeeDrawer({
       if (result === "success") setDrawerState("success");
       else setDrawerState("idle");
     } catch (err) {
-      setError(err as string);
+      setError(typeof err === "string" ? err : String(err));
       setDrawerState("idle");
     }
   };
 
   const handleRestore = async () => {
     setRestoreMsg("");
+    setRestoreStatus(null);
     try {
       const result = await restorePurchase();
-      setRestoreMsg(
-        result === "success" ? t.miscCoffeeRestoreSuccess : t.miscCoffeeRestoreFail
-      );
+      if (result === "success") {
+        setRestoreMsg(t.miscCoffeeRestoreSuccess);
+        setRestoreStatus("success");
+      } else {
+        setRestoreMsg(t.miscCoffeeRestoreFail);
+        setRestoreStatus("fail");
+      }
     } catch {
       setRestoreMsg(t.miscCoffeeRestoreFail);
+      setRestoreStatus("fail");
     }
   };
 
@@ -442,7 +450,7 @@ const CoffeeDrawer = memo(function CoffeeDrawer({
 
               {!!restoreMsg && (
                 <HelperText
-                  type={restoreMsg === t.miscCoffeeRestoreSuccess ? "info" : "error"}
+                  type={restoreStatus === "success" ? "info" : "error"}
                   visible
                   style={styles.coffeeRestoreMsg}
                 >
