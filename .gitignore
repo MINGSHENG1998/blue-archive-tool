@@ -36,7 +36,6 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
-android/gradle.properties
 
 # Superpowers (planning/brainstorm artifacts)
 .superpowers/
