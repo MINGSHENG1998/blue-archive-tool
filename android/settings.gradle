@@ -21,7 +21,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
-rootProject.name = 'blue-archive-tool'
+rootProject.name = 'Blue Archive Tool'
 
 dependencyResolutionManagement {
   versionCatalogs {
