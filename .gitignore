@@ -37,3 +37,7 @@ yarn-error.*
 
 app-example
 android/gradle.properties
+
+# Superpowers (planning/brainstorm artifacts)
+.superpowers/
+docs/superpowers/
