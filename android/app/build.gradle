@@ -83,12 +83,6 @@ def jscFlavor = 'org.webkit:android-jsc:+'
 android {
     ndkVersion rootProject.ext.ndkVersion
 
-    externalNativeBuild {
-        cmake {
-            buildStagingDirectory "C:/cxx/ba"
-        }
-    }
-
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
