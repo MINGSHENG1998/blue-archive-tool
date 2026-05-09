@@ -374,20 +374,21 @@ const CoffeeDrawer = memo(function CoffeeDrawer({
           <Text style={styles.drawerTitle}>☕ {t.miscCoffeeDrawerTitle}</Text>
           <Text style={styles.coffeeDesc}>{t.miscCoffeeDrawerDesc}</Text>
 
-          {isAdFree ? (
+          {isAdFree && (
             <View style={styles.coffeeAlreadyOwned}>
               <Text style={styles.coffeeAlreadyOwnedText}>
                 ✨ {t.miscCoffeeAlreadyOwned}
               </Text>
             </View>
-          ) : (
-            <>
-              {drawerState === "purchasing" ? (
-                <View style={styles.coffeePurchasing}>
-                  <ActivityIndicator color="#128AFA" />
-                </View>
-              ) : (
-                <View style={styles.coffeeTierRow}>
+          )}
+
+          <>
+            {drawerState === "purchasing" ? (
+              <View style={styles.coffeePurchasing}>
+                <ActivityIndicator color="#128AFA" />
+              </View>
+            ) : (
+              <View style={styles.coffeeTierRow}>
                   {/* Small tier */}
                   <View style={[styles.coffeeTierCard, styles.coffeeTierCardSmall]}>
                     <Text style={styles.coffeeTierEmoji}>☕</Text>
@@ -439,14 +440,16 @@ const CoffeeDrawer = memo(function CoffeeDrawer({
                 </Text>
               </View>
 
-              <Button
-                mode="text"
-                onPress={handleRestore}
-                textColor="#128AFA"
-                disabled={drawerState === "purchasing"}
-              >
-                {t.miscCoffeeRestore}
-              </Button>
+              {!isAdFree && (
+                <Button
+                  mode="text"
+                  onPress={handleRestore}
+                  textColor="#128AFA"
+                  disabled={drawerState === "purchasing"}
+                >
+                  {t.miscCoffeeRestore}
+                </Button>
+              )}
 
               {!!restoreMsg && (
                 <HelperText
@@ -458,7 +461,6 @@ const CoffeeDrawer = memo(function CoffeeDrawer({
                 </HelperText>
               )}
             </>
-          )}
         </>
       )}
     </BottomDrawer>
@@ -532,7 +534,7 @@ export default function OtherScreen() {
           <List.Subheader>{t.miscAboutSection}</List.Subheader>
           <List.Item
             title={t.miscVersion}
-            description={Constants.expoConfig?.version ?? Application.nativeApplicationVersion ?? "1.0.4"}
+            description={Constants.expoConfig?.version ?? Application.nativeApplicationVersion ?? "1.0.6"}
             left={(props) => <List.Icon {...props} icon="information" />}
           />
           <List.Item
@@ -662,6 +664,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(18,138,250,0.08)",
     borderWidth: 1.5,
     borderColor: "rgba(18,138,250,0.25)",
+    paddingTop: 20,
   },
   coffeeTierCardLarge: {
     backgroundColor: "rgba(18,138,250,0.15)",

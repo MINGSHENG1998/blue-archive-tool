@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   initConnection,
   endConnection,
+  getProducts,
   getAvailablePurchases,
   requestPurchase,
   finishTransaction,
@@ -50,19 +52,28 @@ export function useAdFree(): AdFreeHookResult {
       await initConnection();
       if (!mounted) return;
 
+      await getProducts({ skus: ALL_SKUS });
+      if (!mounted) return;
+
       const purchases = await getAvailablePurchases();
       if (!mounted) return;
-      const owned = purchases.some((p) =>
+      const tipPurchases = purchases.filter((p) =>
         ALL_SKUS.includes(p.productId as SkuValue)
       );
-      if (owned) await markAdFree();
+      if (tipPurchases.length > 0) {
+        // Consume any unfinished tip transactions so they can be repurchased
+        await Promise.all(
+          tipPurchases.map((p) => finishTransaction({ purchase: p, isConsumable: true }))
+        );
+        await markAdFree();
+      }
     };
 
     init().catch(console.warn);
 
     const purchaseSub = purchaseUpdatedListener(async (purchase) => {
       if (purchase.transactionReceipt) {
-        await finishTransaction({ purchase, isConsumable: false });
+        await finishTransaction({ purchase, isConsumable: true });
         await markAdFree();
         pendingRef.current?.resolve('success');
         pendingRef.current = null;
@@ -95,7 +106,9 @@ export function useAdFree(): AdFreeHookResult {
       }
       return new Promise((resolve, reject) => {
         pendingRef.current = { resolve, reject };
-        requestPurchase({ sku }).catch((err: Error) => {
+        requestPurchase(
+          Platform.OS === 'android' ? { skus: [sku] } : { sku }
+        ).catch((err: Error) => {
           pendingRef.current = null;
           reject(err.message ?? 'Request failed');
         });

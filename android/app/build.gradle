@@ -83,6 +83,12 @@ def jscFlavor = 'org.webkit:android-jsc:+'
 android {
     ndkVersion rootProject.ext.ndkVersion
 
+    externalNativeBuild {
+        cmake {
+            buildStagingDirectory "C:/cxx/ba"
+        }
+    }
+
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
@@ -91,8 +97,9 @@ android {
         applicationId 'com.ms_oldhorse.bluearchivetool'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 44
-        versionName "1.0.4"
+        versionCode 55
+        versionName "1.0.6"
+        missingDimensionStrategy "store", "play"
     }
     signingConfigs {
         debug {

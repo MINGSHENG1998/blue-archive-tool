@@ -260,7 +260,7 @@ export const i18n: Record<Locale, UIStrings> = {
     miscCoffeeDone: 'Done',
     miscCoffeeRestoreSuccess: 'Purchase restored! Ads removed.',
     miscCoffeeRestoreFail: 'No previous purchase found.',
-    miscCoffeeAlreadyOwned: 'You already support this app!',
+    miscCoffeeAlreadyOwned: 'Thanks for your support! Feel free to treat me again anytime. ☕',
 
     // Home screen static text
     greeting: "Hello Sensei!",
@@ -412,7 +412,7 @@ export const i18n: Record<Locale, UIStrings> = {
     miscCoffeeDone: '完成',
     miscCoffeeRestoreSuccess: '购买已恢复！广告已移除。',
     miscCoffeeRestoreFail: '未找到购买记录。',
-    miscCoffeeAlreadyOwned: '您已经支持此应用！',
+    miscCoffeeAlreadyOwned: '感谢您的支持！随时欢迎再次请我喝杯奶茶 ☕',
 
     // Home screen static text
     greeting: "你好，老师！",
@@ -564,7 +564,7 @@ export const i18n: Record<Locale, UIStrings> = {
     miscCoffeeDone: '완료',
     miscCoffeeRestoreSuccess: '구매가 복원되었습니다! 광고 제거 완료.',
     miscCoffeeRestoreFail: '이전 구매 내역을 찾을 수 없습니다.',
-    miscCoffeeAlreadyOwned: '이미 앱을 응원해 주셨습니다!',
+    miscCoffeeAlreadyOwned: '응원해 주셔서 감사해요! 언제든지 또 한 잔 사주셔도 좋아요 ☕',
 
     // Home screen static text
     greeting: "안녕하세요, 선생님!",
@@ -716,7 +716,7 @@ export const i18n: Record<Locale, UIStrings> = {
     miscCoffeeDone: '完了',
     miscCoffeeRestoreSuccess: '購入が復元されました！広告を削除しました。',
     miscCoffeeRestoreFail: '以前の購入が見つかりませんでした。',
-    miscCoffeeAlreadyOwned: 'すでにこのアプリを応援しています！',
+    miscCoffeeAlreadyOwned: 'ご支援ありがとうございます！またいつでもどうぞ ☕',
 
     // Home screen static text
     greeting: "こんにちは、先生！",
