@@ -28,7 +28,8 @@
         "googleMobileAdsAppId": "ca-app-pub-7252717983754109~5997726897"
       },
       "permissions": ["com.google.android.gms.permission.AD_ID"],
-      "package": "com.ms_oldhorse.bluearchivetool"
+      "package": "com.ms_oldhorse.bluearchivetool",
+      "edgeToEdgeEnabled": true
     },
     "web": {
       "bundler": "metro",
