@@ -19,6 +19,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import CharaExpCalc from "../resourceCalc/charaExp";
 import ElephCalc from "../resourceCalc/elephCalc";
+import SkillCalc from "../resourceCalc/skillCalc";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n } from "@/constants/i18n";
@@ -63,6 +64,7 @@ const CalculatorTypeSelector = ({ selectedType, onTypeChange }: any) => {
   const calculatorTypes = [
     { value: "character", label: t.resourceCharacter, description: t.resourceCharDesc },
     { value: "other", label: t.resourceEleph, description: t.resourceElephDesc },
+    { value: "skill", label: t.resourceSkill, description: t.resourceSkillDesc },
   ];
 
   return (
@@ -151,8 +153,12 @@ const CalculatorContent = ({ calculatorType }: any) => {
   const cardBackground = useThemeColor({}, "background");
   const { locale } = useLanguage();
   const t = i18n[locale];
-  const CalculatorComponent = calculatorType === "character" ? CharaExpCalc : ElephCalc;
-  const title = calculatorType === "character" ? t.resourceCharacter : t.resourceEleph;
+  const calculators: Record<string, { component: React.ComponentType; title: string }> = {
+    character: { component: CharaExpCalc, title: t.resourceCharacter },
+    other: { component: ElephCalc, title: t.resourceEleph },
+    skill: { component: SkillCalc, title: t.resourceSkill },
+  };
+  const { component: CalculatorComponent, title } = calculators[calculatorType] ?? calculators.character;
   
   return (
     <AnimatedCard style={styles.cardWrapper}>
@@ -306,7 +312,7 @@ const styles = StyleSheet.create({
   // Type selector styles
   typeContainer: {
     flexDirection: "row",
-    gap: 16,
+    gap: 10,
   },
   typeButton: {
     flex: 1,
@@ -314,7 +320,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "rgba(18, 138, 250, 0.18)",
-    padding: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 8,
   },
   selectedTypeButton: {
     backgroundColor: "rgba(0, 245, 255, 0.1)",
