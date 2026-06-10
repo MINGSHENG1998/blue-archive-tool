@@ -18,6 +18,7 @@ import { i18n } from "@/constants/i18n";
 import {
   calculateSkillCost,
   applyInventory,
+  SkillCostInput,
   SkillCostResult,
 } from "@/constants/skillData";
 
@@ -169,11 +170,11 @@ export default function SkillCalc() {
       target: parseInt(range.target, 10),
     });
     const ex = parse(levels.ex);
-    const skills: [
-      ReturnType<typeof parse>,
-      ReturnType<typeof parse>,
-      ReturnType<typeof parse>
-    ] = [parse(levels.skill1), parse(levels.skill2), parse(levels.skill3)];
+    const skills: SkillCostInput["skills"] = [
+      parse(levels.skill1),
+      parse(levels.skill2),
+      parse(levels.skill3),
+    ];
 
     const invalid = [ex, ...skills].some((r) => r.target < r.current);
     if (invalid) {
@@ -308,6 +309,8 @@ export default function SkillCalc() {
                 <View style={styles.resultAccent} />
               </View>
 
+              {/* Hero shows the full credit cost before inventory; the
+                  breakdown rows below show what is still needed after it. */}
               <View style={styles.totalCredits}>
                 <ThemedText style={styles.totalCreditsLabel}>
                   {t.skillTotalCredits}
