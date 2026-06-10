@@ -67,6 +67,8 @@ export interface UIStrings {
   resourceCharDesc: string;
   resourceElephDesc: string;
   resourceCalculate: string;
+  resourceSkill: string;
+  resourceSkillDesc: string;
 
   // Shared calc strings (charaExp + elephCalc)
   calcCurrentInventory: string;
@@ -100,6 +102,25 @@ export interface UIStrings {
   elephWeaponUpgradeEleph: string;
   elephEligmaCost: string;
   elephWeaponUpgradeLabel: string;
+
+  // SkillCalc screen
+  skillLevelConfig: string;
+  skillExLabel: string;
+  skillSkill1: string;
+  skillSkill2: string;
+  skillSkill3: string;
+  skillBd1: string;
+  skillBd2: string;
+  skillBd3: string;
+  skillBd4: string;
+  skillTn1: string;
+  skillTn2: string;
+  skillTn3: string;
+  skillTn4: string;
+  skillSecretNotes: string;
+  skillTotalCredits: string;
+  skillValidationError: string;
+  skillArtifactNote: string;
 
   // Misc / Other screen
   miscTitle: string;
@@ -202,6 +223,8 @@ export const i18n: Record<Locale, UIStrings> = {
     resourceCharDesc: "Calculate EXP needed for leveling",
     resourceElephDesc: "Calculate eleph resources",
     resourceCalculate: "Calculate Resources",
+    resourceSkill: "Skill",
+    resourceSkillDesc: "Calculate skillbooks needed",
 
     // Misc
     miscTitle: "About",
@@ -269,6 +292,23 @@ export const i18n: Record<Locale, UIStrings> = {
     elephWeaponUpgradeEleph: "Weapon Upgrade Eleph",
     elephEligmaCost: "Estimated Eligma Cost",
     elephWeaponUpgradeLabel: "Weapon Upgrade",
+    skillLevelConfig: "Skill Levels",
+    skillExLabel: "EX Skill",
+    skillSkill1: "Skill 1",
+    skillSkill2: "Skill 2",
+    skillSkill3: "Skill 3",
+    skillBd1: "Blu-ray T1",
+    skillBd2: "Blu-ray T2",
+    skillBd3: "Blu-ray T3",
+    skillBd4: "Blu-ray T4",
+    skillTn1: "Tech Notes T1",
+    skillTn2: "Tech Notes T2",
+    skillTn3: "Tech Notes T3",
+    skillTn4: "Tech Notes T4",
+    skillSecretNotes: "Secret Tech Notes",
+    skillTotalCredits: "Total Credits",
+    skillValidationError: "Target level must be greater than or equal to current level",
+    skillArtifactNote: "Student-specific artifact materials are not included",
   },
 
   zh: {
@@ -336,6 +376,8 @@ export const i18n: Record<Locale, UIStrings> = {
     resourceCharDesc: "计算升级所需经验",
     resourceElephDesc: "计算秘石资源",
     resourceCalculate: "计算资源",
+    resourceSkill: "技能",
+    resourceSkillDesc: "计算所需技能书",
 
     // Misc
     miscTitle: "关于",
@@ -403,6 +445,23 @@ export const i18n: Record<Locale, UIStrings> = {
     elephWeaponUpgradeEleph: "武器升级秘石",
     elephEligmaCost: "预计艾利格玛消耗",
     elephWeaponUpgradeLabel: "武器升级",
+    skillLevelConfig: "技能等级",
+    skillExLabel: "EX技能",
+    skillSkill1: "技能 1",
+    skillSkill2: "技能 2",
+    skillSkill3: "技能 3",
+    skillBd1: "蓝光碟 T1",
+    skillBd2: "蓝光碟 T2",
+    skillBd3: "蓝光碟 T3",
+    skillBd4: "蓝光碟 T4",
+    skillTn1: "技术笔记 T1",
+    skillTn2: "技术笔记 T2",
+    skillTn3: "技术笔记 T3",
+    skillTn4: "技术笔记 T4",
+    skillSecretNotes: "秘传技术笔记",
+    skillTotalCredits: "总信用点",
+    skillValidationError: "目标等级必须大于或等于当前等级",
+    skillArtifactNote: "不包含学生专属神器材料",
   },
 
   ko: {
@@ -470,6 +529,8 @@ export const i18n: Record<Locale, UIStrings> = {
     resourceCharDesc: "레벨업에 필요한 경험치 계산",
     resourceElephDesc: "엘레프 자원 계산",
     resourceCalculate: "자원 계산",
+    resourceSkill: "스킬",
+    resourceSkillDesc: "필요한 스킬북 계산",
 
     // Misc
     miscTitle: "정보",
@@ -537,6 +598,23 @@ export const i18n: Record<Locale, UIStrings> = {
     elephWeaponUpgradeEleph: "무기 강화 엘레프",
     elephEligmaCost: "예상 엘리그마 소모",
     elephWeaponUpgradeLabel: "무기 강화",
+    skillLevelConfig: "스킬 레벨",
+    skillExLabel: "EX 스킬",
+    skillSkill1: "스킬 1",
+    skillSkill2: "스킬 2",
+    skillSkill3: "스킬 3",
+    skillBd1: "블루레이 T1",
+    skillBd2: "블루레이 T2",
+    skillBd3: "블루레이 T3",
+    skillBd4: "블루레이 T4",
+    skillTn1: "기술 노트 T1",
+    skillTn2: "기술 노트 T2",
+    skillTn3: "기술 노트 T3",
+    skillTn4: "기술 노트 T4",
+    skillSecretNotes: "비전의 기술 노트",
+    skillTotalCredits: "총 크레딧",
+    skillValidationError: "목표 레벨은 현재 레벨 이상이어야 합니다",
+    skillArtifactNote: "학생별 아티팩트 재료는 포함되지 않습니다",
   },
 
   ja: {
@@ -604,6 +682,8 @@ export const i18n: Record<Locale, UIStrings> = {
     resourceCharDesc: "レベルアップに必要な経験値を計算",
     resourceElephDesc: "エレフリソースを計算",
     resourceCalculate: "リソースを計算",
+    resourceSkill: "スキル",
+    resourceSkillDesc: "必要なスキルブックを計算",
 
     // Misc
     miscTitle: "情報",
@@ -671,6 +751,23 @@ export const i18n: Record<Locale, UIStrings> = {
     elephWeaponUpgradeEleph: "武器強化エレフ",
     elephEligmaCost: "推定エリグマ消費",
     elephWeaponUpgradeLabel: "武器強化",
+    skillLevelConfig: "スキルレベル",
+    skillExLabel: "EXスキル",
+    skillSkill1: "スキル 1",
+    skillSkill2: "スキル 2",
+    skillSkill3: "スキル 3",
+    skillBd1: "ブルーレイ T1",
+    skillBd2: "ブルーレイ T2",
+    skillBd3: "ブルーレイ T3",
+    skillBd4: "ブルーレイ T4",
+    skillTn1: "技術ノート T1",
+    skillTn2: "技術ノート T2",
+    skillTn3: "技術ノート T3",
+    skillTn4: "技術ノート T4",
+    skillSecretNotes: "極秘技術ノート",
+    skillTotalCredits: "合計クレジット",
+    skillValidationError: "目標レベルは現在のレベル以上である必要があります",
+    skillArtifactNote: "生徒固有のアーティファクト素材は含まれません",
   },
 };
 
