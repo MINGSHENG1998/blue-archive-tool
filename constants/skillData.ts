@@ -35,9 +35,10 @@ export type LevelRange = { current: number; target: number };
 
 export type SkillCostInput = {
   ex: LevelRange; // levels 1-5
-  skills: LevelRange[]; // three normal skills, levels 1-10
+  skills: [LevelRange, LevelRange, LevelRange]; // the three normal skills, levels 1-10
 };
 
+// bd = Tactical Training Blu-rays (EX skill); tn = Tech Notes (normal skills)
 export type SkillCostResult = {
   bd: [number, number, number, number];
   tn: [number, number, number, number];
@@ -52,6 +53,8 @@ export const EMPTY_INVENTORY: SkillCostResult = {
   credits: 0,
 };
 
+// Accumulates costs for one skill's level range. Mutates `books` and `acc` in
+// place; callers must pass freshly created accumulators.
 const sumSteps = (
   costs: SkillCostStep[],
   range: LevelRange,

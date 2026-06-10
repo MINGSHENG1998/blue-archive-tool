@@ -62,6 +62,7 @@ describe("calculateSkillCost", () => {
         { current: 1, target: 1 },
       ],
     });
+    expect(result.bd).toEqual([0, 0, 0, 0]);
     expect(result.tn).toEqual([0, 0, 0, 0]);
     expect(result.secretNotes).toBe(1);
     expect(result.credits).toBe(4_000_000);
