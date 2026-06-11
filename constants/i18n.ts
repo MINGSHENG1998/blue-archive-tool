@@ -308,7 +308,7 @@ export const i18n: Record<Locale, UIStrings> = {
     skillSecretNotes: "Secret Tech Notes",
     skillTotalCredits: "Total Credits",
     skillValidationError: "Target level must be greater than or equal to current level",
-    skillArtifactNote: "Student-specific artifact materials are not included",
+    skillArtifactNote: "Student-specific OOPArts materials are not included",
   },
 
   zh: {
@@ -461,7 +461,7 @@ export const i18n: Record<Locale, UIStrings> = {
     skillSecretNotes: "秘传技术笔记",
     skillTotalCredits: "总信用点",
     skillValidationError: "目标等级必须大于或等于当前等级",
-    skillArtifactNote: "不包含学生专属神器材料",
+    skillArtifactNote: "不包含学生专属奥帕茨材料",
   },
 
   ko: {
@@ -614,7 +614,7 @@ export const i18n: Record<Locale, UIStrings> = {
     skillSecretNotes: "비전의 기술 노트",
     skillTotalCredits: "총 크레딧",
     skillValidationError: "목표 레벨은 현재 레벨 이상이어야 합니다",
-    skillArtifactNote: "학생별 아티팩트 재료는 포함되지 않습니다",
+    skillArtifactNote: "학생별 오파츠 재료는 포함되지 않습니다",
   },
 
   ja: {
@@ -767,7 +767,7 @@ export const i18n: Record<Locale, UIStrings> = {
     skillSecretNotes: "極秘技術ノート",
     skillTotalCredits: "合計クレジット",
     skillValidationError: "目標レベルは現在のレベル以上である必要があります",
-    skillArtifactNote: "生徒固有のアーティファクト素材は含まれません",
+    skillArtifactNote: "生徒固有のオーパーツ素材は含まれません",
   },
 };
 
