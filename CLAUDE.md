@@ -19,6 +19,10 @@ npm run web
 # Lint
 npm run lint
 
+# Verify no hardcoded colors / OS-scheme reads leaked into screens
+# (all colors must come from constants/theme.ts via useColors())
+npm run lint:colors
+
 # Run tests (watch mode)
 npm test
 
