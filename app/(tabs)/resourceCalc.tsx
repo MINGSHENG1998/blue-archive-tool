@@ -1,8 +1,8 @@
-import React, { useState, useRef } from "react";
-import { 
-  StyleSheet, 
-  View, 
-  Animated, 
+import React, { useState, useRef, useMemo } from "react";
+import {
+  StyleSheet,
+  View,
+  Animated,
   Pressable,
 } from "react-native";
 import {
@@ -23,6 +23,8 @@ import SkillCalc from "../resourceCalc/skillCalc";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n } from "@/constants/i18n";
+import { useColors } from "@/hooks/useColors";
+import type { ThemeTokens } from "@/constants/theme";
 
 
 // Reusable animated card component
@@ -59,6 +61,8 @@ const AnimatedCard = ({ children, style, ...props }: any) => {
 // Calculator type selector component
 const CalculatorTypeSelector = ({ selectedType, onTypeChange }: any) => {
   const cardBackground = useThemeColor({}, "background");
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
   const t = i18n[locale];
   const calculatorTypes = [
@@ -93,7 +97,7 @@ const CalculatorTypeSelector = ({ selectedType, onTypeChange }: any) => {
                   >
                     {type.label}
                   </ThemedText>
-                  <ThemedText 
+                  <ThemedText
                     style={[
                       styles.typeDescription,
                       selectedType === type.value && styles.selectedTypeDescription
@@ -113,8 +117,10 @@ const CalculatorTypeSelector = ({ selectedType, onTypeChange }: any) => {
 
 // Error display component
 const ErrorDisplay = ({ error }: any) => {
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   if (!error) return null;
-  
+
   return (
     <AnimatedCard style={styles.cardWrapper}>
       <View style={styles.errorContainer}>
@@ -133,6 +139,8 @@ const ErrorDisplay = ({ error }: any) => {
 // Loading display component
 const LoadingDisplay = () => {
   const cardBackground = useThemeColor({}, "background");
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
   const t = i18n[locale];
 
@@ -140,7 +148,7 @@ const LoadingDisplay = () => {
     <AnimatedCard style={styles.cardWrapper}>
       <Card style={[styles.card, { backgroundColor: cardBackground }]}>
         <Card.Content style={styles.loadingContent}>
-          <ActivityIndicator size="large" color="#128AFA" />
+          <ActivityIndicator size="large" color={c.primaryColor} />
           <ThemedText style={styles.loadingText}>{t.resourceCalculating}</ThemedText>
         </Card.Content>
       </Card>
@@ -151,6 +159,8 @@ const LoadingDisplay = () => {
 // Calculator content component
 const CalculatorContent = ({ calculatorType }: any) => {
   const cardBackground = useThemeColor({}, "background");
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
   const t = i18n[locale];
   const calculators: Record<string, { component: React.ComponentType; title: string }> = {
@@ -159,7 +169,7 @@ const CalculatorContent = ({ calculatorType }: any) => {
     skill: { component: SkillCalc, title: t.resourceSkill },
   };
   const { component: CalculatorComponent, title } = calculators[calculatorType] ?? calculators.character;
-  
+
   return (
     <AnimatedCard style={styles.cardWrapper}>
       <Card style={[styles.card, { backgroundColor: cardBackground }]}>
@@ -181,9 +191,11 @@ export default function ResourceCalcScreen() {
   const scrollRef = useRef<{ resetScroll: () => void } | null>(null);
   const insets = useSafeAreaInsets();
   const backgroundColor = useThemeColor({}, "background");
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
   const t = i18n[locale];
-  
+
   const [calculatorType, setCalculatorType] = useState("character");
   const [error, setError] = useState("");
   const [isCalculating, setIsCalculating] = useState(false);
@@ -226,7 +238,7 @@ export default function ResourceCalcScreen() {
         </ThemedView>
 
         {/* Calculator Type Selector */}
-        <CalculatorTypeSelector 
+        <CalculatorTypeSelector
           selectedType={calculatorType}
           onTypeChange={handleCalculatorTypeChange}
         />
@@ -247,12 +259,12 @@ export default function ResourceCalcScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0A1628",
+    backgroundColor: c.appBg,
   },
-  
+
   // Header styles
   titleContainer: {
     backgroundColor: "transparent",
@@ -262,19 +274,19 @@ const styles = StyleSheet.create({
   mainTitle: {
     fontSize: 24,
     fontWeight: "800", fontStyle: "italic", letterSpacing: 0.2,
-    color: "#FFFFFF",
+    color: c.textPrimary,
   },
   subtitle: {
     fontSize: 14,
-    color: "rgba(255,255,255,0.45)",
+    color: c.textMuted,
     marginTop: 4,
   },
   titleAccent: {
     width: 44,
     height: 3,
-    backgroundColor: "#128AFA",
+    backgroundColor: c.primaryColor,
     borderRadius: 2,
-    shadowColor: "#128AFA",
+    shadowColor: c.primaryColor,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.5,
     shadowRadius: 4,
@@ -286,10 +298,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   card: {
-    backgroundColor: "#0F2347",
+    backgroundColor: c.elevatedBg,
     borderRadius: 16,
     elevation: 3,
-    shadowColor: "#000",
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -298,17 +310,17 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   sectionTitle: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 18,
     marginBottom: 20,
   },
   accent: {
     width: 60,
     height: 2,
-    backgroundColor: "#128AFA",
+    backgroundColor: c.primaryColor,
     borderRadius: 1,
   },
-  
+
   // Type selector styles
   typeContainer: {
     flexDirection: "row",
@@ -316,50 +328,50 @@ const styles = StyleSheet.create({
   },
   typeButton: {
     flex: 1,
-    backgroundColor: "rgba(10, 22, 40, 0.7)",
+    backgroundColor: c.appBg,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "rgba(18, 138, 250, 0.18)",
+    borderColor: c.accentSoft,
     paddingVertical: 16,
     paddingHorizontal: 8,
   },
   selectedTypeButton: {
-    backgroundColor: "rgba(0, 245, 255, 0.1)",
-    borderColor: "#128AFA",
+    backgroundColor: c.accentSoft,
+    borderColor: c.primaryColor,
     borderWidth: 2,
   },
   typeButtonContent: {
     alignItems: "center",
   },
   typeTitle: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 4,
   },
   selectedTypeTitle: {
-    color: "#128AFA",
+    color: c.primaryColor,
   },
   typeDescription: {
-    color: "rgba(255,255,255,0.45)",
+    color: c.textMuted,
     fontSize: 12,
     textAlign: "center",
     lineHeight: 16,
   },
   selectedTypeDescription: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
   },
 
   // Error styles
   errorContainer: {
-    backgroundColor: "rgba(220, 38, 38, 0.1)",
+    backgroundColor: c.hazardBg,
     borderRadius: 8,
     padding: 16,
     borderLeftWidth: 4,
-    borderLeftColor: "#DC2626",
+    borderLeftColor: c.hazardColor,
   },
   errorText: {
-    color: "#DC2626",
+    color: c.hazardColor,
     fontSize: 14,
     margin: 0,
   },
@@ -373,7 +385,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   calculatorTitle: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 18,
     marginBottom: 8,
   },
@@ -385,7 +397,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   loadingText: {
-    color: "rgba(255,255,255,0.45)",
+    color: c.textMuted,
     fontSize: 16,
   },
 });
