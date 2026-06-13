@@ -1,7 +1,7 @@
 import {
   DarkTheme,
   DefaultTheme,
-  ThemeProvider,
+  ThemeProvider as NavThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
@@ -10,64 +10,87 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import "react-native-reanimated";
 
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { LanguageProvider } from "@/contexts/language-context";
-
-//ads
+import {
+  PaperProvider,
+  MD3DarkTheme,
+  MD3LightTheme,
+} from "react-native-paper";
 import mobileAds from "react-native-google-mobile-ads";
-
-//track
 import { requestTrackingPermissionsAsync } from "expo-tracking-transparency";
 
-//component library
-import { PaperProvider } from "react-native-paper";
+import { LanguageProvider } from "@/contexts/language-context";
+import { ThemeProvider, useTheme } from "@/contexts/theme-context";
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+function ThemedApp() {
+  const { theme } = useTheme();
+  const isDark = theme.tokens.isDark;
+
+  const paperBase = isDark ? MD3DarkTheme : MD3LightTheme;
+  const paperTheme = {
+    ...paperBase,
+    colors: {
+      ...paperBase.colors,
+      primary: theme.tokens.primaryColor,
+      background: theme.tokens.appBg,
+      surface: theme.tokens.elevatedBg,
+      onSurface: theme.tokens.textPrimary,
+    },
+  };
+
+  const navBase = isDark ? DarkTheme : DefaultTheme;
+  const navTheme = {
+    ...navBase,
+    colors: {
+      ...navBase.colors,
+      primary: theme.tokens.primaryColor,
+      background: theme.tokens.appBg,
+      card: theme.tokens.elevatedBg,
+      text: theme.tokens.textPrimary,
+      border: theme.tokens.surfaceBorder,
+    },
+  };
+
+  return (
+    <PaperProvider theme={paperTheme}>
+      <NavThemeProvider value={navTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <StatusBar style={isDark ? "light" : "dark"} />
+      </NavThemeProvider>
+    </PaperProvider>
+  );
+}
+
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
+    if (loaded) SplashScreen.hideAsync();
   }, [loaded]);
 
-  // Initialize Google Mobile Ads SDK
   useEffect(() => {
     (async () => {
-      // Google AdMob will show any messages here that you just set up on the AdMob Privacy & Messaging page
-      const { status: trackingStatus } =
-        await requestTrackingPermissionsAsync();
+      const { status: trackingStatus } = await requestTrackingPermissionsAsync();
       if (trackingStatus !== "granted") {
-        // Do something here such as turn off Sentry tracking, store in context/redux to allow for personalized ads, etc.
         console.log(trackingStatus);
       }
-
-      // Initialize the ads
       await mobileAds().initialize();
     })();
   }, []);
 
-  if (!loaded) {
-    return null;
-  }
+  if (!loaded) return null;
 
   return (
     <LanguageProvider>
-      <PaperProvider>
-        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          <StatusBar style="auto" />
-        </ThemeProvider>
-      </PaperProvider>
+      <ThemeProvider>
+        <ThemedApp />
+      </ThemeProvider>
     </LanguageProvider>
   );
 }

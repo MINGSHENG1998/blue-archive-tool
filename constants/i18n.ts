@@ -125,6 +125,7 @@ export interface UIStrings {
   // Misc / Other screen
   miscTitle: string;
   miscSettings: string;
+  theme: string;
   miscSupport: string;
   miscFeedbackItem: string;
   miscFeedbackItemDesc: string;
@@ -229,6 +230,7 @@ export const i18n: Record<Locale, UIStrings> = {
     // Misc
     miscTitle: "About",
     miscSettings: "Settings",
+    theme: "Theme",
     miscSupport: "Support",
     miscFeedbackItem: "Send Feedback",
     miscFeedbackItemDesc: "Help us improve the app",
@@ -382,6 +384,7 @@ export const i18n: Record<Locale, UIStrings> = {
     // Misc
     miscTitle: "关于",
     miscSettings: "设置",
+    theme: "主题",
     miscSupport: "支持",
     miscFeedbackItem: "发送反馈",
     miscFeedbackItemDesc: "帮助我们改进应用",
@@ -535,6 +538,7 @@ export const i18n: Record<Locale, UIStrings> = {
     // Misc
     miscTitle: "정보",
     miscSettings: "설정",
+    theme: "테마",
     miscSupport: "지원",
     miscFeedbackItem: "피드백 보내기",
     miscFeedbackItemDesc: "앱 개선에 도움을 주세요",
@@ -688,6 +692,7 @@ export const i18n: Record<Locale, UIStrings> = {
     // Misc
     miscTitle: "情報",
     miscSettings: "設定",
+    theme: "テーマ",
     miscSupport: "サポート",
     miscFeedbackItem: "フィードバックを送る",
     miscFeedbackItemDesc: "アプリの改善にご協力ください",
