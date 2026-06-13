@@ -18,6 +18,8 @@ import { useLanguage } from "@/contexts/language-context";
 import { i18n } from "@/constants/i18n";
 import { useColors } from "@/hooks/useColors";
 import type { ThemeTokens } from "@/constants/theme";
+import { elevation } from "@/constants/elevation";
+import { RADIUS } from "@/constants/layout";
 
 const EXP_VALUES = {
   pinkBook: 10000,
@@ -433,7 +435,7 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   // Error styles - matching parent
   errorContainer: {
     backgroundColor: c.hazardBg,
-    borderRadius: 12,
+    borderRadius: RADIUS.control,
     padding: 16,
     marginBottom: 20,
     borderLeftWidth: 4,
@@ -478,12 +480,8 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   inventoryCard: {
     backgroundColor: c.elevatedBg,
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: c.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderRadius: RADIUS.control,
+    ...elevation(c, 2),
   },
   inventoryContent: {
     padding: 20,
@@ -517,12 +515,10 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     width: 48,
     height: 48,
     backgroundColor: c.surfaceBg,
-    borderRadius: 8,
+    borderRadius: RADIUS.sm,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
-    borderWidth: 1,
-    borderColor: c.surfaceBorder,
   },
   resourceInputIcon: {
     width: 24,
@@ -537,7 +533,7 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   calculateButton: {
     marginTop: 8,
     marginBottom: 16,
-    borderRadius: 12,
+    borderRadius: RADIUS.control,
     elevation: 3,
     shadowColor: c.primaryColor,
     shadowOffset: { width: 0, height: 2 },
@@ -557,17 +553,11 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   card: {
     marginBottom: 16,
-    borderRadius: 16,
-    elevation: 3,
-    shadowColor: c.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    borderRadius: RADIUS.card,
+    ...elevation(c, 2),
   },
   resultCard: {
     backgroundColor: c.elevatedBg,
-    borderWidth: 1,
-    borderColor: c.accentSoft,
   },
   resultCardContent: {
     padding: 24,
@@ -590,11 +580,9 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   // Total EXP display
   totalExpContainer: {
     backgroundColor: c.accentSoft,
-    borderRadius: 12,
+    borderRadius: RADIUS.control,
     padding: 16,
     marginBottom: 24,
-    borderWidth: 1,
-    borderColor: c.accentSoft,
   },
   totalExpLabel: {
     fontSize: 14,
