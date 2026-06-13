@@ -85,6 +85,7 @@ const CalculatorTypeSelector = ({ selectedType, onTypeChange }: any) => {
             buttons={calculatorTypes.map((type) => ({
               value: type.value,
               label: type.label,
+              labelStyle: styles.segmentLabel,
             }))}
             theme={{
               colors: {
@@ -294,6 +295,9 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
 
   // Type selector
+  segmentLabel: {
+    fontSize: 12,
+  },
   selectorDesc: {
     color: c.textMuted,
     fontSize: 13,

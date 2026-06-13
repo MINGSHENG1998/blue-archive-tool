@@ -536,15 +536,15 @@ export default function FutureBannerScreen() {
 
             {/* Banners List */}
             <View style={styles.bannerList}>
-              {filteredAndSortedBanners.map((banner) => {
+              {filteredAndSortedBanners.map((banner, index) => {
                 const daysUntil = getDaysUntil(banner.startDate);
                 const isActive =
                   daysUntil <= 0 && getDaysUntil(banner.endDate) > 0;
                 const isExpanded = expandedBanner === banner.id;
 
                 return (
+                  <React.Fragment key={banner.id}>
                   <AnimatedCard
-                    key={banner.id}
                     style={styles.bannerCardWrapper}
                     onPress={() =>
                       setExpandedBanner(isExpanded ? null : banner.id)
@@ -613,6 +613,8 @@ export default function FutureBannerScreen() {
                       )}
                     </View>
                   </AnimatedCard>
+                  {(index + 1) % 5 === 0 && <InlineAd />}
+                  </React.Fragment>
                 );
               })}
             </View>
