@@ -33,6 +33,7 @@ import { useLanguage } from "@/contexts/language-context";
 import { i18n, atkTypeLabels, defTypeLabels } from "@/constants/i18n";
 import type { Locale } from "@/constants/i18n";
 import { useColors } from "@/hooks/useColors";
+import { categoryColors } from "@/constants/categoryColors";
 import type { ThemeTokens } from "@/constants/theme";
 
 // Define types
@@ -853,29 +854,29 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     justifyContent: "center",
   },
   newTypeChip: {
-    backgroundColor: c.hazardColor,
+    backgroundColor: categoryColors.bannerNew,
   },
   fesTypeChip: {
-    backgroundColor: c.hazardColor,
+    backgroundColor: categoryColors.bannerFes,
   },
   collabTypeChip: {
-    backgroundColor: c.primaryColor,
+    backgroundColor: categoryColors.bannerCollab,
   },
   rerunTypeChip: {
-    backgroundColor: c.textMuted,
+    backgroundColor: categoryColors.bannerRerun,
   },
   defaultTypeChip: {
-    backgroundColor: c.surfaceBorder,
+    backgroundColor: categoryColors.bannerDefault,
   },
   bannerTypeText: {
-    color: c.textPrimary,
+    color: categoryColors.onBadge,
     fontSize: 10,
     fontWeight: "700",
     letterSpacing: 0.5,
     lineHeight: 16,
   },
   liveBadge: {
-    backgroundColor: c.hazardColor,
+    backgroundColor: categoryColors.bannerNew,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -883,7 +884,7 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     justifyContent: "center",
   },
   liveBadgeText: {
-    color: c.textPrimary,
+    color: categoryColors.onBadge,
     fontSize: 10,
     fontWeight: "700",
     lineHeight: 16,
@@ -968,7 +969,7 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     paddingVertical: 1,
   },
   star: {
-    color: c.primaryColor,
+    color: categoryColors.star,
     fontSize: 12,
     textShadowColor: c.shadow,
     textShadowOffset: { width: 1, height: 1 },
@@ -995,18 +996,18 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     position: "absolute",
     top: -4,
     left: -8,
-    backgroundColor: c.hazardColor,
+    backgroundColor: categoryColors.newBadge,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
   },
   newBadgeText: {
-    color: c.textPrimary,
+    color: categoryColors.onBadge,
     fontSize: 9,
     fontWeight: "700",
   },
   classBadge: {
-    backgroundColor: c.surfaceBorder,
+    backgroundColor: categoryColors.classDefault,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -1014,16 +1015,16 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     marginBottom: 8,
   },
   strikerBadge: {
-    backgroundColor: c.hazardColor,
+    backgroundColor: categoryColors.bannerNew,
   },
   specialBadge: {
-    backgroundColor: c.primaryColor,
+    backgroundColor: categoryColors.classSpecial,
   },
   defaultBadge: {
-    backgroundColor: c.textMuted,
+    backgroundColor: categoryColors.bannerRerun,
   },
   classText: {
-    color: c.textPrimary,
+    color: categoryColors.onBadge,
     fontSize: 10,
     fontWeight: "700",
     letterSpacing: 0.5,

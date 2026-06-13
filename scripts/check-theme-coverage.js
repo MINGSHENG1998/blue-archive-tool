@@ -7,6 +7,7 @@ const ROOTS = ["app", "components", "contexts", "hooks"];
 const ALLOWLIST = new Set([
   path.normalize("constants/theme.ts"),
   path.normalize("constants/Colors.ts"),
+  path.normalize("constants/categoryColors.ts"),
   path.normalize("hooks/useColorScheme.ts"),
   path.normalize("hooks/useColorScheme.web.ts"),
   path.normalize("components/ui/customChip.tsx"),

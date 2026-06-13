@@ -14,6 +14,7 @@ import { useEffect, useRef, useMemo } from "react";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n } from "@/constants/i18n";
 import { useColors } from "@/hooks/useColors";
+import { categoryColors } from "@/constants/categoryColors";
 import type { ThemeTokens } from "@/constants/theme";
 
 // ── Spring-bounce press wrapper ──────────────────────────────────────────────
@@ -88,7 +89,7 @@ export default function HomeScreen() {
       titleKey: "toolBannerTitle" as const,
       subtitleKey: "toolBannerSubtitle" as const,
       icon: "calendar-clock",
-      accentColor: c.primaryColor,
+      accentColor: categoryColors.toolBanner,
       label: "GACHA",
       route: "/(tabs)/banner",
     },
@@ -97,7 +98,7 @@ export default function HomeScreen() {
       titleKey: "toolBondTitle" as const,
       subtitleKey: "toolBondSubtitle" as const,
       icon: "heart-multiple",
-      accentColor: c.primaryColor,
+      accentColor: categoryColors.toolBond,
       label: "BOND",
       route: "/(tabs)/bondExp",
     },
@@ -106,7 +107,7 @@ export default function HomeScreen() {
       titleKey: "toolCharaTitle" as const,
       subtitleKey: "toolCharaSubtitle" as const,
       icon: "account-cog",
-      accentColor: c.primaryColor,
+      accentColor: categoryColors.toolChara,
       label: "BUILD",
       route: "/(tabs)/resourceCalc",
     },
