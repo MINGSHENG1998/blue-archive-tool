@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Image, StyleSheet, View, Keyboard } from "react-native";
 import {
   Card,
@@ -21,6 +21,8 @@ import {
   SkillCostInput,
   SkillCostResult,
 } from "@/constants/skillData";
+import { useColors } from "@/hooks/useColors";
+import type { ThemeTokens } from "@/constants/theme";
 
 const BD_ICONS = [
   require("../../assets/images/icons/bd_t1.webp"),
@@ -64,68 +66,78 @@ type LevelKey = keyof typeof INITIAL_LEVELS;
 type InventoryKey = keyof typeof INITIAL_INVENTORY;
 
 // Level pair row: current + target dropdowns for one skill
-const SkillLevelRow = ({ label, options, value, onChange, tCurrent, tTarget }: any) => (
-  <ThemedView style={styles.skillRow}>
-    <ThemedText type="defaultSemiBold" style={styles.skillRowLabel}>
-      {label}
-    </ThemedText>
-    <ThemedView style={styles.dropdownPair}>
-      <ThemedView style={styles.dropdownField}>
-        <Dropdown
-          mode="outlined"
-          label={tCurrent}
-          options={options}
-          value={value.current}
-          onSelect={(v: string | undefined) =>
-            v !== undefined && onChange({ ...value, current: v })
-          }
-          hideMenuHeader={true}
-        />
-      </ThemedView>
-      <ThemedView style={styles.dropdownField}>
-        <Dropdown
-          mode="outlined"
-          label={tTarget}
-          options={options}
-          value={value.target}
-          onSelect={(v: string | undefined) =>
-            v !== undefined && onChange({ ...value, target: v })
-          }
-          hideMenuHeader={true}
-        />
+const SkillLevelRow = ({ label, options, value, onChange, tCurrent, tTarget }: any) => {
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
+  return (
+    <ThemedView style={styles.skillRow}>
+      <ThemedText type="defaultSemiBold" style={styles.skillRowLabel}>
+        {label}
+      </ThemedText>
+      <ThemedView style={styles.dropdownPair}>
+        <ThemedView style={styles.dropdownField}>
+          <Dropdown
+            mode="outlined"
+            label={tCurrent}
+            options={options}
+            value={value.current}
+            onSelect={(v: string | undefined) =>
+              v !== undefined && onChange({ ...value, current: v })
+            }
+            hideMenuHeader={true}
+          />
+        </ThemedView>
+        <ThemedView style={styles.dropdownField}>
+          <Dropdown
+            mode="outlined"
+            label={tTarget}
+            options={options}
+            value={value.target}
+            onSelect={(v: string | undefined) =>
+              v !== undefined && onChange({ ...value, target: v })
+            }
+            hideMenuHeader={true}
+          />
+        </ThemedView>
       </ThemedView>
     </ThemedView>
-  </ThemedView>
-);
+  );
+};
 
 // Inventory input with icon (pattern: charaExp ResourceInput)
-const InventoryInput = ({ icon, label, value, onChangeText, fieldName }: any) => (
-  <ThemedView style={styles.inventoryInputContainer}>
-    <View style={styles.inventoryIconContainer}>
-      <Image source={icon} style={styles.inventoryInputIcon} />
-    </View>
-    <TextInput
-      mode="outlined"
-      label={label}
-      value={value}
-      onChangeText={(val: string) => onChangeText(fieldName, val)}
-      keyboardType="numeric"
-      style={styles.inventoryInput}
-      theme={{
-        colors: {
-          primary: "#128AFA",
-          outline: "rgba(71, 85, 105, 0.6)",
-          onSurface: "#FFFFFF",
-          surface: "rgba(15, 23, 42, 0.8)",
-          onSurfaceVariant: "#94A3B8",
-        },
-      }}
-    />
-  </ThemedView>
-);
+const InventoryInput = ({ icon, label, value, onChangeText, fieldName }: any) => {
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
+  return (
+    <ThemedView style={styles.inventoryInputContainer}>
+      <View style={styles.inventoryIconContainer}>
+        <Image source={icon} style={styles.inventoryInputIcon} />
+      </View>
+      <TextInput
+        mode="outlined"
+        label={label}
+        value={value}
+        onChangeText={(val: string) => onChangeText(fieldName, val)}
+        keyboardType="numeric"
+        style={styles.inventoryInput}
+        theme={{
+          colors: {
+            primary: c.primaryColor,
+            outline: c.surfaceBorder,
+            onSurface: c.textPrimary,
+            surface: c.surfaceBg,
+            onSurfaceVariant: c.textSecondary,
+          },
+        }}
+      />
+    </ThemedView>
+  );
+};
 
 // Result row, hidden when amount is zero
 const ResultRow = ({ icon, label, value }: any) => {
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   if (value <= 0) return null;
   return (
     <View style={styles.resultRow}>
@@ -144,6 +156,8 @@ const ResultRow = ({ icon, label, value }: any) => {
 
 export default function SkillCalc() {
   const cardBackground = useThemeColor({}, "background");
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
   const t = i18n[locale];
 
@@ -290,8 +304,8 @@ export default function SkillCalc() {
         mode="contained"
         onPress={handleCalculate}
         style={styles.calculateButton}
-        buttonColor="#128AFA"
-        textColor="#0F172A"
+        buttonColor={c.primaryColor}
+        textColor={c.primaryText}
         labelStyle={styles.calculateButtonText}
       >
         {t.resourceCalculate}
@@ -347,7 +361,7 @@ export default function SkillCalc() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "transparent",
@@ -355,15 +369,15 @@ const styles = StyleSheet.create({
 
   // Error styles - matching sibling calcs
   errorContainer: {
-    backgroundColor: "rgba(220, 38, 38, 0.1)",
+    backgroundColor: c.hazardBg,
     borderRadius: 12,
     padding: 16,
     marginBottom: 20,
     borderLeftWidth: 4,
-    borderLeftColor: "#DC2626",
+    borderLeftColor: c.hazardColor,
   },
   errorText: {
-    color: "#DC2626",
+    color: c.hazardColor,
     fontSize: 14,
     margin: 0,
   },
@@ -376,14 +390,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 12,
-    color: "#FFFFFF",
+    color: c.textPrimary,
   },
   skillRow: {
     marginBottom: 16,
     backgroundColor: "transparent",
   },
   skillRowLabel: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 14,
     marginBottom: 8,
   },
@@ -404,10 +418,10 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   inventoryCard: {
-    backgroundColor: "rgba(30, 41, 59, 0.7)",
+    backgroundColor: c.elevatedBg,
     borderRadius: 12,
     elevation: 2,
-    shadowColor: "#000",
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -421,13 +435,13 @@ const styles = StyleSheet.create({
   inventoryTitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#FFFFFF",
+    color: c.textPrimary,
     marginBottom: 8,
   },
   inventoryAccent: {
     width: 40,
     height: 2,
-    backgroundColor: "#128AFA",
+    backgroundColor: c.primaryColor,
     borderRadius: 1,
   },
   inventoryInputsContainer: {
@@ -441,13 +455,13 @@ const styles = StyleSheet.create({
   inventoryIconContainer: {
     width: 48,
     height: 48,
-    backgroundColor: "rgba(15, 23, 42, 0.8)",
+    backgroundColor: c.surfaceBg,
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
     borderWidth: 1,
-    borderColor: "rgba(71, 85, 105, 0.3)",
+    borderColor: c.surfaceBorder,
   },
   inventoryInputIcon: {
     width: 32,
@@ -465,7 +479,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 12,
     elevation: 3,
-    shadowColor: "#128AFA",
+    shadowColor: c.primaryColor,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -481,11 +495,11 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   resultCard: {
-    backgroundColor: "rgba(30, 41, 59, 0.7)",
+    backgroundColor: c.elevatedBg,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(0, 245, 255, 0.2)",
-    shadowColor: "#128AFA",
+    borderColor: c.accentSoft,
+    shadowColor: c.primaryColor,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
@@ -498,42 +512,42 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   resultTitle: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 18,
     marginBottom: 8,
   },
   resultAccent: {
     width: 80,
     height: 2,
-    backgroundColor: "#128AFA",
+    backgroundColor: c.primaryColor,
     borderRadius: 1,
   },
   totalCredits: {
-    backgroundColor: "rgba(0, 245, 255, 0.1)",
+    backgroundColor: c.accentSoft,
     borderRadius: 12,
     padding: 20,
     alignItems: "center",
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: "rgba(0, 245, 255, 0.2)",
+    borderColor: c.accentSoft,
   },
   totalCreditsLabel: {
     fontSize: 14,
-    color: "#94A3B8",
+    color: c.textSecondary,
     marginBottom: 4,
   },
   totalCreditsValue: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#128AFA",
+    color: c.primaryColor,
   },
   breakdownTitle: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 16,
     marginBottom: 12,
   },
   resultList: {
-    backgroundColor: "rgba(15, 23, 42, 0.4)",
+    backgroundColor: c.surfaceBg,
     borderRadius: 12,
     padding: 16,
     gap: 16,
@@ -546,7 +560,7 @@ const styles = StyleSheet.create({
   resultIconContainer: {
     width: 32,
     height: 32,
-    backgroundColor: "rgba(30, 41, 59, 0.8)",
+    backgroundColor: c.elevatedBg,
     borderRadius: 6,
     justifyContent: "center",
     alignItems: "center",
@@ -563,17 +577,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   resultRowName: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 14,
     flex: 1,
   },
   resultRowValue: {
-    color: "#128AFA",
+    color: c.primaryColor,
     fontSize: 14,
     fontWeight: "600",
   },
   artifactNote: {
-    color: "#94A3B8",
+    color: c.textSecondary,
     fontSize: 12,
     marginTop: 16,
     fontStyle: "italic",
