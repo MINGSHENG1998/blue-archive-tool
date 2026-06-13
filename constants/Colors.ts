@@ -4,26 +4,27 @@
  */
 
 import { AtkType, DefType } from "@/dto/game.dto";
+import { THEMES } from "@/constants/theme";
 
-const tintColorLight = "#128AFA";
-const tintColorDark = "#128AFA";
+const dark = THEMES.baBlue.tokens;
+const light = THEMES.paper.tokens;
 
 export const Colors = {
   light: {
-    text: "#11181C",
-    background: "#fff",
-    tint: tintColorLight,
-    icon: "#687076",
-    tabIconDefault: "#687076",
-    tabIconSelected: tintColorLight,
+    text: light.textPrimary,
+    background: light.appBg,
+    tint: light.primaryColor,
+    icon: light.textSecondary,
+    tabIconDefault: light.textSecondary,
+    tabIconSelected: light.primaryColor,
   },
   dark: {
-    text: "#ECEDEE",
-    background: "#0F172A",
-    tint: tintColorDark,
-    icon: "#9BA1A6",
-    tabIconDefault: "#9BA1A6",
-    tabIconSelected: tintColorDark,
+    text: dark.textPrimary,
+    background: dark.appBg,
+    tint: dark.primaryColor,
+    icon: dark.textSecondary,
+    tabIconDefault: dark.textSecondary,
+    tabIconSelected: dark.primaryColor,
   },
 };
 
