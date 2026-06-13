@@ -30,7 +30,7 @@ import {
   Divider,
   ActivityIndicator,
 } from "react-native-paper";
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 
 //constant
 import { bondExpData, bondResourceTable } from "../../constants/bondData";
@@ -39,6 +39,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n, bondResourceNames } from "@/constants/i18n";
+import { useColors } from "@/hooks/useColors";
+import type { ThemeTokens } from "@/constants/theme";
 
 const { width } = Dimensions.get("window");
 
@@ -77,6 +79,8 @@ export default function BondExpScreen() {
   const scrollRef = useRef<{ resetScroll: () => void }>(null);
   const { locale } = useLanguage();
   const t = i18n[locale];
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const [from, setFrom]: any = useState("1");
   const [to, setTo]: any = useState("100");
   const [error, setError] = useState("");
@@ -186,7 +190,7 @@ export default function BondExpScreen() {
             </ThemedText>
              <View style={styles.sectionAccent} />
           </View>
-        </ThemedView>       
+        </ThemedView>
 
         {/* Input Section */}
         <AnimatedCard style={styles.inputCardWrapper}>
@@ -230,7 +234,7 @@ export default function BondExpScreen() {
                           icon="close"
                           size={16}
                           onPress={() => setFrom("")}
-                          color="#94A3B8"
+                          color={c.textSecondary}
                         />
                       )
                     }
@@ -270,7 +274,7 @@ export default function BondExpScreen() {
                           icon="close"
                           size={16}
                           onPress={() => setTo("")}
-                          color="#94A3B8"
+                          color={c.textSecondary}
                         />
                       )
                     }
@@ -298,8 +302,8 @@ export default function BondExpScreen() {
                 labelStyle={styles.calculateButtonLabel}
                 loading={calculating}
                 disabled={calculating || !from || !to}
-                buttonColor="#128AFA"
-                textColor="#0F172A"
+                buttonColor={c.primaryColor}
+                textColor={c.primaryText}
               >
                 {t.bondCalculate}
               </Button>
@@ -483,10 +487,10 @@ export default function BondExpScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0A1628",
+    backgroundColor: c.appBg,
   },
   backgroundPattern: {
     position: "absolute",
@@ -494,7 +498,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "#0A1628",
+    backgroundColor: c.appBg,
     opacity: 0.8,
   },
   titleContainer: {
@@ -508,19 +512,19 @@ const styles = StyleSheet.create({
   mainTitle: {
     fontSize: 24,
     fontWeight: "800", fontStyle: "italic", letterSpacing: 0.2,
-    color: "#FFFFFF",
+    color: c.textPrimary,
   },
   subtitle: {
     fontSize: 14,
-    color: "rgba(255,255,255,0.45)",
+    color: c.textMuted,
     marginTop: 4,
   },
   sectionAccent: {
     width: 44,
     height: 2.5,
-    backgroundColor: "#128AFA",
+    backgroundColor: c.primaryColor,
     borderRadius: 2,
-    shadowColor: "#128AFA",
+    shadowColor: c.primaryColor,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.5,
     shadowRadius: 4,
@@ -532,10 +536,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   inputCard: {
-    backgroundColor: "rgba(30, 41, 59, 0.7)",
+    backgroundColor: c.elevatedBg,
     borderRadius: 16,
     elevation: 3,
-    shadowColor: "#000",
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -544,7 +548,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   inputSectionTitle: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 18,
     marginBottom: 20,
   },
@@ -558,7 +562,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   inputLabel: {
-    color: "#94A3B8",
+    color: c.textSecondary,
     fontSize: 14,
     marginBottom: 8,
     fontWeight: "500",
@@ -567,31 +571,31 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   arrowText: {
-    color: "#128AFA",
+    color: c.primaryColor,
     fontSize: 20,
     fontWeight: "bold",
   },
   textInput: {
-    backgroundColor: "rgba(15, 23, 42, 0.9)",
+    backgroundColor: c.surfaceBg,
   },
   textInputContent: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 16,
   },
   textInputOutline: {
-    borderColor: "rgba(18, 138, 250, 0.18)",
+    borderColor: c.accentSoft,
     borderWidth: 1,
   },
   errorContainer: {
     marginBottom: 20,
-    backgroundColor: "rgba(220, 38, 38, 0.1)",
+    backgroundColor: c.hazardBg,
     borderRadius: 8,
     padding: 16,
     borderLeftWidth: 4,
-    borderLeftColor: "#DC2626",
+    borderLeftColor: c.hazardColor,
   },
   errorText: {
-    color: "#DC2626",
+    color: c.hazardColor,
     fontSize: 14,
     margin: 0,
   },
@@ -613,7 +617,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   settingsCard: {
-    backgroundColor: "rgba(13, 31, 60, 0.85)",
+    backgroundColor: c.surfaceBg,
     borderRadius: 12,
     elevation: 1,
   },
@@ -638,12 +642,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   resultCard: {
-    backgroundColor: "#0F2347",
+    backgroundColor: c.elevatedBg,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#128AFA",
+    borderColor: c.primaryColor,
     elevation: 4,
-    shadowColor: "#128AFA",
+    shadowColor: c.primaryColor,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -657,24 +661,24 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   resultBadge: {
-    backgroundColor: "#128AFA",
+    backgroundColor: c.primaryColor,
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 16,
   },
   resultBadgeText: {
-    color: "#0F172A",
+    color: c.primaryText,
     fontSize: 10,
     fontWeight: "700",
     letterSpacing: 1.2,
   },
   resultTitle: {
-    color: "#94A3B8",
+    color: c.textSecondary,
     fontSize: 16,
     marginBottom: 8,
   },
   resultValue: {
-    color: "#128AFA",
+    color: c.primaryColor,
     fontSize: 32,
     fontWeight: "bold",
     marginBottom: 24,
@@ -691,15 +695,15 @@ const styles = StyleSheet.create({
   estimationDivider: {
     width: 1,
     height: 40,
-    backgroundColor: "rgba(71, 85, 105, 0.4)",
+    backgroundColor: c.surfaceBorder,
   },
   estimationLabel: {
-    color: "#94A3B8",
+    color: c.textSecondary,
     fontSize: 12,
     marginBottom: 6,
   },
   estimationValue: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 16,
     fontWeight: "600",
   },
@@ -709,7 +713,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   resourceCard: {
-    backgroundColor: "rgba(13, 31, 60, 0.85)",
+    backgroundColor: c.surfaceBg,
     borderRadius: 12,
     elevation: 1,
   },
@@ -722,36 +726,36 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   tableHeader: {
-    backgroundColor: "rgba(0, 245, 255, 0.1)",
+    backgroundColor: c.accentSoft,
     borderRadius: 8,
     marginBottom: 8,
     paddingLeft: 12,
     paddingRight: 4,
   },
   tableHeaderText: {
-    color: "#128AFA",
+    color: c.primaryColor,
     fontWeight: "600",
     fontSize: 13,
   },
   tableRow: {
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(71, 85, 105, 0.15)",
+    borderBottomColor: c.surfaceBorder,
     minHeight: 64,
     paddingHorizontal: 4,
   },
   tableRowEven: {
-    backgroundColor: "rgba(71, 85, 105, 0.05)",
+    backgroundColor: c.accentSoft,
   },
   tableCell: {
     paddingVertical: 12,
     justifyContent: "center",
   },
   tableCellText: {
-    color: "#94A3B8",
+    color: c.textSecondary,
     fontSize: 13,
   },
   tableCellTextAmount: {
-    color: "#128AFA",
+    color: c.primaryColor,
     fontSize: 14,
     fontWeight: "600",
   },
@@ -777,7 +781,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sourceImageContainer: {
-    backgroundColor: "rgba(15, 23, 42, 0.6)",
+    backgroundColor: c.surfaceBg,
     borderRadius: 8,
     padding: 2,
   },
@@ -787,7 +791,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   sourceName: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 13,
     fontWeight: "500",
     flex: 1,
