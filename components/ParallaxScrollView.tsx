@@ -16,6 +16,7 @@ import Animated, {
 import { ThemedView } from "@/components/ThemedView";
 import { useBottomTabOverflow } from "@/components/ui/TabBarBackground";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { useColors } from "@/hooks/useColors";
 
 const HEADER_HEIGHT = 250;
 
@@ -47,6 +48,7 @@ const ParallaxScrollView = forwardRef(function ParallaxScrollView(
   ref
 ) {
   const colorScheme = useColorScheme() ?? "light";
+  const c = useColors();
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollViewOffset(scrollRef);
   const bottom = useBottomTabOverflow();
@@ -102,7 +104,7 @@ const ParallaxScrollView = forwardRef(function ParallaxScrollView(
               {
                 backgroundColor: headerBackgroundColor
                   ? headerBackgroundColor[colorScheme]
-                  : { light: "#A1CEDC", dark: "#1D3D47" }[colorScheme],
+                  : c.appBg,
               },
               headerAnimatedStyle,
             ]}

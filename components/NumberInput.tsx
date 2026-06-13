@@ -1,5 +1,8 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+
+import { useColors } from '@/hooks/useColors';
+import type { ThemeTokens } from '@/constants/theme';
 
 interface NumberInputProps {
   value: number;
@@ -16,6 +19,8 @@ const NumberInput: React.FC<NumberInputProps> = ({
   min = 0,
   max = 100,
 }) => {
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const [speed, setSpeed] = useState(1);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const speedIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -120,7 +125,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   wrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -128,7 +133,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flexDirection: 'row',
-    backgroundColor: '#404040',
+    backgroundColor: c.surfaceBg,
     borderRadius: 8,
     overflow: 'hidden',
   },
@@ -137,11 +142,11 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#404040',
+    backgroundColor: c.surfaceBg,
   },
   buttonText: {
     fontSize: 20,
-    color: '#fff',
+    color: c.textPrimary,
     fontWeight: '400',
   },
   valueContainer: {
@@ -149,14 +154,14 @@ const styles = StyleSheet.create({
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#404040',
+    backgroundColor: c.surfaceBg,
   },
   value: {
     fontSize: 16,
-    color: '#fff',
+    color: c.textPrimary,
   },
   label: {
-    color: '#fff',
+    color: c.textPrimary,
     marginLeft: 12,
     fontSize: 16,
   },
