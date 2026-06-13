@@ -33,6 +33,8 @@ import type { Locale } from "@/constants/i18n";
 import { useColors } from "@/hooks/useColors";
 import { categoryColors } from "@/constants/categoryColors";
 import type { ThemeTokens } from "@/constants/theme";
+import { elevation } from "@/constants/elevation";
+import { RADIUS } from "@/constants/layout";
 
 // Define types
 interface Character {
@@ -645,10 +647,8 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     alignItems: "center",
     gap: 16,
     backgroundColor: c.hazardBg,
-    borderRadius: 16,
+    borderRadius: RADIUS.card,
     margin: 16,
-    borderWidth: 1,
-    borderColor: c.hazardBg,
   },
   errorText: {
     textAlign: "center",
@@ -699,19 +699,16 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   filterPanel: {
     marginBottom: 24,
-    backgroundColor: c.appBg,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: c.accentSoft,
+    backgroundColor: c.elevatedBg,
+    borderRadius: RADIUS.card,
     padding: 12,
     gap: 10,
+    ...elevation(c, 1),
   },
   searchBar: {
-    backgroundColor: c.appBg,
-    borderRadius: 12,
-    elevation: 2,
-    borderWidth: 1,
-    borderColor: c.accentSoft,
+    backgroundColor: c.surfaceBg,
+    borderRadius: RADIUS.control,
+    ...elevation(c, 1),
   },
   searchInput: {
     color: c.textPrimary,
@@ -723,7 +720,7 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   sortButton: {
     borderColor: c.surfaceBorder,
-    borderRadius: 8,
+    borderRadius: RADIUS.sm,
   },
   sortButtonLabel: {
     color: c.textPrimary,
@@ -769,10 +766,9 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   bannerCard: {
     overflow: "hidden",
-    borderRadius: 16,
+    borderRadius: RADIUS.card,
     backgroundColor: c.elevatedBg,
-    borderWidth: 1,
-    borderColor: c.accentSoft,
+    ...elevation(c, 2),
   },
   activeBannerCard: {
     borderColor: c.primaryColor,
@@ -902,10 +898,9 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     marginHorizontal: 2,
   },
   characterCard: {
-    backgroundColor: c.appBg,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: c.accentSoft,
+    backgroundColor: c.elevatedBg,
+    borderRadius: RADIUS.card,
+    ...elevation(c, 1),
   },
   characterContent: {
     flexDirection: "row",
