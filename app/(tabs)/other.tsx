@@ -32,6 +32,8 @@ import { useColors } from "@/hooks/useColors";
 import type { ThemeTokens } from "@/constants/theme";
 import { useTheme } from "@/contexts/theme-context";
 import { THEMES, THEME_ORDER, type ThemeId } from "@/constants/theme";
+import { elevation } from "@/constants/elevation";
+import { RADIUS } from "@/constants/layout";
 
 const LOCALE_LABELS: Record<Locale, string> = {
   en: "English",
@@ -68,11 +70,12 @@ const makeStyles = (c: ThemeTokens) =>
       left: 0,
       right: 0,
       backgroundColor: c.elevatedBg,
-      borderTopLeftRadius: 28,
-      borderTopRightRadius: 28,
+      borderTopLeftRadius: RADIUS.lg,
+      borderTopRightRadius: RADIUS.lg,
       paddingHorizontal: 24,
       paddingBottom: 36,
       paddingTop: 12,
+      ...elevation(c, 3),
     },
     drawerHandle: {
       width: 40,
@@ -132,14 +135,12 @@ const makeStyles = (c: ThemeTokens) =>
     },
     coffeeTierCard: {
       flex: 1,
-      borderRadius: 14,
+      borderRadius: RADIUS.card,
       padding: 16,
       alignItems: "center",
     },
     coffeeTierCardSmall: {
       backgroundColor: c.accentSoft,
-      borderWidth: 1.5,
-      borderColor: c.accentSoft,
       paddingTop: 20,
     },
     coffeeTierCardLarge: {
@@ -194,9 +195,7 @@ const makeStyles = (c: ThemeTokens) =>
     },
     coffeeAdFreeNote: {
       backgroundColor: c.accentSoft,
-      borderWidth: 1,
-      borderColor: c.accentSoft,
-      borderRadius: 10,
+      borderRadius: RADIUS.sm,
       padding: 10,
       marginBottom: 4,
     },
@@ -209,9 +208,7 @@ const makeStyles = (c: ThemeTokens) =>
     },
     coffeeAlreadyOwned: {
       backgroundColor: c.accentSoft,
-      borderWidth: 1,
-      borderColor: c.accentSoft,
-      borderRadius: 10,
+      borderRadius: RADIUS.sm,
       padding: 16,
       alignItems: "center",
       marginVertical: 8,
