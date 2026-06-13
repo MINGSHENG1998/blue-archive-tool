@@ -24,6 +24,8 @@ import { useLanguage } from "@/contexts/language-context";
 import { i18n } from "@/constants/i18n";
 import { useColors } from "@/hooks/useColors";
 import type { ThemeTokens } from "@/constants/theme";
+import { elevation } from "@/constants/elevation";
+import { RADIUS } from "@/constants/layout";
 
 
 // Reusable animated card component
@@ -272,12 +274,8 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   card: {
     backgroundColor: c.elevatedBg,
-    borderRadius: 16,
-    elevation: 3,
-    shadowColor: c.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    borderRadius: RADIUS.card,
+    ...elevation(c, 2),
   },
   cardContent: {
     padding: 24,
@@ -308,7 +306,7 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   // Error styles
   errorContainer: {
     backgroundColor: c.hazardBg,
-    borderRadius: 8,
+    borderRadius: RADIUS.control,
     padding: 16,
     borderLeftWidth: 4,
     borderLeftColor: c.hazardColor,
