@@ -12,7 +12,7 @@ import {
 
 import { Collapsible } from "@/components/Collapsible";
 import { ExternalLink } from "@/components/ExternalLink";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { ScreenLayout, type ScreenLayoutRef } from "@/components/ScreenLayout";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
@@ -26,7 +26,6 @@ import {
   TextInput,
   Button,
   HelperText,
-  Surface,
   Divider,
   ActivityIndicator,
 } from "react-native-paper";
@@ -35,7 +34,6 @@ import { useRef, useState, useMemo } from "react";
 //constant
 import { bondExpData, bondResourceTable } from "../../constants/bondData";
 import React from "react";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n, bondResourceNames } from "@/constants/i18n";
@@ -76,7 +74,7 @@ const AnimatedCard = ({ children, style, ...props }: any) => {
 };
 
 export default function BondExpScreen() {
-  const scrollRef = useRef<{ resetScroll: () => void }>(null);
+  const scrollRef = useRef<ScreenLayoutRef>(null);
   const { locale } = useLanguage();
   const t = i18n[locale];
   const c = useColors();
@@ -101,8 +99,6 @@ export default function BondExpScreen() {
   const [monthlyExpGain, setMonthlyExpGain] = useState(
     expSource.pat * 15 + expSource.monthlyGift * 60 + 2410
   );
-  const insets = useSafeAreaInsets();
-  const backgroundColor = useThemeColor({}, "background");
   const cardBackground = useThemeColor({}, "background");
 
   const handleCalculate = async () => {
@@ -173,25 +169,7 @@ export default function BondExpScreen() {
   );
 
   return (
-    <ParallaxScrollView
-      noheader={true}
-      keyboardShouldPersistTaps="handled"
-      ref={scrollRef}
-    >
-      <View style={styles.backgroundPattern} />
-      <Surface
-        style={[styles.container, { paddingTop: insets.top, backgroundColor }]}
-        elevation={0}
-      >
-        <ThemedView style={styles.titleContainer}>
-          <View style={{ flex: 1 }}>
-            <ThemedText type="title" style={styles.mainTitle}>
-              {t.bondPageTitle}
-            </ThemedText>
-             <View style={styles.sectionAccent} />
-          </View>
-        </ThemedView>
-
+    <ScreenLayout ref={scrollRef} title={t.bondPageTitle}>
         {/* Input Section */}
         <AnimatedCard style={styles.inputCardWrapper}>
           <Card style={[styles.inputCard, { backgroundColor: cardBackground }]}>
@@ -482,8 +460,7 @@ export default function BondExpScreen() {
             </View>
           </View>
         )}
-      </Surface>
-    </ParallaxScrollView>
+    </ScreenLayout>
   );
 }
 

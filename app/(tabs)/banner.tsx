@@ -7,20 +7,18 @@ import {
   Pressable,
   Text,
 } from "react-native";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { ScreenLayout, type ScreenLayoutRef } from "@/components/ScreenLayout";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import {
   Card,
   Chip,
-  Surface,
   Searchbar,
   Menu,
   Button,
   ActivityIndicator,
 } from "react-native-paper";
 import { useRef, useState, useCallback, useMemo, useEffect } from "react";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { typeColor } from "@/constants/Colors";
 import { AtkType, DefType } from "@/dto/game.dto";
@@ -200,9 +198,7 @@ const makePortraitStyles = (c: ThemeTokens) => StyleSheet.create({
 });
 
 export default function FutureBannerScreen() {
-  const scrollRef = useRef<{ resetScroll: () => void }>(null);
-  const insets = useSafeAreaInsets();
-  const backgroundColor = useThemeColor({}, "background");
+  const scrollRef = useRef<ScreenLayoutRef>(null);
   const cardBackground = useThemeColor({}, "background");
   const c = useColors();
   const styles = useMemo(() => makeStyles(c), [c]);
@@ -401,32 +397,23 @@ export default function FutureBannerScreen() {
 
   if (loading && !refreshing) {
     return (
-      <Surface
-        style={[styles.container, { paddingTop: insets.top }]}
-        elevation={0}
-      >
+      <ScreenLayout>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={c.primaryColor} />
           <ThemedText type="default" style={styles.loadingText}>
             {t.loading}
           </ThemedText>
         </View>
-      </Surface>
+      </ScreenLayout>
     );
   }
 
   return (
-    <ParallaxScrollView
-      noheader={true}
-      keyboardShouldPersistTaps="handled"
+    <ScreenLayout
       ref={scrollRef}
       onRefresh={onRefresh}
       refreshing={refreshing}
     >
-      <Surface
-        style={[styles.container, { paddingTop: insets.top, backgroundColor }]}
-        elevation={0}
-      >
         <ThemedView style={styles.titleContainer}>
           <View style={{ flex: 1 }}>
             <ThemedText type="title" style={styles.mainTitle}>
@@ -632,8 +619,7 @@ export default function FutureBannerScreen() {
           </>
         )}
         <InlineAd />
-      </Surface>
-    </ParallaxScrollView>
+    </ScreenLayout>
   );
 }
 

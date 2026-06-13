@@ -12,7 +12,6 @@ import { memo, useRef, useState, useEffect, useMemo } from "react";
 import {
   List,
   Divider,
-  Surface,
   Button,
   Text,
   TextInput,
@@ -23,9 +22,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Application from "expo-application";
 import Constants from "expo-constants";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import { ScreenLayout } from "@/components/ScreenLayout";
 import InlineAd from "../ads/InlineAd";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n, type Locale, type UIStrings } from "@/constants/i18n";
@@ -755,7 +752,6 @@ const CoffeeDrawer = memo(function CoffeeDrawer({
 
 // ── Main screen ──────────────────────────────────────────────────────────────
 export default function OtherScreen() {
-  const insets = useSafeAreaInsets();
   const { locale } = useLanguage();
   const t = i18n[locale];
   const c = useColors();
@@ -770,16 +766,8 @@ export default function OtherScreen() {
   const close = () => setOpenDrawer(null);
 
   return (
-    <ParallaxScrollView noheader={true}>
-      <Surface
-        style={[styles.container, { paddingTop: insets.top }]}
-        elevation={0}
-      >
-        <ThemedView style={styles.titleContainer}>
-          <ThemedText type="title">{t.miscTitle}</ThemedText>
-        </ThemedView>
-        <View style={styles.sectionAccent} />
-
+    <>
+    <ScreenLayout title={t.miscTitle}>
         <List.Section>
           <List.Subheader>{t.miscSettings}</List.Subheader>
           <List.Item
@@ -864,7 +852,7 @@ export default function OtherScreen() {
 
         <Divider style={styles.divider} />
         <InlineAd />
-      </Surface>
+    </ScreenLayout>
 
       <LanguageDrawer
         visible={openDrawer === "language"}
@@ -896,6 +884,6 @@ export default function OtherScreen() {
         onClose={close}
         t={t}
       />
-    </ParallaxScrollView>
+    </>
   );
 }

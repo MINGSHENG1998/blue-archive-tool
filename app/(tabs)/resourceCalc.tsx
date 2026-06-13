@@ -8,13 +8,12 @@ import {
 import {
   Card,
   HelperText,
-  Surface,
   ActivityIndicator,
+  SegmentedButtons,
 } from "react-native-paper";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 
-import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { ScreenLayout, type ScreenLayoutRef } from "@/components/ScreenLayout";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import CharaExpCalc from "../resourceCalc/charaExp";
@@ -70,6 +69,7 @@ const CalculatorTypeSelector = ({ selectedType, onTypeChange }: any) => {
     { value: "other", label: t.resourceEleph, description: t.resourceElephDesc },
     { value: "skill", label: t.resourceSkill, description: t.resourceSkillDesc },
   ];
+  const selected = calculatorTypes.find((x) => x.value === selectedType);
 
   return (
     <AnimatedCard style={styles.cardWrapper}>
@@ -78,37 +78,29 @@ const CalculatorTypeSelector = ({ selectedType, onTypeChange }: any) => {
           <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>
             {t.resourceChooseCalc}
           </ThemedText>
-          <View style={styles.typeContainer}>
-            {calculatorTypes.map((type) => (
-              <Pressable
-                key={type.value}
-                style={[
-                  styles.typeButton,
-                  selectedType === type.value && styles.selectedTypeButton
-                ]}
-                onPress={() => onTypeChange(type.value)}
-              >
-                <View style={styles.typeButtonContent}>
-                  <ThemedText
-                    style={[
-                      styles.typeTitle,
-                      selectedType === type.value && styles.selectedTypeTitle
-                    ]}
-                  >
-                    {type.label}
-                  </ThemedText>
-                  <ThemedText
-                    style={[
-                      styles.typeDescription,
-                      selectedType === type.value && styles.selectedTypeDescription
-                    ]}
-                  >
-                    {type.description}
-                  </ThemedText>
-                </View>
-              </Pressable>
-            ))}
-          </View>
+          <SegmentedButtons
+            value={selectedType}
+            onValueChange={onTypeChange}
+            density="medium"
+            buttons={calculatorTypes.map((type) => ({
+              value: type.value,
+              label: type.label,
+            }))}
+            theme={{
+              colors: {
+                secondaryContainer: c.accentSoft,
+                onSecondaryContainer: c.primaryColor,
+                onSurface: c.textSecondary,
+                outline: c.surfaceBorder,
+                primary: c.primaryColor,
+              },
+            }}
+          />
+          {selected && (
+            <ThemedText style={styles.selectorDesc}>
+              {selected.description}
+            </ThemedText>
+          )}
         </Card.Content>
       </Card>
     </AnimatedCard>
@@ -188,9 +180,7 @@ const CalculatorContent = ({ calculatorType }: any) => {
 };
 
 export default function ResourceCalcScreen() {
-  const scrollRef = useRef<{ resetScroll: () => void } | null>(null);
-  const insets = useSafeAreaInsets();
-  const backgroundColor = useThemeColor({}, "background");
+  const scrollRef = useRef<ScreenLayoutRef>(null);
   const c = useColors();
   const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
@@ -215,47 +205,29 @@ export default function ResourceCalcScreen() {
   };
 
   return (
-    <ParallaxScrollView
-      noheader={true}
-      keyboardShouldPersistTaps="handled"
+    <ScreenLayout
       ref={scrollRef}
+      title={t.resourcePageTitle}
+      subtitle={t.resourceSubtitle}
     >
-      <Surface
-        style={[styles.container, { paddingTop: insets.top, backgroundColor }]}
-        elevation={0}
-      >
-        {/* Header */}
-        <ThemedView style={styles.titleContainer}>
-          <View>
-            <ThemedText type="title" style={styles.mainTitle}>
-              {t.resourcePageTitle}
-            </ThemedText>
-            <View style={styles.titleAccent} />
-            <ThemedText type="default" style={styles.subtitle}>
-              {t.resourceSubtitle}
-            </ThemedText>
-          </View>
-        </ThemedView>
+      {/* Calculator Type Selector */}
+      <CalculatorTypeSelector
+        selectedType={calculatorType}
+        onTypeChange={handleCalculatorTypeChange}
+      />
 
-        {/* Calculator Type Selector */}
-        <CalculatorTypeSelector
-          selectedType={calculatorType}
-          onTypeChange={handleCalculatorTypeChange}
-        />
+      {/* Error Display */}
+      <ErrorDisplay error={error} />
 
-        {/* Error Display */}
-        <ErrorDisplay error={error} />
-
-        {/* Calculator Content */}
-        <ThemedView style={styles.calculatorSection}>
-          {isCalculating ? (
-            <LoadingDisplay />
-          ) : (
-            <CalculatorContent calculatorType={calculatorType} />
-          )}
-        </ThemedView>
-      </Surface>
-    </ParallaxScrollView>
+      {/* Calculator Content */}
+      <ThemedView style={styles.calculatorSection}>
+        {isCalculating ? (
+          <LoadingDisplay />
+        ) : (
+          <CalculatorContent calculatorType={calculatorType} />
+        )}
+      </ThemedView>
+    </ScreenLayout>
   );
 }
 
@@ -321,45 +293,12 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     borderRadius: 1,
   },
 
-  // Type selector styles
-  typeContainer: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  typeButton: {
-    flex: 1,
-    backgroundColor: c.appBg,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: c.accentSoft,
-    paddingVertical: 16,
-    paddingHorizontal: 8,
-  },
-  selectedTypeButton: {
-    backgroundColor: c.accentSoft,
-    borderColor: c.primaryColor,
-    borderWidth: 2,
-  },
-  typeButtonContent: {
-    alignItems: "center",
-  },
-  typeTitle: {
-    color: c.textPrimary,
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  selectedTypeTitle: {
-    color: c.primaryColor,
-  },
-  typeDescription: {
+  // Type selector
+  selectorDesc: {
     color: c.textMuted,
-    fontSize: 12,
+    fontSize: 13,
+    marginTop: 12,
     textAlign: "center",
-    lineHeight: 16,
-  },
-  selectedTypeDescription: {
-    color: c.textPrimary,
   },
 
   // Error styles
