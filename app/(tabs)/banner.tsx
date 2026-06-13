@@ -708,7 +708,6 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   searchBar: {
     backgroundColor: c.surfaceBg,
     borderRadius: RADIUS.control,
-    ...elevation(c, 1),
   },
   searchInput: {
     color: c.textPrimary,
