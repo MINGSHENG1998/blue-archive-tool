@@ -39,6 +39,8 @@ import { useLanguage } from "@/contexts/language-context";
 import { i18n, bondResourceNames } from "@/constants/i18n";
 import { useColors } from "@/hooks/useColors";
 import type { ThemeTokens } from "@/constants/theme";
+import { elevation } from "@/constants/elevation";
+import { RADIUS } from "@/constants/layout";
 
 const { width } = Dimensions.get("window");
 
@@ -514,12 +516,8 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   inputCard: {
     backgroundColor: c.elevatedBg,
-    borderRadius: 16,
-    elevation: 3,
-    shadowColor: c.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    borderRadius: RADIUS.card,
+    ...elevation(c, 2),
   },
   inputCardContent: {
     padding: 24,
@@ -566,7 +564,7 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   errorContainer: {
     marginBottom: 20,
     backgroundColor: c.hazardBg,
-    borderRadius: 8,
+    borderRadius: RADIUS.control,
     padding: 16,
     borderLeftWidth: 4,
     borderLeftColor: c.hazardColor,
@@ -577,7 +575,7 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     margin: 0,
   },
   calculateButton: {
-    borderRadius: 12,
+    borderRadius: RADIUS.control,
     elevation: 2,
   },
   calculateButtonContent: {
@@ -595,8 +593,8 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   settingsCard: {
     backgroundColor: c.surfaceBg,
-    borderRadius: 12,
-    elevation: 1,
+    borderRadius: RADIUS.control,
+    ...elevation(c, 1),
   },
   settingsContent: {
     paddingHorizontal: 20,
@@ -620,14 +618,8 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   resultCard: {
     backgroundColor: c.elevatedBg,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: c.primaryColor,
-    elevation: 4,
-    shadowColor: c.primaryColor,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
+    borderRadius: RADIUS.card,
+    ...elevation(c, 2),
   },
   resultCardContent: {
     padding: 24,
@@ -691,8 +683,8 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   resourceCard: {
     backgroundColor: c.surfaceBg,
-    borderRadius: 12,
-    elevation: 1,
+    borderRadius: RADIUS.control,
+    ...elevation(c, 1),
   },
   tableContainer: {
     paddingHorizontal: 4,
