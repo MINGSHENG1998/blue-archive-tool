@@ -1,21 +1,45 @@
 /**
- * Learn more about light and dark modes:
- * https://docs.expo.dev/guides/color-schemes/
+ * Resolves the legacy Colors keys against the ACTIVE theme's tokens, so
+ * ThemedView/ThemedText and any useThemeColor("background") caller follow the
+ * selected theme (not just a light/dark family). See constants/theme.ts.
  */
 
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { useTheme } from "@/contexts/theme-context";
+import type { ThemeTokens } from "@/constants/theme";
+
+type LegacyColorName =
+  | "text"
+  | "background"
+  | "tint"
+  | "icon"
+  | "tabIconDefault"
+  | "tabIconSelected";
+
+type ColorTokenKey =
+  | "textPrimary"
+  | "appBg"
+  | "primaryColor"
+  | "textSecondary";
+
+const TOKEN_FOR: Record<LegacyColorName, ColorTokenKey> = {
+  text: "textPrimary",
+  background: "appBg",
+  tint: "primaryColor",
+  icon: "textSecondary",
+  tabIconDefault: "textSecondary",
+  tabIconSelected: "primaryColor",
+};
 
 export function useThemeColor(
   props: { light?: string; dark?: string },
-  colorName: keyof typeof Colors.light & keyof typeof Colors.dark
+  colorName: LegacyColorName
 ) {
-  const theme = useColorScheme() ?? 'light';
-  const colorFromProps = props[theme];
+  const { theme } = useTheme();
+  const scheme = theme.tokens.isDark ? "dark" : "light";
+  const colorFromProps = props[scheme];
 
   if (colorFromProps) {
     return colorFromProps;
-  } else {
-    return Colors[theme][colorName];
   }
+  return theme.tokens[TOKEN_FOR[colorName]];
 }
