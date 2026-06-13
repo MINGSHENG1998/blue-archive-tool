@@ -10,14 +10,11 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { IconButton } from "react-native-paper";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n } from "@/constants/i18n";
-
-const PRIMARY = "#128AFA";
-const PRIMARY_LIGHT = "#4AAEFF";
-const NAVY = "#0A1628";
-const NAVY_CARD = "#0F2347";
+import { useColors } from "@/hooks/useColors";
+import type { ThemeTokens } from "@/constants/theme";
 
 // ── Spring-bounce press wrapper ──────────────────────────────────────────────
 function SpringCard({
@@ -54,60 +51,66 @@ function SpringCard({
 }
 
 // ── Blue Archive cross / plus decorative mark ────────────────────────────────
-function CrossMark({ size = 8, color = "rgba(18,138,250,0.25)" }: { size?: number; color?: string }) {
+function CrossMark({ size = 8, color }: { size?: number; color?: string }) {
+  const c = useColors();
+  const col = color ?? c.accentSoft;
   return (
     <View style={{ width: size * 3, height: size * 3, justifyContent: "center", alignItems: "center" }}>
-      <View style={{ position: "absolute", width: size * 3, height: size * 0.6, backgroundColor: color, borderRadius: 1 }} />
-      <View style={{ position: "absolute", width: size * 0.6, height: size * 3, backgroundColor: color, borderRadius: 1 }} />
+      <View style={{ position: "absolute", width: size * 3, height: size * 0.6, backgroundColor: col, borderRadius: 1 }} />
+      <View style={{ position: "absolute", width: size * 0.6, height: size * 3, backgroundColor: col, borderRadius: 1 }} />
     </View>
   );
 }
 
 // ── Halo ring decoration (Blue Archive's signature motif) ────────────────────
-function HaloRing({ size = 60, color = "rgba(18,138,250,0.15)" }: { size?: number; color?: string }) {
+function HaloRing({ size = 60, color }: { size?: number; color?: string }) {
+  const c = useColors();
+  const col = color ?? c.accentSoft;
   return (
     <View style={{
       width: size, height: size, borderRadius: size / 2,
-      borderWidth: 2, borderColor: color,
+      borderWidth: 2, borderColor: col,
       position: "absolute",
     }} />
   );
 }
 
-const tools = [
-  {
-    id: "banner",
-    titleKey: "toolBannerTitle" as const,
-    subtitleKey: "toolBannerSubtitle" as const,
-    icon: "calendar-clock",
-    accentColor: PRIMARY,
-    label: "GACHA",
-    route: "/(tabs)/banner",
-  },
-  {
-    id: "bond",
-    titleKey: "toolBondTitle" as const,
-    subtitleKey: "toolBondSubtitle" as const,
-    icon: "heart-multiple",
-    accentColor: "#E879A0",
-    label: "BOND",
-    route: "/(tabs)/bondExp",
-  },
-  {
-    id: "builder",
-    titleKey: "toolCharaTitle" as const,
-    subtitleKey: "toolCharaSubtitle" as const,
-    icon: "account-cog",
-    accentColor: "#3DD68C",
-    label: "BUILD",
-    route: "/(tabs)/resourceCalc",
-  },
-];
-
 export default function HomeScreen() {
   const router = useRouter();
   const { locale } = useLanguage();
   const t = i18n[locale];
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
+
+  const tools = [
+    {
+      id: "banner",
+      titleKey: "toolBannerTitle" as const,
+      subtitleKey: "toolBannerSubtitle" as const,
+      icon: "calendar-clock",
+      accentColor: c.primaryColor,
+      label: "GACHA",
+      route: "/(tabs)/banner",
+    },
+    {
+      id: "bond",
+      titleKey: "toolBondTitle" as const,
+      subtitleKey: "toolBondSubtitle" as const,
+      icon: "heart-multiple",
+      accentColor: c.primaryColor,
+      label: "BOND",
+      route: "/(tabs)/bondExp",
+    },
+    {
+      id: "builder",
+      titleKey: "toolCharaTitle" as const,
+      subtitleKey: "toolCharaSubtitle" as const,
+      icon: "account-cog",
+      accentColor: c.primaryColor,
+      label: "BUILD",
+      route: "/(tabs)/resourceCalc",
+    },
+  ];
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(28)).current;
 
@@ -120,7 +123,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={NAVY} />
+      <StatusBar barStyle="light-content" backgroundColor={c.appBg} />
 
       {/* ── Decorative background layer ── */}
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
@@ -128,26 +131,26 @@ export default function HomeScreen() {
         <View style={styles.bgPattern} />
         {/* Halo rings scattered in bg */}
         <View style={[{ position: "absolute", top: 60, right: -30 }]}>
-          <HaloRing size={160} color="rgba(18,138,250,0.07)" />
+          <HaloRing size={160} color={c.accentSoft} />
         </View>
         <View style={[{ position: "absolute", top: 90, right: -30 }]}>
-          <HaloRing size={110} color="rgba(18,138,250,0.05)" />
+          <HaloRing size={110} color={c.accentSoft} />
         </View>
         <View style={{ position: "absolute", bottom: 200, left: -40 }}>
-          <HaloRing size={140} color="rgba(18,138,250,0.06)" />
+          <HaloRing size={140} color={c.accentSoft} />
         </View>
         {/* Cross marks */}
         <View style={{ position: "absolute", top: 130, left: 30 }}>
-          <CrossMark size={6} color="rgba(18,138,250,0.2)" />
+          <CrossMark size={6} color={c.accentSoft} />
         </View>
         <View style={{ position: "absolute", top: 220, right: 50 }}>
           <CrossMark size={5} />
         </View>
         <View style={{ position: "absolute", bottom: 280, right: 30 }}>
-          <CrossMark size={7} color="rgba(18,138,250,0.18)" />
+          <CrossMark size={7} color={c.accentSoft} />
         </View>
         <View style={{ position: "absolute", bottom: 340, left: 60 }}>
-          <CrossMark size={4} color="rgba(74,174,255,0.15)" />
+          <CrossMark size={4} color={c.accentSoft} />
         </View>
       </View>
 
@@ -243,16 +246,16 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: NAVY,
+    backgroundColor: c.appBg,
   },
   bgPattern: {
     position: "absolute",
     top: 0, left: 0, right: 0, bottom: 0,
     // Subtle navy-to-midnight-blue gradient feel via layered bg
-    backgroundColor: NAVY,
+    backgroundColor: c.appBg,
     opacity: 1,
   },
   scrollContent: {
@@ -281,9 +284,9 @@ const styles = StyleSheet.create({
     height: 76,
     borderRadius: 38,
     borderWidth: 1.5,
-    borderColor: PRIMARY,
+    borderColor: c.primaryColor,
     opacity: 0.35,
-    shadowColor: PRIMARY,
+    shadowColor: c.primaryColor,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 12,
@@ -294,7 +297,7 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 32,
     borderWidth: 2,
-    borderColor: PRIMARY,
+    borderColor: c.primaryColor,
     opacity: 0.7,
   },
   avatar: {
@@ -307,7 +310,7 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 12,
-    color: PRIMARY_LIGHT,
+    color: c.primaryColor,
     fontWeight: "500",
     marginBottom: 2,
     letterSpacing: 1.2,
@@ -316,13 +319,13 @@ const styles = StyleSheet.create({
   appName: {
     fontSize: 22,
     fontWeight: "800",
-    color: "#FFFFFF",
+    color: c.textPrimary,
     letterSpacing: 0.2,
     fontStyle: "italic",   // Blue Archive uses italic bold headers
   },
   appSub: {
     fontSize: 13,
-    color: "rgba(255,255,255,0.45)",
+    color: c.textMuted,
     fontWeight: "500",
     marginBottom: 10,
     letterSpacing: 0.3,
@@ -334,13 +337,13 @@ const styles = StyleSheet.create({
   underlinePrimary: {
     width: 44,
     height: 2.5,
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primaryColor,
     borderRadius: 2,
   },
   underlineSecondary: {
     width: 24,
     height: 1.5,
-    backgroundColor: PRIMARY_LIGHT,
+    backgroundColor: c.primaryColor,
     opacity: 0.5,
     borderRadius: 2,
   },
@@ -363,21 +366,21 @@ const styles = StyleSheet.create({
   sectionTagBg: {
     position: "absolute",
     top: 0, bottom: 0, left: 0, right: 0,
-    backgroundColor: PRIMARY,
+    backgroundColor: c.primaryColor,
     borderRadius: 3,
     transform: [{ skewX: "-12deg" }],
   },
   sectionTagText: {
     fontSize: 11,
     fontWeight: "800",
-    color: "#FFFFFF",
+    color: c.textPrimary,
     letterSpacing: 1.8,
     textTransform: "uppercase",
   },
   sectionRule: {
     flex: 1,
     height: 1,
-    backgroundColor: "rgba(18,138,250,0.25)",
+    backgroundColor: c.accentSoft,
     borderRadius: 1,
   },
 
@@ -387,10 +390,10 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   card: {
-    backgroundColor: NAVY_CARD,
+    backgroundColor: c.elevatedBg,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "rgba(18,138,250,0.12)",
+    borderColor: c.accentSoft,
     borderLeftWidth: 3,
     flexDirection: "row",
     alignItems: "center",
@@ -398,7 +401,7 @@ const styles = StyleSheet.create({
     paddingRight: 14,
     paddingLeft: 0,
     overflow: "hidden",
-    shadowColor: "#000",
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.3,
     shadowRadius: 14,
@@ -441,13 +444,13 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#FFFFFF",
+    color: c.textPrimary,
     marginBottom: 4,
     letterSpacing: 0.1,
   },
   cardSubtitle: {
     fontSize: 12,
-    color: "rgba(255,255,255,0.45)",
+    color: c.textMuted,
     fontWeight: "400",
     lineHeight: 17,
   },
