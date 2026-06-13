@@ -23,6 +23,8 @@ import {
 } from "@/constants/skillData";
 import { useColors } from "@/hooks/useColors";
 import type { ThemeTokens } from "@/constants/theme";
+import { elevation } from "@/constants/elevation";
+import { RADIUS } from "@/constants/layout";
 
 const BD_ICONS = [
   require("../../assets/images/icons/bd_t1.webp"),
@@ -370,7 +372,7 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   // Error styles - matching sibling calcs
   errorContainer: {
     backgroundColor: c.hazardBg,
-    borderRadius: 12,
+    borderRadius: RADIUS.control,
     padding: 16,
     marginBottom: 20,
     borderLeftWidth: 4,
@@ -419,12 +421,8 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   inventoryCard: {
     backgroundColor: c.elevatedBg,
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: c.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderRadius: RADIUS.control,
+    ...elevation(c, 2),
   },
   inventoryContent: {
     padding: 20,
@@ -456,12 +454,10 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     width: 48,
     height: 48,
     backgroundColor: c.surfaceBg,
-    borderRadius: 8,
+    borderRadius: RADIUS.sm,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
-    borderWidth: 1,
-    borderColor: c.surfaceBorder,
   },
   inventoryInputIcon: {
     width: 32,
@@ -477,7 +473,7 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   calculateButton: {
     marginTop: 8,
     marginBottom: 16,
-    borderRadius: 12,
+    borderRadius: RADIUS.control,
     elevation: 3,
     shadowColor: c.primaryColor,
     shadowOffset: { width: 0, height: 2 },
@@ -496,14 +492,8 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   resultCard: {
     backgroundColor: c.elevatedBg,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: c.accentSoft,
-    shadowColor: c.primaryColor,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 6,
+    borderRadius: RADIUS.card,
+    ...elevation(c, 2),
   },
   resultContent: {
     padding: 24,
@@ -524,12 +514,10 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   totalCredits: {
     backgroundColor: c.accentSoft,
-    borderRadius: 12,
+    borderRadius: RADIUS.control,
     padding: 20,
     alignItems: "center",
     marginBottom: 24,
-    borderWidth: 1,
-    borderColor: c.accentSoft,
   },
   totalCreditsLabel: {
     fontSize: 14,
@@ -548,7 +536,7 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   resultList: {
     backgroundColor: c.surfaceBg,
-    borderRadius: 12,
+    borderRadius: RADIUS.control,
     padding: 16,
     gap: 16,
   },
