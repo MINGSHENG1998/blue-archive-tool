@@ -1,7 +1,7 @@
 {
   "name": "blue-archive-tool",
   "main": "expo-router/entry",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -10,10 +10,12 @@
     "web": "expo start --web",
     "test": "jest --watchAll",
     "lint": "expo lint",
+    "lint:colors": "node scripts/check-theme-coverage.js",
     "postinstall": "patch-package"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "setupFilesAfterEnv": ["<rootDir>/jest.setup.js"]
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",

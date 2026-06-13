@@ -6,30 +6,31 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
-const PRIMARY = '#128AFA';
+import { useColors } from '@/hooks/useColors';
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const c = useColors();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: PRIMARY,
-        tabBarInactiveTintColor: '#4A5568',
+        tabBarActiveTintColor: c.primaryColor,
+        tabBarInactiveTintColor: c.textSecondary,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
             position: 'absolute',
-            backgroundColor: 'rgba(10, 14, 28, 0.97)',
-            borderTopColor: 'rgba(18, 138, 250, 0.1)',
+            backgroundColor: c.appBg,
+            borderTopColor: c.surfaceBorder,
             borderTopWidth: 1,
             paddingTop: 6,
           },
           default: {
-            backgroundColor: '#0A0E1C',
-            borderTopColor: 'rgba(18, 138, 250, 0.1)',
+            backgroundColor: c.appBg,
+            borderTopColor: c.surfaceBorder,
             borderTopWidth: 1,
             elevation: 20,
             height: 60 + insets.bottom,

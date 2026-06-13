@@ -13,6 +13,7 @@ jest.mock('react-native-iap', () => ({
   __esModule: true,
   initConnection: jest.fn().mockResolvedValue(true),
   endConnection: jest.fn(),
+  getProducts: jest.fn().mockResolvedValue([]),
   getAvailablePurchases: jest.fn(),
   requestPurchase: jest.fn(),
   finishTransaction: jest.fn().mockResolvedValue(undefined),

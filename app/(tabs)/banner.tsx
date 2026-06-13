@@ -32,6 +32,9 @@ import InlineAd from "../ads/InlineAd";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n, atkTypeLabels, defTypeLabels } from "@/constants/i18n";
 import type { Locale } from "@/constants/i18n";
+import { useColors } from "@/hooks/useColors";
+import { categoryColors } from "@/constants/categoryColors";
+import type { ThemeTokens } from "@/constants/theme";
 
 // Define types
 interface Character {
@@ -67,6 +70,8 @@ function getCharacterName(char: Character, locale: Locale): string {
 }
 
 const CharacterClassBadge = ({ classType }: { classType: string }) => {
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const getBadgeStyle = () => {
     if (classType.toLowerCase() === "striker") {
       return styles.strikerBadge;
@@ -116,6 +121,8 @@ const AnimatedCard = ({ children, style, ...props }: any) => {
 };
 
 const BannerTypeChip = ({ type }: { type: string }) => {
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const getTypeStyle = () => {
     switch (type) {
       case "New":
@@ -141,31 +148,33 @@ const BannerTypeChip = ({ type }: { type: string }) => {
 };
 
 const PortraitStrip = ({ characters }: { characters: Character[] }) => {
+  const c = useColors();
+  const styles = useMemo(() => makePortraitStyles(c), [c]);
   const visible = characters.slice(0, 3);
   const overflow = characters.length - 3;
 
   return (
-    <View style={portraitStyles.strip}>
+    <View style={styles.strip}>
       {visible.map((char, index) => (
         <Image
           key={char.id}
           source={{ uri: char.image }}
           style={[
-            portraitStyles.avatar,
+            styles.avatar,
             { marginLeft: index === 0 ? 0 : -18 },
           ]}
         />
       ))}
       {overflow > 0 && (
-        <View style={[portraitStyles.avatar, portraitStyles.overflowCircle, { marginLeft: -18 }]}>
-          <Text style={portraitStyles.overflowText}>+{overflow}</Text>
+        <View style={[styles.avatar, styles.overflowCircle, { marginLeft: -18 }]}>
+          <Text style={styles.overflowText}>+{overflow}</Text>
         </View>
       )}
     </View>
   );
 };
 
-const portraitStyles = StyleSheet.create({
+const makePortraitStyles = (c: ThemeTokens) => StyleSheet.create({
   strip: {
     flexDirection: "row",
     alignItems: "center",
@@ -175,16 +184,16 @@ const portraitStyles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
     borderWidth: 2,
-    borderColor: "rgba(18, 138, 250, 0.35)",
-    backgroundColor: "#0F2347",
+    borderColor: c.accentSoft,
+    backgroundColor: c.elevatedBg,
   },
   overflowCircle: {
-    backgroundColor: "rgba(18, 138, 250, 0.2)",
+    backgroundColor: c.accentSoft,
     justifyContent: "center",
     alignItems: "center",
   },
   overflowText: {
-    color: "#128AFA",
+    color: c.primaryColor,
     fontSize: 13,
     fontWeight: "700",
   },
@@ -195,6 +204,8 @@ export default function FutureBannerScreen() {
   const insets = useSafeAreaInsets();
   const backgroundColor = useThemeColor({}, "background");
   const cardBackground = useThemeColor({}, "background");
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
   const t = i18n[locale];
 
@@ -395,7 +406,7 @@ export default function FutureBannerScreen() {
         elevation={0}
       >
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#128AFA" />
+          <ActivityIndicator size="large" color={c.primaryColor} />
           <ThemedText type="default" style={styles.loadingText}>
             {t.loading}
           </ThemedText>
@@ -433,7 +444,7 @@ export default function FutureBannerScreen() {
               disabled={refreshing}
               labelStyle={styles.refreshBtnLabel}
               contentStyle={styles.refreshBtnContent}
-              buttonColor="rgba(0, 245, 255, 0.1)"
+              buttonColor={c.accentSoft}
             >
               {""}
             </Button>
@@ -448,8 +459,8 @@ export default function FutureBannerScreen() {
             <Button
               mode="contained"
               onPress={fetchBanners}
-              buttonColor="#128AFA"
-              textColor="#0F172A"
+              buttonColor={c.primaryColor}
+              textColor={c.primaryText}
             >
               {t.retryButton}
             </Button>
@@ -464,7 +475,7 @@ export default function FutureBannerScreen() {
                 value={searchQuery}
                 style={styles.searchBar}
                 inputStyle={styles.searchInput}
-                iconColor="#128AFA"
+                iconColor={c.primaryColor}
               />
 
               <View style={styles.filterRow}>
@@ -518,7 +529,7 @@ export default function FutureBannerScreen() {
                     <Chip
                       key={type}
                       selected={filterType === type}
-                      selectedColor="#0F172A"
+                      selectedColor={c.primaryText}
                       onPress={() => setFilterType(type)}
                       style={[
                         styles.filterChip,
@@ -626,10 +637,10 @@ export default function FutureBannerScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0A1628",
+    backgroundColor: c.appBg,
   },
   loadingContainer: {
     flex: 1,
@@ -639,21 +650,21 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 16,
-    color: "#94A3B8",
+    color: c.textSecondary,
   },
   errorContainer: {
     padding: 20,
     alignItems: "center",
     gap: 16,
-    backgroundColor: "rgba(220, 38, 38, 0.1)",
+    backgroundColor: c.hazardBg,
     borderRadius: 16,
     margin: 16,
     borderWidth: 1,
-    borderColor: "rgba(220, 38, 38, 0.2)",
+    borderColor: c.hazardBg,
   },
   errorText: {
     textAlign: "center",
-    color: "#DC2626",
+    color: c.hazardColor,
     fontSize: 16,
   },
   titleContainer: {
@@ -667,19 +678,19 @@ const styles = StyleSheet.create({
   mainTitle: {
     fontSize: 24,
     fontWeight: "800",
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontStyle: "italic",
     letterSpacing: 0.2,
   },
   subtitle: {
     fontSize: 14,
-    color: "#94A3B8",
+    color: c.textSecondary,
     marginTop: 2,
   },
   sectionAccent: {
     width: 44,
     height: 2.5,
-    backgroundColor: "#128AFA",
+    backgroundColor: c.primaryColor,
     borderRadius: 2,
     marginTop: 6,
   },
@@ -696,26 +707,26 @@ const styles = StyleSheet.create({
   refreshBtnLabel: {
     margin: 0,
     marginHorizontal: 0,
-    color: "#128AFA",
+    color: c.primaryColor,
   },
   filterPanel: {
     marginBottom: 24,
-    backgroundColor: "rgba(10, 22, 40, 0.85)",
+    backgroundColor: c.appBg,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(18, 138, 250, 0.12)",
+    borderColor: c.accentSoft,
     padding: 12,
     gap: 10,
   },
   searchBar: {
-    backgroundColor: "rgba(10, 22, 40, 0.8)",
+    backgroundColor: c.appBg,
     borderRadius: 12,
     elevation: 2,
     borderWidth: 1,
-    borderColor: "rgba(18, 138, 250, 0.18)",
+    borderColor: c.accentSoft,
   },
   searchInput: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
   },
   filterRow: {
     flexDirection: "row",
@@ -723,14 +734,14 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   sortButton: {
-    borderColor: "#475569",
+    borderColor: c.surfaceBorder,
     borderRadius: 8,
   },
   sortButtonLabel: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
   },
   menuContent: {
-    backgroundColor: "#0D1F3C",
+    backgroundColor: c.surfaceBg,
     borderRadius: 8,
   },
   filterChips: {
@@ -741,23 +752,23 @@ const styles = StyleSheet.create({
   },
   filterChip: {
     marginRight: 8,
-    backgroundColor: "rgba(18, 138, 250, 0.08)",
+    backgroundColor: c.accentSoft,
     borderRadius: 20,
     height: 32,
     paddingHorizontal: 12,
     justifyContent: "center",
   },
   selectedFilterChip: {
-    backgroundColor: "#128AFA",
+    backgroundColor: c.primaryColor,
   },
   filterChipText: {
-    color: "#94A3B8",
+    color: c.textSecondary,
     fontSize: 12,
     fontWeight: "600",
     lineHeight: 16,
   },
   selectedFilterChipText: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontWeight: "600",
     lineHeight: 16,
   },
@@ -771,14 +782,14 @@ const styles = StyleSheet.create({
   bannerCard: {
     overflow: "hidden",
     borderRadius: 16,
-    backgroundColor: "rgba(15, 35, 71, 0.85)",
+    backgroundColor: c.elevatedBg,
     borderWidth: 1,
-    borderColor: "rgba(18, 138, 250, 0.18)",
+    borderColor: c.accentSoft,
   },
   activeBannerCard: {
-    borderColor: "#128AFA",
+    borderColor: c.primaryColor,
     borderWidth: 2,
-    shadowColor: "#128AFA",
+    shadowColor: c.primaryColor,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -803,12 +814,12 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   bannerTitle: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 16,
     fontWeight: "700",
   },
   bannerDateRange: {
-    color: "rgba(255,255,255,0.45)",
+    color: c.textMuted,
     fontSize: 12,
   },
   bannerPreviewRow: {
@@ -827,12 +838,12 @@ const styles = StyleSheet.create({
     transform: [{ rotate: "180deg" }],
   },
   bannerChevronText: {
-    color: "#94A3B8",
+    color: c.textSecondary,
     fontSize: 12,
   },
   expandDivider: {
     height: 1,
-    backgroundColor: "rgba(18, 138, 250, 0.12)",
+    backgroundColor: c.accentSoft,
     marginHorizontal: 0,
   },
   bannerTypeChip: {
@@ -843,29 +854,29 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   newTypeChip: {
-    backgroundColor: "#EF4444",
+    backgroundColor: categoryColors.bannerNew,
   },
   fesTypeChip: {
-    backgroundColor: "#F59E0B",
+    backgroundColor: categoryColors.bannerFes,
   },
   collabTypeChip: {
-    backgroundColor: "#8B5CF6",
+    backgroundColor: categoryColors.bannerCollab,
   },
   rerunTypeChip: {
-    backgroundColor: "#6B7280",
+    backgroundColor: categoryColors.bannerRerun,
   },
   defaultTypeChip: {
-    backgroundColor: "#475569",
+    backgroundColor: categoryColors.bannerDefault,
   },
   bannerTypeText: {
-    color: "#FFFFFF",
+    color: categoryColors.onBadge,
     fontSize: 10,
     fontWeight: "700",
     letterSpacing: 0.5,
     lineHeight: 16,
   },
   liveBadge: {
-    backgroundColor: "#EF4444",
+    backgroundColor: categoryColors.bannerNew,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -873,23 +884,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   liveBadgeText: {
-    color: "#FFFFFF",
+    color: categoryColors.onBadge,
     fontSize: 10,
     fontWeight: "700",
     lineHeight: 16,
   },
   countdownBadge: {
-    backgroundColor: "rgba(0, 245, 255, 0.2)",
+    backgroundColor: c.accentSoft,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
     height: 24,
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#128AFA",
+    borderColor: c.primaryColor,
   },
   countdownText: {
-    color: "#128AFA",
+    color: c.primaryColor,
     fontSize: 10,
     fontWeight: "600",
     lineHeight: 16,
@@ -897,16 +908,16 @@ const styles = StyleSheet.create({
   charactersContainer: {
     gap: 12,
     padding: 12,
-    backgroundColor: "rgba(10, 22, 40, 0.9)",
+    backgroundColor: c.appBg,
   },
   characterCardWrapper: {
     marginHorizontal: 2,
   },
   characterCard: {
-    backgroundColor: "rgba(10, 22, 40, 0.85)",
+    backgroundColor: c.appBg,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(18, 138, 250, 0.18)",
+    borderColor: c.accentSoft,
   },
   characterContent: {
     flexDirection: "row",
@@ -921,20 +932,20 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: "rgba(18, 138, 250, 0.4)",
+    borderColor: c.accentSoft,
   },
   limitedOverlay: {
     position: "absolute",
     top: -4,
     right: -4,
-    backgroundColor: "#F59E0B",
+    backgroundColor: c.hazardColor,
     borderRadius: 20,
     width: 24,
     height: 24,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
-    borderColor: "#FFFFFF",
+    borderColor: c.textPrimary,
   },
   limitedBadge: {
     width: 16,
@@ -953,14 +964,14 @@ const styles = StyleSheet.create({
   rarityContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    backgroundColor: "rgba(15, 23, 42, 0.9)",
+    backgroundColor: c.surfaceBg,
     borderRadius: 8,
     paddingVertical: 1,
   },
   star: {
-    color: "#FFD700",
+    color: categoryColors.star,
     fontSize: 12,
-    textShadowColor: "rgba(0, 0, 0, 0.5)",
+    textShadowColor: c.shadow,
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
@@ -976,7 +987,7 @@ const styles = StyleSheet.create({
   },
   characterName: {
     flex: 1,
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 16,
     fontWeight: "600",
     marginRight: 8,
@@ -985,18 +996,18 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -4,
     left: -8,
-    backgroundColor: "#EAB308",
+    backgroundColor: categoryColors.newBadge,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
   },
   newBadgeText: {
-    color: "#FFFFFF",
+    color: categoryColors.onBadge,
     fontSize: 9,
     fontWeight: "700",
   },
   classBadge: {
-    backgroundColor: "#374151",
+    backgroundColor: categoryColors.classDefault,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
@@ -1004,16 +1015,16 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   strikerBadge: {
-    backgroundColor: "#EF4444",
+    backgroundColor: categoryColors.bannerNew,
   },
   specialBadge: {
-    backgroundColor: "#3B82F6",
+    backgroundColor: categoryColors.classSpecial,
   },
   defaultBadge: {
-    backgroundColor: "#6B7280",
+    backgroundColor: categoryColors.bannerRerun,
   },
   classText: {
-    color: "#FFFFFF",
+    color: categoryColors.onBadge,
     fontSize: 10,
     fontWeight: "700",
     letterSpacing: 0.5,

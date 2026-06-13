@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { Image, StyleSheet, View, Keyboard } from "react-native";
 import {
   Card,
@@ -16,6 +16,8 @@ import { charaExpData } from "@/constants/charaLvlData";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n } from "@/constants/i18n";
+import { useColors } from "@/hooks/useColors";
+import type { ThemeTokens } from "@/constants/theme";
 
 const EXP_VALUES = {
   pinkBook: 10000,
@@ -33,83 +35,97 @@ const INITIAL_EXP_SOURCE = {
 };
 
 // Resource input component
-const ResourceInput = ({ icon, label, value, onChangeText, fieldName }: any) => (
-  <ThemedView style={styles.resourceInputContainer}>
-    <View style={styles.resourceIconContainer}>
-      <Image source={icon} style={styles.resourceInputIcon} />
-    </View>
+const ResourceInput = ({ icon, label, value, onChangeText, fieldName }: any) => {
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
+  return (
+    <ThemedView style={styles.resourceInputContainer}>
+      <View style={styles.resourceIconContainer}>
+        <Image source={icon} style={styles.resourceInputIcon} />
+      </View>
+      <TextInput
+        mode="outlined"
+        label={label}
+        value={value}
+        onChangeText={(val) => onChangeText(fieldName, val)}
+        keyboardType="numeric"
+        style={styles.resourceInput}
+        theme={{
+          colors: {
+            primary: c.primaryColor,
+            outline: c.surfaceBorder,
+            onSurface: c.textPrimary,
+            surface: c.surfaceBg,
+            onSurfaceVariant: c.textSecondary,
+          },
+        }}
+      />
+    </ThemedView>
+  );
+};
+
+// Level input component
+const LevelInput = ({ label, placeholder, value, onChangeText, onClear }: any) => {
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
+  return (
     <TextInput
       mode="outlined"
       label={label}
+      placeholder={placeholder}
       value={value}
-      onChangeText={(val) => onChangeText(fieldName, val)}
+      onChangeText={onChangeText}
       keyboardType="numeric"
-      style={styles.resourceInput}
+      maxLength={2}
+      style={[styles.input, styles.halfInput]}
       theme={{
         colors: {
-          primary: '#128AFA',
-          outline: 'rgba(71, 85, 105, 0.6)',
-          onSurface: '#FFFFFF',
-          surface: 'rgba(15, 23, 42, 0.8)',
-          onSurfaceVariant: '#94A3B8',
+          primary: c.primaryColor,
+          outline: c.surfaceBorder,
+          onSurface: c.textPrimary,
+          surface: c.surfaceBg,
+          onSurfaceVariant: c.textSecondary,
+          placeholder: c.textMuted,
         },
       }}
+      right={
+        value !== "" && (
+          <TextInput.Icon
+            icon="close"
+            size={16}
+            onPress={onClear}
+            color={c.textSecondary}
+          />
+        )
+      }
     />
-  </ThemedView>
-);
-
-// Level input component
-const LevelInput = ({ label, placeholder, value, onChangeText, onClear }: any) => (
-  <TextInput
-    mode="outlined"
-    label={label}
-    placeholder={placeholder}
-    value={value}
-    onChangeText={onChangeText}
-    keyboardType="numeric"
-    maxLength={2}
-    style={[styles.input, styles.halfInput]}
-    theme={{
-      colors: {
-        primary: '#128AFA',
-        outline: 'rgba(71, 85, 105, 0.6)',
-        onSurface: '#FFFFFF',
-        surface: 'rgba(15, 23, 42, 0.8)',
-        onSurfaceVariant: '#94A3B8',
-        placeholder: '#64748B',
-      },
-    }}
-    right={
-      value !== "" && (
-        <TextInput.Icon
-          icon="close"
-          size={16}
-          onPress={onClear}
-          color="#94A3B8"
-        />
-      )
-    }
-  />
-);
+  );
+};
 
 // Result item component
-const ResultItem = ({ icon, label, value }: any) => (
-  <ThemedView style={styles.resourceItemContainer}>
-    <View style={styles.resultIconContainer}>
-      <Image source={icon} style={styles.resourceItemIcon} />
-    </View>
-    <ThemedText style={styles.resourceItem}>
-      {label}:{" "}
-      <ThemedText style={styles.resourceValue}>
-        {typeof value === 'number' ? value.toLocaleString() : value}
+const ResultItem = ({ icon, label, value }: any) => {
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
+  return (
+    <ThemedView style={styles.resourceItemContainer}>
+      <View style={styles.resultIconContainer}>
+        <Image source={icon} style={styles.resourceItemIcon} />
+      </View>
+      <ThemedText style={styles.resourceItem}>
+        {label}:{" "}
+        <ThemedText style={styles.resourceValue}>
+          {typeof value === 'number' ? value.toLocaleString() : value}
+        </ThemedText>
       </ThemedText>
-    </ThemedText>
-  </ThemedView>
-);
+    </ThemedView>
+  );
+};
 
 // Main result display component
 const ResultDisplay = ({ result }: any) => {
   const cardBackground = useThemeColor({}, "background");
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
   const t = i18n[locale];
 
@@ -174,13 +190,15 @@ const ResultDisplay = ({ result }: any) => {
 export default function CharaExpCalc() {
   const scrollRef = useRef<{ resetScroll: () => void } | null>(null);
   const cardBackground = useThemeColor({}, "background");
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
   const t = i18n[locale];
-  
+
   const [currentLevel, setCurrentLevel] = useState("1");
   const [targetLevel, setTargetLevel] = useState("90");
   const [error, setError] = useState("");
-  
+
   type ResultType = {
     totalExp: number;
     pinkBooks: number;
@@ -344,7 +362,7 @@ export default function CharaExpCalc() {
                   <ThemedText style={styles.inventoryTitle}>{t.calcAvailableResources}</ThemedText>
                   <View style={styles.inventoryAccent} />
                 </View>
-                
+
                 <View style={styles.resourceInputsContainer}>
                   <ResourceInput
                     icon={require("../../assets/images/icons/pink_book.png")}
@@ -392,8 +410,8 @@ export default function CharaExpCalc() {
           mode="contained"
           onPress={handleCalculate}
           style={styles.calculateButton}
-          buttonColor="#128AFA"
-          textColor="#0F172A"
+          buttonColor={c.primaryColor}
+          textColor={c.primaryText}
           labelStyle={styles.calculateButtonText}
         >
           {t.resourceCalculate}
@@ -406,7 +424,7 @@ export default function CharaExpCalc() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "transparent",
@@ -414,15 +432,15 @@ const styles = StyleSheet.create({
 
   // Error styles - matching parent
   errorContainer: {
-    backgroundColor: "rgba(220, 38, 38, 0.1)",
+    backgroundColor: c.hazardBg,
     borderRadius: 12,
     padding: 16,
     marginBottom: 20,
     borderLeftWidth: 4,
-    borderLeftColor: "#DC2626",
+    borderLeftColor: c.hazardColor,
   },
   errorText: {
-    color: "#DC2626",
+    color: c.hazardColor,
     fontSize: 14,
     margin: 0,
   },
@@ -435,7 +453,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 12,
-    color: "#FFFFFF",
+    color: c.textPrimary,
   },
 
   // Input styles
@@ -459,10 +477,10 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   inventoryCard: {
-    backgroundColor: "rgba(30, 41, 59, 0.7)",
+    backgroundColor: c.elevatedBg,
     borderRadius: 12,
     elevation: 2,
-    shadowColor: "#000",
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -476,13 +494,13 @@ const styles = StyleSheet.create({
   inventoryTitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#FFFFFF",
+    color: c.textPrimary,
     marginBottom: 8,
   },
   inventoryAccent: {
     width: 40,
     height: 2,
-    backgroundColor: "#128AFA",
+    backgroundColor: c.primaryColor,
     borderRadius: 1,
   },
 
@@ -498,13 +516,13 @@ const styles = StyleSheet.create({
   resourceIconContainer: {
     width: 48,
     height: 48,
-    backgroundColor: "rgba(15, 23, 42, 0.8)",
+    backgroundColor: c.surfaceBg,
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
     borderWidth: 1,
-    borderColor: "rgba(71, 85, 105, 0.3)",
+    borderColor: c.surfaceBorder,
   },
   resourceInputIcon: {
     width: 24,
@@ -521,7 +539,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 12,
     elevation: 3,
-    shadowColor: "#128AFA",
+    shadowColor: c.primaryColor,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
@@ -541,15 +559,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 16,
     elevation: 3,
-    shadowColor: "#000",
+    shadowColor: c.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
   },
   resultCard: {
-    backgroundColor: "rgba(30, 41, 59, 0.7)",
+    backgroundColor: c.elevatedBg,
     borderWidth: 1,
-    borderColor: "rgba(0, 245, 255, 0.2)",
+    borderColor: c.accentSoft,
   },
   resultCardContent: {
     padding: 24,
@@ -559,34 +577,34 @@ const styles = StyleSheet.create({
   },
   resultTitle: {
     fontSize: 18,
-    color: "#FFFFFF",
+    color: c.textPrimary,
     marginBottom: 8,
   },
   resultAccent: {
     width: 60,
     height: 2,
-    backgroundColor: "#128AFA",
+    backgroundColor: c.primaryColor,
     borderRadius: 1,
   },
-  
+
   // Total EXP display
   totalExpContainer: {
-    backgroundColor: "rgba(0, 245, 255, 0.1)",
+    backgroundColor: c.accentSoft,
     borderRadius: 12,
     padding: 16,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: "rgba(0, 245, 255, 0.3)",
+    borderColor: c.accentSoft,
   },
   totalExpLabel: {
     fontSize: 14,
-    color: "#94A3B8",
+    color: c.textSecondary,
     marginBottom: 4,
   },
   totalExpValue: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#128AFA",
+    color: c.primaryColor,
   },
 
   // Resource section
@@ -596,11 +614,11 @@ const styles = StyleSheet.create({
   resourceSectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#FFFFFF",
+    color: c.textPrimary,
     marginBottom: 12,
   },
   resourceList: {
-    backgroundColor: "rgba(15, 23, 42, 0.6)",
+    backgroundColor: c.surfaceBg,
     gap: 12,
   },
   resourceItemContainer: {
@@ -611,7 +629,7 @@ const styles = StyleSheet.create({
   resultIconContainer: {
     width: 32,
     height: 32,
-    backgroundColor: "rgba(30, 41, 59, 0.8)",
+    backgroundColor: c.elevatedBg,
     borderRadius: 6,
     justifyContent: "center",
     alignItems: "center",
@@ -624,10 +642,10 @@ const styles = StyleSheet.create({
   resourceItem: {
     flex: 1,
     fontSize: 14,
-    color: "#FFFFFF",
+    color: c.textPrimary,
   },
   resourceValue: {
     fontWeight: "600",
-    color: "#128AFA",
+    color: c.primaryColor,
   },
 });

@@ -8,7 +8,7 @@ import {
   Dimensions,
   ScrollView,
 } from "react-native";
-import { memo, useRef, useState, useEffect } from "react";
+import { memo, useRef, useState, useEffect, useMemo } from "react";
 import {
   List,
   Divider,
@@ -31,6 +31,10 @@ import { useLanguage } from "@/contexts/language-context";
 import { i18n, type Locale, type UIStrings } from "@/constants/i18n";
 import { useAdFreeContext } from "@/contexts/ad-free-context";
 import { TIP_SKUS } from "@/hooks/useAdFree";
+import { useColors } from "@/hooks/useColors";
+import type { ThemeTokens } from "@/constants/theme";
+import { useTheme } from "@/contexts/theme-context";
+import { THEMES, THEME_ORDER, type ThemeId } from "@/constants/theme";
 
 const LOCALE_LABELS: Record<Locale, string> = {
   en: "English",
@@ -42,6 +46,227 @@ const LOCALE_LABELS: Record<Locale, string> = {
 const FEEDBACK_COOLDOWN_MS = 3 * 60 * 60 * 1000;
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 
+const makeStyles = (c: ThemeTokens) =>
+  StyleSheet.create({
+    container: { flex: 1 },
+    sectionAccent: {
+      width: 44,
+      height: 2.5,
+      backgroundColor: c.primaryColor,
+      borderRadius: 2,
+      marginBottom: 16,
+    },
+    divider: { marginVertical: 8 },
+    titleContainer: { flexDirection: "row", gap: 8 },
+    aboutSection: { marginBottom: 8 },
+
+    // Drawer
+    drawerOverlay: {
+      flex: 1,
+      backgroundColor: c.overlay,
+    },
+    drawerContainer: {
+      position: "absolute",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: c.elevatedBg,
+      borderTopLeftRadius: 28,
+      borderTopRightRadius: 28,
+      paddingHorizontal: 24,
+      paddingBottom: 36,
+      paddingTop: 12,
+    },
+    drawerHandle: {
+      width: 40,
+      height: 4,
+      backgroundColor: c.accentSoft,
+      borderRadius: 2,
+      alignSelf: "center",
+      marginBottom: 20,
+    },
+    drawerTitle: {
+      fontSize: 18,
+      fontWeight: "bold",
+      color: c.textPrimary,
+      marginBottom: 16,
+    },
+    drawerItem: { paddingVertical: 2 },
+    drawerItemLabel: { color: c.textPrimary, fontSize: 15 },
+    drawerButtons: {
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      gap: 8,
+      marginTop: 16,
+    },
+    closeButton: { marginTop: 12 },
+
+    // Feedback inputs
+    input: {
+      backgroundColor: c.surfaceBg,
+      marginTop: 8,
+    },
+    descInput: { minHeight: 100 },
+
+    // Disclaimer
+    disclaimerScroll: { maxHeight: 200, marginBottom: 8 },
+    disclaimerBody: { color: c.textMuted, lineHeight: 22 },
+
+    // Theme picker
+    themeRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingRight: 8,
+    },
+    themeRowLeft: { flexDirection: "row", alignItems: "center" },
+    themeRowLabel: { fontSize: 15 },
+
+    // Coffee drawer
+    coffeeDesc: {
+      color: c.textMuted,
+      fontSize: 13,
+      marginBottom: 20,
+    },
+    coffeeTierRow: {
+      flexDirection: "row",
+      gap: 12,
+      marginBottom: 16,
+    },
+    coffeeTierCard: {
+      flex: 1,
+      borderRadius: 14,
+      padding: 16,
+      alignItems: "center",
+    },
+    coffeeTierCardSmall: {
+      backgroundColor: c.accentSoft,
+      borderWidth: 1.5,
+      borderColor: c.accentSoft,
+      paddingTop: 20,
+    },
+    coffeeTierCardLarge: {
+      backgroundColor: c.accentSoft,
+      borderWidth: 2,
+      borderColor: c.primaryColor,
+      paddingTop: 20,
+    },
+    coffeeBadgeContainer: {
+      position: "absolute",
+      top: -11,
+      left: 0,
+      right: 0,
+      alignItems: "center",
+    },
+    coffeeBadge: {
+      backgroundColor: c.primaryColor,
+      color: c.primaryText,
+      fontSize: 10,
+      fontWeight: "700",
+      paddingHorizontal: 10,
+      paddingVertical: 2,
+      borderRadius: 99,
+      overflow: "hidden",
+    },
+    coffeeTierEmoji: {
+      fontSize: 28,
+      marginBottom: 4,
+    },
+    coffeeTierPrice: {
+      color: c.textPrimary,
+      fontWeight: "700",
+      fontSize: 16,
+    },
+    coffeeTierLabel: {
+      color: c.textMuted,
+      fontSize: 11,
+      marginTop: 4,
+      marginBottom: 10,
+    },
+    coffeeTierButton: {
+      width: "100%",
+      borderRadius: 8,
+    },
+    coffeeTierButtonLabel: {
+      fontSize: 13,
+    },
+    coffeePurchasing: {
+      height: 120,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    coffeeAdFreeNote: {
+      backgroundColor: c.accentSoft,
+      borderWidth: 1,
+      borderColor: c.accentSoft,
+      borderRadius: 10,
+      padding: 10,
+      marginBottom: 4,
+    },
+    coffeeAdFreeNoteText: {
+      color: c.textSecondary,
+      fontSize: 13,
+    },
+    coffeeRestoreMsg: {
+      textAlign: "center",
+    },
+    coffeeAlreadyOwned: {
+      backgroundColor: c.accentSoft,
+      borderWidth: 1,
+      borderColor: c.accentSoft,
+      borderRadius: 10,
+      padding: 16,
+      alignItems: "center",
+      marginVertical: 8,
+    },
+    coffeeAlreadyOwnedText: {
+      color: c.textPrimary,
+      fontSize: 15,
+      textAlign: "center",
+    },
+    coffeeSuccess: {
+      alignItems: "center",
+      paddingVertical: 16,
+    },
+    coffeeSuccessEmoji: {
+      fontSize: 48,
+      marginBottom: 12,
+    },
+    coffeeSuccessDesc: {
+      color: c.textMuted,
+      fontSize: 14,
+      marginBottom: 24,
+      textAlign: "center",
+    },
+    coffeeDoneButton: {
+      borderRadius: 10,
+      paddingHorizontal: 16,
+    },
+  });
+
+// ── Theme swatches ──────────────────────────────────────────────────────────
+function ThemeSwatches({ id }: { id: ThemeId }) {
+  const tk = THEMES[id].tokens;
+  const swatches = [tk.appBg, tk.surfaceBg, tk.primaryColor, tk.textPrimary];
+  return (
+    <View style={{ flexDirection: "row", gap: 4, alignItems: "center" }}>
+      {swatches.map((color, i) => (
+        <View
+          key={i}
+          style={{
+            width: 16,
+            height: 16,
+            borderRadius: 4,
+            backgroundColor: color,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: tk.surfaceBorder,
+          }}
+        />
+      ))}
+    </View>
+  );
+}
+
 // ── Reusable bottom drawer ──────────────────────────────────────────────────
 function BottomDrawer({
   visible,
@@ -52,6 +277,8 @@ function BottomDrawer({
   onClose: () => void;
   children: React.ReactNode;
 }) {
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const insets = useSafeAreaInsets();
 
@@ -109,6 +336,8 @@ function LanguageDrawer({
   onClose: () => void;
   t: UIStrings;
 }) {
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const { locale, setLocale } = useLanguage();
 
   return (
@@ -127,13 +356,60 @@ function LanguageDrawer({
               key={code}
               label={label}
               value={code}
-              color="#128AFA"
+              color={c.primaryColor}
               labelStyle={styles.drawerItemLabel}
               style={styles.drawerItem}
             />
           )
         )}
       </RadioButton.Group>
+    </BottomDrawer>
+  );
+}
+
+// ── Theme drawer ─────────────────────────────────────────────────────────────
+function ThemeDrawer({
+  visible,
+  onClose,
+  t,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  t: UIStrings;
+}) {
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
+  const { themeId, setThemeId } = useTheme();
+  return (
+    <BottomDrawer visible={visible} onClose={onClose}>
+      <Text style={styles.drawerTitle}>{t.theme}</Text>
+      {THEME_ORDER.map((id) => (
+        <TouchableWithoutFeedback
+          key={id}
+          onPress={() => {
+            setThemeId(id);
+            onClose();
+          }}
+        >
+          <View style={styles.themeRow}>
+            <View style={styles.themeRowLeft}>
+              <RadioButton
+                value={id}
+                status={themeId === id ? "checked" : "unchecked"}
+                color={c.primaryColor}
+                onPress={() => {
+                  setThemeId(id);
+                  onClose();
+                }}
+              />
+              <Text style={[styles.drawerItemLabel, styles.themeRowLabel]}>
+                {THEMES[id].name}
+              </Text>
+            </View>
+            <ThemeSwatches id={id} />
+          </View>
+        </TouchableWithoutFeedback>
+      ))}
     </BottomDrawer>
   );
 }
@@ -152,6 +428,8 @@ const FeedbackDrawer = memo(function FeedbackDrawer({
   lastSent: number | null;
   onSent: () => void;
 }) {
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const titleRef = useRef("");
   const descRef = useRef("");
   const [titleError, setTitleError] = useState("");
@@ -217,10 +495,10 @@ const FeedbackDrawer = memo(function FeedbackDrawer({
         }}
         mode="outlined"
         style={styles.input}
-        outlineColor="rgba(18, 138, 250, 0.3)"
-        activeOutlineColor="#128AFA"
-        textColor="white"
-        theme={{ colors: { onSurfaceVariant: "#aaa" } }}
+        outlineColor={c.accentSoft}
+        activeOutlineColor={c.primaryColor}
+        textColor={c.textPrimary}
+        theme={{ colors: { onSurfaceVariant: c.textMuted } }}
         error={!!titleError}
       />
       {!!titleError && (
@@ -240,10 +518,10 @@ const FeedbackDrawer = memo(function FeedbackDrawer({
         multiline
         numberOfLines={4}
         style={[styles.input, styles.descInput]}
-        outlineColor="rgba(18, 138, 250, 0.3)"
-        activeOutlineColor="#128AFA"
-        textColor="white"
-        theme={{ colors: { onSurfaceVariant: "#aaa" } }}
+        outlineColor={c.accentSoft}
+        activeOutlineColor={c.primaryColor}
+        textColor={c.textPrimary}
+        theme={{ colors: { onSurfaceVariant: c.textMuted } }}
         error={!!descError}
       />
       {!!descError && (
@@ -253,7 +531,7 @@ const FeedbackDrawer = memo(function FeedbackDrawer({
       )}
 
       <View style={styles.drawerButtons}>
-        <Button onPress={onClose} textColor="#aaa" disabled={sending}>
+        <Button onPress={onClose} textColor={c.textMuted} disabled={sending}>
           {t.miscCancel}
         </Button>
         <Button
@@ -261,8 +539,8 @@ const FeedbackDrawer = memo(function FeedbackDrawer({
           onPress={validateAndSend}
           loading={sending}
           disabled={sending}
-          buttonColor="#128AFA"
-          textColor="#FFFFFF"
+          buttonColor={c.primaryColor}
+          textColor={c.primaryText}
         >
           {t.miscSubmit}
         </Button>
@@ -281,13 +559,19 @@ function DisclaimerDrawer({
   onClose: () => void;
   t: UIStrings;
 }) {
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   return (
     <BottomDrawer visible={visible} onClose={onClose}>
       <Text style={styles.drawerTitle}>{t.miscDisclaimer}</Text>
       <ScrollView style={styles.disclaimerScroll}>
         <Text style={styles.disclaimerBody}>{t.miscDisclaimerContent}</Text>
       </ScrollView>
-      <Button onPress={onClose} textColor="white" style={styles.closeButton}>
+      <Button
+        onPress={onClose}
+        textColor={c.textPrimary}
+        style={styles.closeButton}
+      >
         {t.miscClose}
       </Button>
     </BottomDrawer>
@@ -306,6 +590,8 @@ const CoffeeDrawer = memo(function CoffeeDrawer({
   onClose: () => void;
   t: UIStrings;
 }) {
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const { isAdFree, purchaseTip, restorePurchase } = useAdFreeContext();
   const [drawerState, setDrawerState] = useState<CoffeeState>("idle");
   const [error, setError] = useState("");
@@ -362,8 +648,8 @@ const CoffeeDrawer = memo(function CoffeeDrawer({
           <Button
             mode="contained"
             onPress={onClose}
-            buttonColor="#128AFA"
-            textColor="#FFFFFF"
+            buttonColor={c.primaryColor}
+            textColor={c.primaryText}
             style={styles.coffeeDoneButton}
           >
             {t.miscCoffeeDone}
@@ -385,7 +671,7 @@ const CoffeeDrawer = memo(function CoffeeDrawer({
           <>
             {drawerState === "purchasing" ? (
               <View style={styles.coffeePurchasing}>
-                <ActivityIndicator color="#128AFA" />
+                <ActivityIndicator color={c.primaryColor} />
               </View>
             ) : (
               <View style={styles.coffeeTierRow}>
@@ -397,8 +683,8 @@ const CoffeeDrawer = memo(function CoffeeDrawer({
                     <Button
                       mode="contained"
                       onPress={() => handlePurchase(TIP_SKUS.SMALL)}
-                      buttonColor="#128AFA"
-                      textColor="#FFFFFF"
+                      buttonColor={c.primaryColor}
+                      textColor={c.primaryText}
                       style={styles.coffeeTierButton}
                       labelStyle={styles.coffeeTierButtonLabel}
                     >
@@ -417,8 +703,8 @@ const CoffeeDrawer = memo(function CoffeeDrawer({
                     <Button
                       mode="contained"
                       onPress={() => handlePurchase(TIP_SKUS.LARGE)}
-                      buttonColor="#128AFA"
-                      textColor="#FFFFFF"
+                      buttonColor={c.primaryColor}
+                      textColor={c.primaryText}
                       style={styles.coffeeTierButton}
                       labelStyle={styles.coffeeTierButtonLabel}
                     >
@@ -444,7 +730,7 @@ const CoffeeDrawer = memo(function CoffeeDrawer({
                 <Button
                   mode="text"
                   onPress={handleRestore}
-                  textColor="#128AFA"
+                  textColor={c.primaryColor}
                   disabled={drawerState === "purchasing"}
                 >
                   {t.miscCoffeeRestore}
@@ -472,9 +758,12 @@ export default function OtherScreen() {
   const insets = useSafeAreaInsets();
   const { locale } = useLanguage();
   const t = i18n[locale];
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
+  const { themeId, theme } = useTheme();
 
   const [openDrawer, setOpenDrawer] = useState<
-    "language" | "feedback" | "disclaimer" | "coffee" | null
+    "language" | "theme" | "feedback" | "disclaimer" | "coffee" | null
   >(null);
   const [lastSent, setLastSent] = useState<number | null>(null);
 
@@ -497,10 +786,27 @@ export default function OtherScreen() {
             title={t.language}
             description={LOCALE_LABELS[locale]}
             left={(props) => (
-              <List.Icon {...props} icon="translate" color="#128AFA" />
+              <List.Icon
+                {...props}
+                icon="translate"
+                color={theme.tokens.primaryColor}
+              />
             )}
             onPress={() => setOpenDrawer("language")}
             right={(props) => <List.Icon {...props} icon="chevron-right" />}
+          />
+          <List.Item
+            title={t.theme}
+            description={THEMES[themeId].name}
+            left={(props) => (
+              <List.Icon
+                {...props}
+                icon="palette"
+                color={theme.tokens.primaryColor}
+              />
+            )}
+            onPress={() => setOpenDrawer("theme")}
+            right={() => <ThemeSwatches id={themeId} />}
           />
         </List.Section>
 
@@ -512,7 +818,11 @@ export default function OtherScreen() {
             title={t.miscFeedbackItem}
             description={t.miscFeedbackItemDesc}
             left={(props) => (
-              <List.Icon {...props} icon="message-text" color="#128AFA" />
+              <List.Icon
+                {...props}
+                icon="message-text"
+                color={theme.tokens.primaryColor}
+              />
             )}
             onPress={() => setOpenDrawer("feedback")}
             right={(props) => <List.Icon {...props} icon="chevron-right" />}
@@ -521,7 +831,7 @@ export default function OtherScreen() {
             title={t.miscCoffeeItem}
             description={t.miscCoffeeItemDesc}
             left={(props) => (
-              <List.Icon {...props} icon="coffee" color="#128AFA" />
+              <List.Icon {...props} icon="coffee" color={theme.tokens.primaryColor} />
             )}
             onPress={() => setOpenDrawer("coffee")}
             right={(props) => <List.Icon {...props} icon="chevron-right" />}
@@ -534,13 +844,19 @@ export default function OtherScreen() {
           <List.Subheader>{t.miscAboutSection}</List.Subheader>
           <List.Item
             title={t.miscVersion}
-            description={Constants.expoConfig?.version ?? Application.nativeApplicationVersion ?? "1.0.6"}
+            description={
+              Constants.expoConfig?.version ??
+              Application.nativeApplicationVersion ??
+              "1.0.7"
+            }
             left={(props) => <List.Icon {...props} icon="information" />}
           />
           <List.Item
             title={t.miscDisclaimer}
             description={t.miscDisclaimerTap}
-            left={(props) => <List.Icon {...props} icon="hand-front-right" />}
+            left={(props) => (
+              <List.Icon {...props} icon="hand-front-right" />
+            )}
             onPress={() => setOpenDrawer("disclaimer")}
             right={(props) => <List.Icon {...props} icon="chevron-right" />}
           />
@@ -552,6 +868,11 @@ export default function OtherScreen() {
 
       <LanguageDrawer
         visible={openDrawer === "language"}
+        onClose={close}
+        t={t}
+      />
+      <ThemeDrawer
+        visible={openDrawer === "theme"}
         onClose={close}
         t={t}
       />
@@ -578,189 +899,3 @@ export default function OtherScreen() {
     </ParallaxScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  sectionAccent: {
-    width: 44,
-    height: 2.5,
-    backgroundColor: "#128AFA",
-    borderRadius: 2,
-    marginBottom: 16,
-  },
-  divider: { marginVertical: 8 },
-  titleContainer: { flexDirection: "row", gap: 8 },
-  aboutSection: { marginBottom: 8 },
-
-  // Drawer
-  drawerOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  drawerContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "#0D1F3C",
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    paddingHorizontal: 24,
-    paddingTop: 12,
-  },
-  drawerHandle: {
-    width: 40,
-    height: 4,
-    backgroundColor: "rgba(18, 138, 250, 0.3)",
-    borderRadius: 2,
-    alignSelf: "center",
-    marginBottom: 20,
-  },
-  drawerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 16,
-  },
-  drawerItem: { paddingVertical: 2 },
-  drawerItemLabel: { color: "white", fontSize: 15 },
-  drawerButtons: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 8,
-    marginTop: 16,
-  },
-  closeButton: { marginTop: 12 },
-
-  // Feedback inputs
-  input: {
-    backgroundColor: "rgba(10, 22, 40, 0.9)",
-    marginTop: 8,
-  },
-  descInput: { minHeight: 100 },
-
-  // Disclaimer
-  disclaimerScroll: { maxHeight: 200, marginBottom: 8 },
-  disclaimerBody: { color: "rgba(255,255,255,0.6)", lineHeight: 22 },
-
-  // Coffee drawer
-  coffeeDesc: {
-    color: "rgba(255,255,255,0.55)",
-    fontSize: 13,
-    marginBottom: 20,
-  },
-  coffeeTierRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 16,
-  },
-  coffeeTierCard: {
-    flex: 1,
-    borderRadius: 14,
-    padding: 16,
-    alignItems: "center",
-  },
-  coffeeTierCardSmall: {
-    backgroundColor: "rgba(18,138,250,0.08)",
-    borderWidth: 1.5,
-    borderColor: "rgba(18,138,250,0.25)",
-    paddingTop: 20,
-  },
-  coffeeTierCardLarge: {
-    backgroundColor: "rgba(18,138,250,0.15)",
-    borderWidth: 2,
-    borderColor: "#128AFA",
-    paddingTop: 20,
-  },
-  coffeeBadgeContainer: {
-    position: "absolute",
-    top: -11,
-    left: 0,
-    right: 0,
-    alignItems: "center",
-  },
-  coffeeBadge: {
-    backgroundColor: "#128AFA",
-    color: "white",
-    fontSize: 10,
-    fontWeight: "700",
-    paddingHorizontal: 10,
-    paddingVertical: 2,
-    borderRadius: 99,
-    overflow: "hidden",
-  },
-  coffeeTierEmoji: {
-    fontSize: 28,
-    marginBottom: 4,
-  },
-  coffeeTierPrice: {
-    color: "white",
-    fontWeight: "700",
-    fontSize: 16,
-  },
-  coffeeTierLabel: {
-    color: "rgba(255,255,255,0.5)",
-    fontSize: 11,
-    marginTop: 4,
-    marginBottom: 10,
-  },
-  coffeeTierButton: {
-    width: "100%",
-    borderRadius: 8,
-  },
-  coffeeTierButtonLabel: {
-    fontSize: 13,
-  },
-  coffeePurchasing: {
-    height: 120,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  coffeeAdFreeNote: {
-    backgroundColor: "rgba(18,138,250,0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(18,138,250,0.2)",
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 4,
-  },
-  coffeeAdFreeNoteText: {
-    color: "rgba(255,255,255,0.75)",
-    fontSize: 13,
-  },
-  coffeeRestoreMsg: {
-    textAlign: "center",
-  },
-  coffeeAlreadyOwned: {
-    backgroundColor: "rgba(18,138,250,0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(18,138,250,0.2)",
-    borderRadius: 10,
-    padding: 16,
-    alignItems: "center",
-    marginVertical: 8,
-  },
-  coffeeAlreadyOwnedText: {
-    color: "rgba(255,255,255,0.85)",
-    fontSize: 15,
-    textAlign: "center",
-  },
-  coffeeSuccess: {
-    alignItems: "center",
-    paddingVertical: 16,
-  },
-  coffeeSuccessEmoji: {
-    fontSize: 48,
-    marginBottom: 12,
-  },
-  coffeeSuccessDesc: {
-    color: "rgba(255,255,255,0.6)",
-    fontSize: 14,
-    marginBottom: 24,
-    textAlign: "center",
-  },
-  coffeeDoneButton: {
-    borderRadius: 10,
-    paddingHorizontal: 16,
-  },
-});
