@@ -18,6 +18,7 @@ import {
   TextInput,
   HelperText,
   RadioButton,
+  ActivityIndicator,
 } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Application from "expo-application";
@@ -28,6 +29,8 @@ import { ThemedView } from "@/components/ThemedView";
 import InlineAd from "../ads/InlineAd";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n, type Locale, type UIStrings } from "@/constants/i18n";
+import { useAdFreeContext } from "@/contexts/ad-free-context";
+import { TIP_SKUS } from "@/hooks/useAdFree";
 
 const LOCALE_LABELS: Record<Locale, string> = {
   en: "English",
@@ -50,6 +53,7 @@ function BottomDrawer({
   children: React.ReactNode;
 }) {
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (visible) {
@@ -82,7 +86,11 @@ function BottomDrawer({
         <View style={styles.drawerOverlay} />
       </TouchableWithoutFeedback>
       <Animated.View
-        style={[styles.drawerContainer, { transform: [{ translateY }] }]}
+        style={[
+          styles.drawerContainer,
+          { paddingBottom: 36 + insets.bottom },
+          { transform: [{ translateY }] },
+        ]}
       >
         <View style={styles.drawerHandle} />
         {children}
@@ -286,6 +294,179 @@ function DisclaimerDrawer({
   );
 }
 
+// ── Coffee drawer ────────────────────────────────────────────────────────────
+type CoffeeState = "idle" | "purchasing" | "success";
+
+const CoffeeDrawer = memo(function CoffeeDrawer({
+  visible,
+  onClose,
+  t,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  t: UIStrings;
+}) {
+  const { isAdFree, purchaseTip, restorePurchase } = useAdFreeContext();
+  const [drawerState, setDrawerState] = useState<CoffeeState>("idle");
+  const [error, setError] = useState("");
+  const [restoreMsg, setRestoreMsg] = useState("");
+  const [restoreStatus, setRestoreStatus] = useState<"success" | "fail" | null>(null);
+
+  useEffect(() => {
+    if (!visible) {
+      setDrawerState("idle");
+      setError("");
+      setRestoreMsg("");
+      setRestoreStatus(null);
+    }
+  }, [visible]);
+
+  const handlePurchase = async (sku: string) => {
+    setDrawerState("purchasing");
+    setError("");
+    try {
+      const result = await purchaseTip(sku);
+      if (result === "success") setDrawerState("success");
+      else setDrawerState("idle");
+    } catch (err) {
+      setError(typeof err === "string" ? err : String(err));
+      setDrawerState("idle");
+    }
+  };
+
+  const handleRestore = async () => {
+    setRestoreMsg("");
+    setRestoreStatus(null);
+    try {
+      const result = await restorePurchase();
+      if (result === "success") {
+        setRestoreMsg(t.miscCoffeeRestoreSuccess);
+        setRestoreStatus("success");
+      } else {
+        setRestoreMsg(t.miscCoffeeRestoreFail);
+        setRestoreStatus("fail");
+      }
+    } catch {
+      setRestoreMsg(t.miscCoffeeRestoreFail);
+      setRestoreStatus("fail");
+    }
+  };
+
+  return (
+    <BottomDrawer visible={visible} onClose={onClose}>
+      {drawerState === "success" ? (
+        <View style={styles.coffeeSuccess}>
+          <Text style={styles.coffeeSuccessEmoji}>🙏</Text>
+          <Text style={styles.drawerTitle}>{t.miscCoffeeThankYouTitle}</Text>
+          <Text style={styles.coffeeSuccessDesc}>{t.miscCoffeeThankYouDesc}</Text>
+          <Button
+            mode="contained"
+            onPress={onClose}
+            buttonColor="#128AFA"
+            textColor="#FFFFFF"
+            style={styles.coffeeDoneButton}
+          >
+            {t.miscCoffeeDone}
+          </Button>
+        </View>
+      ) : (
+        <>
+          <Text style={styles.drawerTitle}>☕ {t.miscCoffeeDrawerTitle}</Text>
+          <Text style={styles.coffeeDesc}>{t.miscCoffeeDrawerDesc}</Text>
+
+          {isAdFree && (
+            <View style={styles.coffeeAlreadyOwned}>
+              <Text style={styles.coffeeAlreadyOwnedText}>
+                ✨ {t.miscCoffeeAlreadyOwned}
+              </Text>
+            </View>
+          )}
+
+          <>
+            {drawerState === "purchasing" ? (
+              <View style={styles.coffeePurchasing}>
+                <ActivityIndicator color="#128AFA" />
+              </View>
+            ) : (
+              <View style={styles.coffeeTierRow}>
+                  {/* Small tier */}
+                  <View style={[styles.coffeeTierCard, styles.coffeeTierCardSmall]}>
+                    <Text style={styles.coffeeTierEmoji}>☕</Text>
+                    <Text style={styles.coffeeTierPrice}>$2.99</Text>
+                    <Text style={styles.coffeeTierLabel}>{t.miscCoffeeSmallLabel}</Text>
+                    <Button
+                      mode="contained"
+                      onPress={() => handlePurchase(TIP_SKUS.SMALL)}
+                      buttonColor="#128AFA"
+                      textColor="#FFFFFF"
+                      style={styles.coffeeTierButton}
+                      labelStyle={styles.coffeeTierButtonLabel}
+                    >
+                      {t.miscCoffeeButton}
+                    </Button>
+                  </View>
+
+                  {/* Large tier */}
+                  <View style={[styles.coffeeTierCard, styles.coffeeTierCardLarge]}>
+                    <View style={styles.coffeeBadgeContainer}>
+                      <Text style={styles.coffeeBadge}>{t.miscCoffeeBadge}</Text>
+                    </View>
+                    <Text style={styles.coffeeTierEmoji}>🍗</Text>
+                    <Text style={styles.coffeeTierPrice}>$5.99</Text>
+                    <Text style={styles.coffeeTierLabel}>{t.miscCoffeeLargeLabel}</Text>
+                    <Button
+                      mode="contained"
+                      onPress={() => handlePurchase(TIP_SKUS.LARGE)}
+                      buttonColor="#128AFA"
+                      textColor="#FFFFFF"
+                      style={styles.coffeeTierButton}
+                      labelStyle={styles.coffeeTierButtonLabel}
+                    >
+                      {t.miscCoffeeButton}
+                    </Button>
+                  </View>
+                </View>
+              )}
+
+              {!!error && (
+                <HelperText type="error" visible>
+                  {error}
+                </HelperText>
+              )}
+
+              <View style={styles.coffeeAdFreeNote}>
+                <Text style={styles.coffeeAdFreeNoteText}>
+                  ✨ {t.miscCoffeeAdFreeNote}
+                </Text>
+              </View>
+
+              {!isAdFree && (
+                <Button
+                  mode="text"
+                  onPress={handleRestore}
+                  textColor="#128AFA"
+                  disabled={drawerState === "purchasing"}
+                >
+                  {t.miscCoffeeRestore}
+                </Button>
+              )}
+
+              {!!restoreMsg && (
+                <HelperText
+                  type={restoreStatus === "success" ? "info" : "error"}
+                  visible
+                  style={styles.coffeeRestoreMsg}
+                >
+                  {restoreMsg}
+                </HelperText>
+              )}
+            </>
+        </>
+      )}
+    </BottomDrawer>
+  );
+});
+
 // ── Main screen ──────────────────────────────────────────────────────────────
 export default function OtherScreen() {
   const insets = useSafeAreaInsets();
@@ -293,7 +474,7 @@ export default function OtherScreen() {
   const t = i18n[locale];
 
   const [openDrawer, setOpenDrawer] = useState<
-    "language" | "feedback" | "disclaimer" | null
+    "language" | "feedback" | "disclaimer" | "coffee" | null
   >(null);
   const [lastSent, setLastSent] = useState<number | null>(null);
 
@@ -336,6 +517,15 @@ export default function OtherScreen() {
             onPress={() => setOpenDrawer("feedback")}
             right={(props) => <List.Icon {...props} icon="chevron-right" />}
           />
+          <List.Item
+            title={t.miscCoffeeItem}
+            description={t.miscCoffeeItemDesc}
+            left={(props) => (
+              <List.Icon {...props} icon="coffee" color="#128AFA" />
+            )}
+            onPress={() => setOpenDrawer("coffee")}
+            right={(props) => <List.Icon {...props} icon="chevron-right" />}
+          />
         </List.Section>
 
         <Divider style={styles.divider} />
@@ -344,7 +534,7 @@ export default function OtherScreen() {
           <List.Subheader>{t.miscAboutSection}</List.Subheader>
           <List.Item
             title={t.miscVersion}
-            description={Constants.expoConfig?.version ?? Application.nativeApplicationVersion ?? "1.0.4"}
+            description={Constants.expoConfig?.version ?? Application.nativeApplicationVersion ?? "1.0.6"}
             left={(props) => <List.Icon {...props} icon="information" />}
           />
           <List.Item
@@ -380,6 +570,11 @@ export default function OtherScreen() {
         onClose={close}
         t={t}
       />
+      <CoffeeDrawer
+        visible={openDrawer === "coffee"}
+        onClose={close}
+        t={t}
+      />
     </ParallaxScrollView>
   );
 }
@@ -411,7 +606,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     paddingHorizontal: 24,
-    paddingBottom: 36,
     paddingTop: 12,
   },
   drawerHandle: {
@@ -448,4 +642,125 @@ const styles = StyleSheet.create({
   // Disclaimer
   disclaimerScroll: { maxHeight: 200, marginBottom: 8 },
   disclaimerBody: { color: "rgba(255,255,255,0.6)", lineHeight: 22 },
+
+  // Coffee drawer
+  coffeeDesc: {
+    color: "rgba(255,255,255,0.55)",
+    fontSize: 13,
+    marginBottom: 20,
+  },
+  coffeeTierRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 16,
+  },
+  coffeeTierCard: {
+    flex: 1,
+    borderRadius: 14,
+    padding: 16,
+    alignItems: "center",
+  },
+  coffeeTierCardSmall: {
+    backgroundColor: "rgba(18,138,250,0.08)",
+    borderWidth: 1.5,
+    borderColor: "rgba(18,138,250,0.25)",
+    paddingTop: 20,
+  },
+  coffeeTierCardLarge: {
+    backgroundColor: "rgba(18,138,250,0.15)",
+    borderWidth: 2,
+    borderColor: "#128AFA",
+    paddingTop: 20,
+  },
+  coffeeBadgeContainer: {
+    position: "absolute",
+    top: -11,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+  },
+  coffeeBadge: {
+    backgroundColor: "#128AFA",
+    color: "white",
+    fontSize: 10,
+    fontWeight: "700",
+    paddingHorizontal: 10,
+    paddingVertical: 2,
+    borderRadius: 99,
+    overflow: "hidden",
+  },
+  coffeeTierEmoji: {
+    fontSize: 28,
+    marginBottom: 4,
+  },
+  coffeeTierPrice: {
+    color: "white",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  coffeeTierLabel: {
+    color: "rgba(255,255,255,0.5)",
+    fontSize: 11,
+    marginTop: 4,
+    marginBottom: 10,
+  },
+  coffeeTierButton: {
+    width: "100%",
+    borderRadius: 8,
+  },
+  coffeeTierButtonLabel: {
+    fontSize: 13,
+  },
+  coffeePurchasing: {
+    height: 120,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  coffeeAdFreeNote: {
+    backgroundColor: "rgba(18,138,250,0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(18,138,250,0.2)",
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 4,
+  },
+  coffeeAdFreeNoteText: {
+    color: "rgba(255,255,255,0.75)",
+    fontSize: 13,
+  },
+  coffeeRestoreMsg: {
+    textAlign: "center",
+  },
+  coffeeAlreadyOwned: {
+    backgroundColor: "rgba(18,138,250,0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(18,138,250,0.2)",
+    borderRadius: 10,
+    padding: 16,
+    alignItems: "center",
+    marginVertical: 8,
+  },
+  coffeeAlreadyOwnedText: {
+    color: "rgba(255,255,255,0.85)",
+    fontSize: 15,
+    textAlign: "center",
+  },
+  coffeeSuccess: {
+    alignItems: "center",
+    paddingVertical: 16,
+  },
+  coffeeSuccessEmoji: {
+    fontSize: 48,
+    marginBottom: 12,
+  },
+  coffeeSuccessDesc: {
+    color: "rgba(255,255,255,0.6)",
+    fontSize: 14,
+    marginBottom: 24,
+    textAlign: "center",
+  },
+  coffeeDoneButton: {
+    borderRadius: 10,
+    paddingHorizontal: 16,
+  },
 });
