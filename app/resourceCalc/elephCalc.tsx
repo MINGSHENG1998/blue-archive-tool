@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { Image, StyleSheet, View, Keyboard, Pressable } from "react-native";
 import {
   Card,
@@ -16,11 +16,15 @@ import { ThemedView } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n } from "@/constants/i18n";
+import { useColors } from "@/hooks/useColors";
+import type { ThemeTokens } from "@/constants/theme";
 
 export default function ElephCalc() {
   const scrollRef = useRef<{ resetScroll: () => void }>(null);
   const { locale } = useLanguage();
   const t = i18n[locale];
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
   const [currentRarity, setCurrentRarity]: any = useState("1");
   const [targetRarity, setTargetRarity]: any = useState("5");
   const [currentEleph, setCurrentEleph] = useState("0");
@@ -243,9 +247,9 @@ export default function ElephCalc() {
                     outlineStyle={styles.inputOutline}
                     theme={{
                       colors: {
-                        onSurfaceVariant: "#94A3B8",
-                        primary: "#128AFA",
-                        outline: "rgba(71, 85, 105, 0.4)",
+                        onSurfaceVariant: c.textSecondary,
+                        primary: c.primaryColor,
+                        outline: c.surfaceBorder,
                       },
                     }}
                   />
@@ -357,7 +361,7 @@ export default function ElephCalc() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "transparent",
@@ -365,15 +369,15 @@ const styles = StyleSheet.create({
 
   // Error styles
   errorContainer: {
-    backgroundColor: "rgba(220, 38, 38, 0.1)",
+    backgroundColor: c.hazardBg,
     borderRadius: 12,
     padding: 16,
     marginBottom: 20,
     borderLeftWidth: 4,
-    borderLeftColor: "#DC2626",
+    borderLeftColor: c.hazardColor,
   },
   errorText: {
-    color: "#DC2626",
+    color: c.hazardColor,
     fontSize: 14,
     margin: 0,
   },
@@ -385,7 +389,7 @@ const styles = StyleSheet.create({
   accent: {
     width: 60,
     height: 2,
-    backgroundColor: "#128AFA",
+    backgroundColor: c.primaryColor,
     borderRadius: 1,
     marginBottom: 16,
   },
@@ -406,7 +410,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   fieldLabel: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 14,
     marginBottom: 8,
   },
@@ -416,22 +420,22 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   inventoryCard: {
-    backgroundColor: "rgba(30, 41, 59, 0.5)",
+    backgroundColor: c.elevatedBg,
     borderRadius: 12,
     marginTop: 12,
     borderWidth: 1,
-    borderColor: "rgba(71, 85, 105, 0.3)",
+    borderColor: c.surfaceBorder,
   },
   inventoryContent: {
     padding: 16,
   },
   inventoryTitle: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 14,
     marginBottom: 8,
   },
   inventoryDivider: {
-    backgroundColor: "rgba(71, 85, 105, 0.4)",
+    backgroundColor: c.surfaceBorder,
     marginBottom: 16,
   },
   resourceInputContainer: {
@@ -448,30 +452,30 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   inputContent: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
   },
   inputOutline: {
-    borderColor: "rgba(71, 85, 105, 0.4)",
+    borderColor: c.surfaceBorder,
   },
 
   // Calculate button
   calculateButton: {
-    backgroundColor: "#128AFA",
+    backgroundColor: c.primaryColor,
     borderRadius: 12,
     padding: 16,
     alignItems: "center",
-    shadowColor: "#128AFA",
+    shadowColor: c.primaryColor,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 4,
   },
   calculateButtonPressed: {
-    backgroundColor: "rgba(0, 245, 255, 0.8)",
+    backgroundColor: c.accentSoft,
     transform: [{ scale: 0.98 }],
   },
   calculateButtonText: {
-    color: "#0F172A",
+    color: c.primaryText,
     fontSize: 16,
   },
 
@@ -480,11 +484,11 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   resultCard: {
-    backgroundColor: "rgba(30, 41, 59, 0.7)",
+    backgroundColor: c.elevatedBg,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(0, 245, 255, 0.2)",
-    shadowColor: "#128AFA",
+    borderColor: c.accentSoft,
+    shadowColor: c.primaryColor,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
@@ -497,35 +501,35 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   resultTitle: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 18,
     marginBottom: 8,
   },
   resultAccent: {
     width: 80,
     height: 2,
-    backgroundColor: "#128AFA",
+    backgroundColor: c.primaryColor,
     borderRadius: 1,
   },
 
   // Total requirement
   totalRequirement: {
-    backgroundColor: "rgba(0, 245, 255, 0.1)",
+    backgroundColor: c.accentSoft,
     borderRadius: 12,
     padding: 20,
     alignItems: "center",
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: "rgba(0, 245, 255, 0.2)",
+    borderColor: c.accentSoft,
   },
   totalText: {
-    color: "#128AFA",
+    color: c.primaryColor,
     fontSize: 32,
     fontWeight: "bold",
     textAlign: "center",
   },
   totalLabel: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 14,
     marginTop: 4,
     opacity: 0.8,
@@ -536,12 +540,12 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   breakdownTitle: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 16,
     marginBottom: 12,
   },
   resourceList: {
-    backgroundColor: "rgba(15, 23, 42, 0.4)",
+    backgroundColor: c.surfaceBg,
     borderRadius: 12,
     padding: 16,
     gap: 16,
@@ -562,12 +566,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   resourceName: {
-    color: "#FFFFFF",
+    color: c.textPrimary,
     fontSize: 14,
     flex: 1,
   },
   resourceValue: {
-    color: "#128AFA",
+    color: c.primaryColor,
     fontSize: 14,
     fontWeight: "600",
   },
