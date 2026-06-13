@@ -18,6 +18,8 @@ import { useLanguage } from "@/contexts/language-context";
 import { i18n } from "@/constants/i18n";
 import { useColors } from "@/hooks/useColors";
 import type { ThemeTokens } from "@/constants/theme";
+import { elevation } from "@/constants/elevation";
+import { RADIUS } from "@/constants/layout";
 
 export default function ElephCalc() {
   const scrollRef = useRef<{ resetScroll: () => void }>(null);
@@ -370,7 +372,7 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   // Error styles
   errorContainer: {
     backgroundColor: c.hazardBg,
-    borderRadius: 12,
+    borderRadius: RADIUS.control,
     padding: 16,
     marginBottom: 20,
     borderLeftWidth: 4,
@@ -421,10 +423,9 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   inventoryCard: {
     backgroundColor: c.elevatedBg,
-    borderRadius: 12,
+    borderRadius: RADIUS.control,
     marginTop: 12,
-    borderWidth: 1,
-    borderColor: c.surfaceBorder,
+    ...elevation(c, 2),
   },
   inventoryContent: {
     padding: 16,
@@ -461,7 +462,7 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   // Calculate button
   calculateButton: {
     backgroundColor: c.primaryColor,
-    borderRadius: 12,
+    borderRadius: RADIUS.control,
     padding: 16,
     alignItems: "center",
     shadowColor: c.primaryColor,
@@ -485,14 +486,8 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   resultCard: {
     backgroundColor: c.elevatedBg,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: c.accentSoft,
-    shadowColor: c.primaryColor,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 6,
+    borderRadius: RADIUS.card,
+    ...elevation(c, 2),
   },
   resultContent: {
     padding: 24,
@@ -515,12 +510,10 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   // Total requirement
   totalRequirement: {
     backgroundColor: c.accentSoft,
-    borderRadius: 12,
+    borderRadius: RADIUS.control,
     padding: 20,
     alignItems: "center",
     marginBottom: 24,
-    borderWidth: 1,
-    borderColor: c.accentSoft,
   },
   totalText: {
     color: c.primaryColor,
@@ -546,7 +539,7 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   resourceList: {
     backgroundColor: c.surfaceBg,
-    borderRadius: 12,
+    borderRadius: RADIUS.control,
     padding: 16,
     gap: 16,
   },
