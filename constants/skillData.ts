@@ -31,6 +31,32 @@ export const NORMAL_SKILL_COSTS: SkillCostStep[] = [
   { books: [0, 0, 0, 0], secretNotes: 1, credits: 4_000_000 },
 ];
 
+// Generic OOParts (artifact) estimate. Exact items + amounts are
+// student-specific (each student uses a different artifact family, e.g. Rohonc
+// vs Nebra/Nimrud), so these are the MEDIAN amount per upgrade step across all
+// standard students, split into two generic grades (0 = lower-grade tier,
+// 1 = higher-grade tier). Approximate — always varies by student.
+export type ArtifactStep = { amount: number; grade: 0 | 1 };
+
+export const EX_ARTIFACT: ArtifactStep[] = [
+  { amount: 15, grade: 0 }, // lv1->2
+  { amount: 44, grade: 0 }, // lv2->3
+  { amount: 35, grade: 1 }, // lv3->4
+  { amount: 29, grade: 1 }, // lv4->5
+];
+
+export const NORMAL_ARTIFACT: ArtifactStep[] = [
+  { amount: 0, grade: 0 }, // lv1->2
+  { amount: 0, grade: 0 }, // lv2->3
+  { amount: 5, grade: 0 }, // lv3->4
+  { amount: 17, grade: 0 }, // lv4->5
+  { amount: 27, grade: 0 }, // lv5->6
+  { amount: 20, grade: 1 }, // lv6->7
+  { amount: 13, grade: 1 }, // lv7->8
+  { amount: 21, grade: 1 }, // lv8->9
+  { amount: 0, grade: 0 }, // lv9->10 (secret note step, no artifact)
+];
+
 export type LevelRange = { current: number; target: number };
 
 export type SkillCostInput = {
@@ -39,11 +65,14 @@ export type SkillCostInput = {
 };
 
 // bd = Tactical Training Blu-rays (EX skill); tn = Tech Notes (normal skills)
+// artifactLow/High = approximate generic OOParts estimate (see EX_ARTIFACT).
 export type SkillCostResult = {
   bd: [number, number, number, number];
   tn: [number, number, number, number];
   secretNotes: number;
   credits: number;
+  artifactLow: number;
+  artifactHigh: number;
 };
 
 export const EMPTY_INVENTORY: SkillCostResult = {
@@ -51,15 +80,18 @@ export const EMPTY_INVENTORY: SkillCostResult = {
   tn: [0, 0, 0, 0],
   secretNotes: 0,
   credits: 0,
+  artifactLow: 0,
+  artifactHigh: 0,
 };
 
 // Accumulates costs for one skill's level range. Mutates `books` and `acc` in
 // place; callers must pass freshly created accumulators.
 const sumSteps = (
   costs: SkillCostStep[],
+  artifacts: ArtifactStep[],
   range: LevelRange,
   books: [number, number, number, number],
-  acc: { secretNotes: number; credits: number }
+  acc: { secretNotes: number; credits: number; artifactLow: number; artifactHigh: number }
 ) => {
   // Upgrade step i covers level (i+1) -> (i+2)
   for (let level = range.current; level < range.target; level++) {
@@ -67,22 +99,34 @@ const sumSteps = (
     for (let t = 0; t < 4; t++) books[t] += step.books[t];
     acc.secretNotes += step.secretNotes;
     acc.credits += step.credits;
+    const art = artifacts[level - 1];
+    if (art.grade === 0) acc.artifactLow += art.amount;
+    else acc.artifactHigh += art.amount;
   }
 };
 
 export function calculateSkillCost(input: SkillCostInput): SkillCostResult {
   const bd: [number, number, number, number] = [0, 0, 0, 0];
   const tn: [number, number, number, number] = [0, 0, 0, 0];
-  const acc = { secretNotes: 0, credits: 0 };
+  const acc = { secretNotes: 0, credits: 0, artifactLow: 0, artifactHigh: 0 };
 
-  sumSteps(EX_SKILL_COSTS, input.ex, bd, acc);
+  sumSteps(EX_SKILL_COSTS, EX_ARTIFACT, input.ex, bd, acc);
   for (const skill of input.skills) {
-    sumSteps(NORMAL_SKILL_COSTS, skill, tn, acc);
+    sumSteps(NORMAL_SKILL_COSTS, NORMAL_ARTIFACT, skill, tn, acc);
   }
 
-  return { bd, tn, secretNotes: acc.secretNotes, credits: acc.credits };
+  return {
+    bd,
+    tn,
+    secretNotes: acc.secretNotes,
+    credits: acc.credits,
+    artifactLow: acc.artifactLow,
+    artifactHigh: acc.artifactHigh,
+  };
 }
 
+// Subtracts owned inventory. OOParts are not inventory-tracked, so the
+// artifact estimate passes through unchanged.
 export function applyInventory(
   totals: SkillCostResult,
   owned: SkillCostResult
@@ -92,5 +136,7 @@ export function applyInventory(
     tn: totals.tn.map((v, i) => Math.max(0, v - owned.tn[i])) as SkillCostResult["tn"],
     secretNotes: Math.max(0, totals.secretNotes - owned.secretNotes),
     credits: Math.max(0, totals.credits - owned.credits),
+    artifactLow: totals.artifactLow,
+    artifactHigh: totals.artifactHigh,
   };
 }

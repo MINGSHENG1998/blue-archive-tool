@@ -121,6 +121,8 @@ export interface UIStrings {
   skillTotalCredits: string;
   skillValidationError: string;
   skillArtifactNote: string;
+  skillOoLow: string;
+  skillOoHigh: string;
 
   // Misc / Other screen
   miscTitle: string;
@@ -346,7 +348,9 @@ export const i18n: Record<Locale, UIStrings> = {
     skillSecretNotes: "Secret Tech Notes",
     skillTotalCredits: "Total Credits",
     skillValidationError: "Target level must be greater than or equal to current level",
-    skillArtifactNote: "Student-specific OOPArts materials are not included",
+    skillArtifactNote: "OOParts are an approximate estimate; exact items vary by student.",
+    skillOoLow: "OOParts (lower)",
+    skillOoHigh: "OOParts (higher)",
   },
 
   zh: {
@@ -518,7 +522,9 @@ export const i18n: Record<Locale, UIStrings> = {
     skillSecretNotes: "秘传技术笔记",
     skillTotalCredits: "总信用点",
     skillValidationError: "目标等级必须大于或等于当前等级",
-    skillArtifactNote: "不包含学生专属奥帕茨材料",
+    skillArtifactNote: "奥帕茨为估算值，具体物品因学生而异。",
+    skillOoLow: "奥帕茨（低阶）",
+    skillOoHigh: "奥帕茨（高阶）",
   },
 
   ko: {
@@ -690,7 +696,9 @@ export const i18n: Record<Locale, UIStrings> = {
     skillSecretNotes: "비전의 기술 노트",
     skillTotalCredits: "총 크레딧",
     skillValidationError: "목표 레벨은 현재 레벨 이상이어야 합니다",
-    skillArtifactNote: "학생별 오파츠 재료는 포함되지 않습니다",
+    skillArtifactNote: "오파츠는 대략적인 추정치이며, 정확한 항목은 학생마다 다릅니다.",
+    skillOoLow: "오파츠 (하급)",
+    skillOoHigh: "오파츠 (상급)",
   },
 
   ja: {
@@ -862,7 +870,9 @@ export const i18n: Record<Locale, UIStrings> = {
     skillSecretNotes: "極秘技術ノート",
     skillTotalCredits: "合計クレジット",
     skillValidationError: "目標レベルは現在のレベル以上である必要があります",
-    skillArtifactNote: "生徒固有のオーパーツ素材は含まれません",
+    skillArtifactNote: "オーパーツは概算です。正確な素材は生徒により異なります。",
+    skillOoLow: "オーパーツ（下位）",
+    skillOoHigh: "オーパーツ（上位）",
   },
 };
 

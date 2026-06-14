@@ -5,6 +5,7 @@ import {
   TextInput,
   Button,
   HelperText,
+  Switch,
 } from "react-native-paper";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -40,6 +41,8 @@ const TN_ICONS = [
 ];
 const SECRET_ICON = require("../../assets/images/icons/secret_note.webp");
 const CREDIT_ICON = require("../../assets/images/icons/credit.png");
+const OOPART_LOW_ICON = require("../../assets/images/icons/oopart_low.webp");
+const OOPART_HIGH_ICON = require("../../assets/images/icons/oopart_high.webp");
 
 const levelOptions = (max: number) =>
   Array.from({ length: max }, (_, i) => ({
@@ -99,7 +102,7 @@ const InventoryInput = ({ icon, label, value, onChangeText, fieldName }: any) =>
 };
 
 // Result row, hidden when amount is zero
-const ResultRow = ({ icon, label, value }: any) => {
+const ResultRow = ({ icon, label, value, approx }: any) => {
   const c = useColors();
   const styles = useMemo(() => makeStyles(c), [c]);
   if (value <= 0) return null;
@@ -111,6 +114,7 @@ const ResultRow = ({ icon, label, value }: any) => {
       <View style={styles.resultRowDetails}>
         <ThemedText style={styles.resultRowName}>{label}</ThemedText>
         <ThemedText style={styles.resultRowValue}>
+          {approx ? "~" : ""}
           {value.toLocaleString()}
         </ThemedText>
       </View>
@@ -126,6 +130,12 @@ export default function SkillCalc() {
   const t = i18n[locale];
 
   const [levels, setLevels] = useState(INITIAL_LEVELS);
+  const [enabled, setEnabled] = useState<Record<LevelKey, boolean>>({
+    ex: true,
+    skill1: true,
+    skill2: true,
+    skill3: true,
+  });
   const [inventory, setInventory] = useState(INITIAL_INVENTORY);
   const [error, setError] = useState("");
   const [result, setResult] = useState<{
@@ -147,11 +157,14 @@ export default function SkillCalc() {
       current: parseInt(range.current, 10),
       target: parseInt(range.target, 10),
     });
-    const ex = parse(levels.ex);
+    // Disabled skills contribute nothing (zero-length range).
+    const range = (key: LevelKey) =>
+      enabled[key] ? parse(levels[key]) : { current: 1, target: 1 };
+    const ex = range("ex");
     const skills: SkillCostInput["skills"] = [
-      parse(levels.skill1),
-      parse(levels.skill2),
-      parse(levels.skill3),
+      range("skill1"),
+      range("skill2"),
+      range("skill3"),
     ];
 
     const invalid = [ex, ...skills].some((r) => r.target < r.current);
@@ -169,6 +182,8 @@ export default function SkillCalc() {
       tn: [num(inventory.tn1), num(inventory.tn2), num(inventory.tn3), num(inventory.tn4)],
       secretNotes: num(inventory.secretNotes),
       credits: num(inventory.credits),
+      artifactLow: 0,
+      artifactHigh: 0,
     };
     setResult({ totals, needed: applyInventory(totals, owned) });
     Keyboard.dismiss();
@@ -177,6 +192,7 @@ export default function SkillCalc() {
   useFocusEffect(
     React.useCallback(() => {
       setLevels(INITIAL_LEVELS);
+      setEnabled({ ex: true, skill1: true, skill2: true, skill3: true });
       setInventory(INITIAL_INVENTORY);
       setError("");
       setResult(null);
@@ -221,23 +237,37 @@ export default function SkillCalc() {
         {skillRows.map((row) => {
           const v = levels[row.key];
           const max = row.options.length;
+          const on = enabled[row.key];
           return (
             <View key={row.key} style={styles.skillRangeRow}>
-              <RangeSelector
-                label={row.label}
-                min={1}
-                max={max}
-                low={parseInt(v.current, 10) || 1}
-                high={parseInt(v.target, 10) || max}
-                lowLabel={t.bondCurrentLevel}
-                highLabel={t.bondTargetLevel}
-                onChange={(lo, hi) =>
-                  handleLevelChange(row.key, {
-                    current: String(lo),
-                    target: String(hi),
-                  })
-                }
-              />
+              <View style={styles.skillHeader}>
+                <ThemedText type="defaultSemiBold" style={styles.skillHeaderLabel}>
+                  {row.label}
+                </ThemedText>
+                <Switch
+                  value={on}
+                  onValueChange={(val) =>
+                    setEnabled((prev) => ({ ...prev, [row.key]: val }))
+                  }
+                  color={c.primaryColor}
+                />
+              </View>
+              {on && (
+                <RangeSelector
+                  min={1}
+                  max={max}
+                  low={parseInt(v.current, 10) || 1}
+                  high={parseInt(v.target, 10) || max}
+                  lowLabel={t.bondCurrentLevel}
+                  highLabel={t.bondTargetLevel}
+                  onChange={(lo, hi) =>
+                    handleLevelChange(row.key, {
+                      current: String(lo),
+                      target: String(hi),
+                    })
+                  }
+                />
+              )}
             </View>
           );
         })}
@@ -323,6 +353,8 @@ export default function SkillCalc() {
                 <ResultRow icon={TN_ICONS[2]} label={t.skillTn3} value={result.needed.tn[2]} />
                 <ResultRow icon={TN_ICONS[3]} label={t.skillTn4} value={result.needed.tn[3]} />
                 <ResultRow icon={SECRET_ICON} label={t.skillSecretNotes} value={result.needed.secretNotes} />
+                <ResultRow icon={OOPART_LOW_ICON} label={t.skillOoLow} value={result.needed.artifactLow} approx />
+                <ResultRow icon={OOPART_HIGH_ICON} label={t.skillOoHigh} value={result.needed.artifactHigh} approx />
                 <ResultRow icon={CREDIT_ICON} label={t.charaExpCredits} value={result.needed.credits} />
               </View>
 
@@ -370,6 +402,16 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   skillRangeRow: {
     marginBottom: 20,
+  },
+  skillHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  skillHeaderLabel: {
+    color: c.textPrimary,
+    fontSize: 14,
   },
   skillRow: {
     marginBottom: 16,

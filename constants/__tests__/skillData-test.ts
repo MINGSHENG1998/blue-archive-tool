@@ -21,6 +21,23 @@ describe("calculateSkillCost", () => {
     // EX: 80K+500K+3M+10M = 13,580,000
     // each normal 1->10: 8,812,500 ; x3 = 26,437,500
     expect(result.credits).toBe(40_017_500);
+    // OOParts (generic estimate): EX low 15+44=59, high 35+29=64;
+    // each normal low 5+17+27=49, high 20+13+21=54 (x3) -> low 147, high 162.
+    expect(result.artifactLow).toBe(206);
+    expect(result.artifactHigh).toBe(226);
+  });
+
+  it("counts no OOParts below skill level 3 for normal skills", () => {
+    const result = calculateSkillCost({
+      ex: { current: 1, target: 1 },
+      skills: [
+        { current: 1, target: 3 }, // lv1->2, lv2->3 only
+        { current: 1, target: 1 },
+        { current: 1, target: 1 },
+      ],
+    });
+    expect(result.artifactLow).toBe(0);
+    expect(result.artifactHigh).toBe(0);
   });
 
   it("computes partial EX range 2->4", () => {
@@ -90,6 +107,8 @@ describe("applyInventory", () => {
     tn: [75, 75, 75, 60],
     secretNotes: 3,
     credits: 40_017_500,
+    artifactLow: 206,
+    artifactHigh: 226,
   };
 
   it("subtracts owned items and clamps at zero", () => {
@@ -98,11 +117,16 @@ describe("applyInventory", () => {
       tn: [75, 0, 80, 0],
       secretNotes: 5,
       credits: 1_000_000,
+      artifactLow: 0,
+      artifactHigh: 0,
     });
     expect(remaining.bd).toEqual([0, 20, 30, 8]);
     expect(remaining.tn).toEqual([0, 75, 0, 60]);
     expect(remaining.secretNotes).toBe(0);
     expect(remaining.credits).toBe(39_017_500);
+    // OOParts pass through (not inventory-tracked)
+    expect(remaining.artifactLow).toBe(206);
+    expect(remaining.artifactHigh).toBe(226);
   });
 
   it("EMPTY_INVENTORY changes nothing", () => {
