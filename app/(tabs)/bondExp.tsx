@@ -222,7 +222,7 @@ export default function BondExpScreen() {
 
         {/* Advanced Settings */}
         <View style={styles.settingsSection}>
-          <AppCard level={1} variant="surface" padding={0}>
+          <AppCard level={1} variant="surface" padding={16}>
             <Collapsible
               title={t.bondAdvancedSettings}
               iconSize={14}
@@ -516,9 +516,9 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     ...elevation(c, 1),
   },
   settingsContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    paddingTop: 4,
+    paddingHorizontal: 0,
+    paddingBottom: 4,
+    paddingTop: 12,
   },
   settingsGrid: {
     gap: 16,

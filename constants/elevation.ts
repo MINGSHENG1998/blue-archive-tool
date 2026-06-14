@@ -18,10 +18,15 @@ export function elevation(c: ThemeTokens, level: ElevationLevel = 1): ViewStyle 
   return {
     shadowColor: c.shadow,
     shadowOffset: { width: 0, height: l.y },
-    // dark themes: dampen shadow (it's barely visible and can muddy the look)
-    shadowOpacity: c.isDark ? l.opacity * 0.6 : l.opacity,
+    // Keep shadows soft so cards read as a gentle lift, not a hard outline.
+    // Light themes especially: a strong shadow looks like an ugly border.
+    shadowOpacity: c.isDark ? l.opacity * 0.6 : l.opacity * 0.4,
     shadowRadius: l.radius,
-    // Android elevation also tints with shadowColor; keep modest on dark.
-    elevation: Platform.OS === "android" ? (c.isDark ? Math.round(l.android / 2) : l.android) : 0,
+    // Android elevation renders a tight shadow halo; keep it low so it doesn't
+    // look like a border on light backgrounds.
+    elevation:
+      Platform.OS === "android"
+        ? Math.max(1, Math.round(l.android * (c.isDark ? 0.4 : 0.5)))
+        : 0,
   };
 }
