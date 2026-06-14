@@ -1,7 +1,6 @@
 import React, { useState, useRef, useMemo } from "react";
 import { Image, StyleSheet, View, Keyboard, Pressable } from "react-native";
 import {
-  Card,
   TextInput,
   Button,
   HelperText,
@@ -10,11 +9,11 @@ import {
 import { Dropdown } from "react-native-paper-dropdown";
 import { useFocusEffect } from "@react-navigation/native";
 
+import { AppCard } from "@/components/AppCard";
 import { Collapsible } from "@/components/Collapsible";
 import { RangeSelector } from "@/components/RangeSelector";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n } from "@/constants/i18n";
 import { useColors } from "@/hooks/useColors";
@@ -34,8 +33,6 @@ export default function ElephCalc() {
   const [weaponRank, setWeaponRank]: any = useState("0");
   const [error, setError] = useState("");
   const [result, setResult]: any = useState(null);
-
-  const cardBackground = useThemeColor({}, "background");
 
   const weaponRankOptions = [
     { label: "0", value: "0" },
@@ -200,45 +197,38 @@ export default function ElephCalc() {
             iconSize={16}
             fontType="defaultSemiBold"
           >
-            <Card
-              style={[
-                styles.inventoryCard,
-                { backgroundColor: cardBackground },
-              ]}
-            >
-              <Card.Content style={styles.inventoryContent}>
-                <ThemedText
-                  type="defaultSemiBold"
-                  style={styles.inventoryTitle}
-                >
-                  {t.calcAvailableResources}
-                </ThemedText>
-                <Divider style={styles.inventoryDivider} />
-                <ThemedView style={styles.resourceInputContainer}>
-                  <Image
-                    source={require("../../assets/images/icons/eleph.png")}
-                    style={styles.resourceInputIcon}
-                  />
-                  <TextInput
-                    mode="outlined"
-                    label={t.elephCurrentEleph}
-                    value={currentEleph}
-                    onChangeText={handleElephChange}
-                    keyboardType="numeric"
-                    style={styles.resourceInput}
-                    contentStyle={styles.inputContent}
-                    outlineStyle={styles.inputOutline}
-                    theme={{
-                      colors: {
-                        onSurfaceVariant: c.textSecondary,
-                        primary: c.primaryColor,
-                        outline: c.surfaceBorder,
-                      },
-                    }}
-                  />
-                </ThemedView>
-              </Card.Content>
-            </Card>
+            <AppCard level={1} padding={16}>
+              <ThemedText
+                type="defaultSemiBold"
+                style={styles.inventoryTitle}
+              >
+                {t.calcAvailableResources}
+              </ThemedText>
+              <Divider style={styles.inventoryDivider} />
+              <ThemedView style={styles.resourceInputContainer}>
+                <Image
+                  source={require("../../assets/images/icons/eleph.png")}
+                  style={styles.resourceInputIcon}
+                />
+                <TextInput
+                  mode="outlined"
+                  label={t.elephCurrentEleph}
+                  value={currentEleph}
+                  onChangeText={handleElephChange}
+                  keyboardType="numeric"
+                  style={styles.resourceInput}
+                  contentStyle={styles.inputContent}
+                  outlineStyle={styles.inputOutline}
+                  theme={{
+                    colors: {
+                      onSurfaceVariant: c.textSecondary,
+                      primary: c.primaryColor,
+                      outline: c.surfaceBorder,
+                    },
+                  }}
+                />
+              </ThemedView>
+            </AppCard>
           </Collapsible>
         </ThemedView>
 
@@ -259,35 +249,48 @@ export default function ElephCalc() {
       {/* Results Section */}
       {result && (
         <View style={styles.resultSection}>
-          <Card
-            style={[styles.resultCard, { backgroundColor: cardBackground }]}
-          >
-            <Card.Content style={styles.resultContent}>
-              <View style={styles.resultHeader}>
-                <ThemedText type="defaultSemiBold" style={styles.resultTitle}>
-                  {t.bondRequiredResources}
-                </ThemedText>
-                <View style={styles.resultAccent} />
-              </View>
+          <AppCard level={2} padding={24}>
+            <View style={styles.resultHeader}>
+              <ThemedText type="defaultSemiBold" style={styles.resultTitle}>
+                {t.bondRequiredResources}
+              </ThemedText>
+              <View style={styles.resultAccent} />
+            </View>
 
-              <View style={styles.totalRequirement}>
-                <ThemedText type="title" style={styles.totalText}>
-                  {result.totalFragments.toLocaleString()}
-                </ThemedText>
-                <ThemedText style={styles.totalLabel}>
-                  {t.elephStudentEleph}
-                </ThemedText>
-              </View>
+            <View style={styles.totalRequirement}>
+              <ThemedText type="title" style={styles.totalText}>
+                {result.totalFragments.toLocaleString()}
+              </ThemedText>
+              <ThemedText style={styles.totalLabel}>
+                {t.elephStudentEleph}
+              </ThemedText>
+            </View>
 
-              <View style={styles.breakdown}>
-                <ThemedText
-                  type="defaultSemiBold"
-                  style={styles.breakdownTitle}
-                >
-                  {t.elephResourceBreakdown}
-                </ThemedText>
+            <View style={styles.breakdown}>
+              <ThemedText
+                type="defaultSemiBold"
+                style={styles.breakdownTitle}
+              >
+                {t.elephResourceBreakdown}
+              </ThemedText>
 
-                <View style={styles.resourceList}>
+              <View style={styles.resourceList}>
+                <View style={styles.resourceItem}>
+                  <Image
+                    source={require("../../assets/images/icons/eleph.png")}
+                    style={styles.resourceIcon}
+                  />
+                  <View style={styles.resourceDetails}>
+                    <ThemedText style={styles.resourceName}>
+                      {t.elephAdditionalEleph}
+                    </ThemedText>
+                    <ThemedText style={styles.resourceValue}>
+                      {result.neededFragments.toLocaleString()}
+                    </ThemedText>
+                  </View>
+                </View>
+
+                {result.weaponUpgradeFragments > 0 && (
                   <View style={styles.resourceItem}>
                     <Image
                       source={require("../../assets/images/icons/eleph.png")}
@@ -295,49 +298,32 @@ export default function ElephCalc() {
                     />
                     <View style={styles.resourceDetails}>
                       <ThemedText style={styles.resourceName}>
-                        {t.elephAdditionalEleph}
+                        {t.elephWeaponUpgradeEleph}
                       </ThemedText>
                       <ThemedText style={styles.resourceValue}>
-                        {result.neededFragments.toLocaleString()}
+                        {result.weaponUpgradeFragments.toLocaleString()}
                       </ThemedText>
                     </View>
                   </View>
+                )}
 
-                  {result.weaponUpgradeFragments > 0 && (
-                    <View style={styles.resourceItem}>
-                      <Image
-                        source={require("../../assets/images/icons/eleph.png")}
-                        style={styles.resourceIcon}
-                      />
-                      <View style={styles.resourceDetails}>
-                        <ThemedText style={styles.resourceName}>
-                          {t.elephWeaponUpgradeEleph}
-                        </ThemedText>
-                        <ThemedText style={styles.resourceValue}>
-                          {result.weaponUpgradeFragments.toLocaleString()}
-                        </ThemedText>
-                      </View>
-                    </View>
-                  )}
-
-                  <View style={styles.resourceItem}>
-                    <Image
-                      source={require("../../assets/images/icons/eligma.png")}
-                      style={styles.resourceIcon}
-                    />
-                    <View style={styles.resourceDetails}>
-                      <ThemedText style={styles.resourceName}>
-                        {t.elephEligmaCost}
-                      </ThemedText>
-                      <ThemedText style={styles.resourceValue}>
-                        {result.totalEligma.toLocaleString()}
-                      </ThemedText>
-                    </View>
+                <View style={styles.resourceItem}>
+                  <Image
+                    source={require("../../assets/images/icons/eligma.png")}
+                    style={styles.resourceIcon}
+                  />
+                  <View style={styles.resourceDetails}>
+                    <ThemedText style={styles.resourceName}>
+                      {t.elephEligmaCost}
+                    </ThemedText>
+                    <ThemedText style={styles.resourceValue}>
+                      {result.totalEligma.toLocaleString()}
+                    </ThemedText>
                   </View>
                 </View>
               </View>
-            </Card.Content>
-          </Card>
+            </View>
+          </AppCard>
         </View>
       )}
     </ThemedView>
