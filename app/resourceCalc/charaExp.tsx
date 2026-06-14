@@ -1,7 +1,6 @@
 import React, { useState, useRef, useMemo } from "react";
 import { Image, StyleSheet, View, Keyboard } from "react-native";
 import {
-  Card,
   TextInput,
   Button,
   HelperText,
@@ -9,12 +8,12 @@ import {
 } from "react-native-paper";
 import { useFocusEffect } from "@react-navigation/native";
 
+import { AppCard } from "@/components/AppCard";
 import { Collapsible } from "@/components/Collapsible";
 import { RangeSelector } from "@/components/RangeSelector";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { charaExpData } from "@/constants/charaLvlData";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n } from "@/constants/i18n";
 import { useColors } from "@/hooks/useColors";
@@ -88,7 +87,6 @@ const ResultItem = ({ icon, label, value }: any) => {
 
 // Main result display component
 const ResultDisplay = ({ result }: any) => {
-  const cardBackground = useThemeColor({}, "background");
   const c = useColors();
   const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
@@ -98,63 +96,60 @@ const ResultDisplay = ({ result }: any) => {
 
   return (
     <ThemedView style={styles.resultSection}>
-      <Card style={[styles.card, styles.resultCard, { backgroundColor: cardBackground }]}>
-        <Card.Content style={styles.resultCardContent}>
-          <View style={styles.resultHeader}>
-            <ThemedText type="defaultSemiBold" style={styles.resultTitle}>
-              {t.charaExpInstruction}
-            </ThemedText>
-            <View style={styles.resultAccent} />
-          </View>
+      <AppCard level={2} padding={24}>
+        <View style={styles.resultHeader}>
+          <ThemedText type="defaultSemiBold" style={styles.resultTitle}>
+            {t.charaExpInstruction}
+          </ThemedText>
+          <View style={styles.resultAccent} />
+        </View>
 
-          <View style={styles.totalExpContainer}>
-            <ThemedText style={styles.totalExpLabel}>{t.bondRequiredExp}</ThemedText>
-            <ThemedText style={styles.totalExpValue}>
-              {result.totalExp.toLocaleString()}
-            </ThemedText>
-          </View>
+        <View style={styles.totalExpContainer}>
+          <ThemedText style={styles.totalExpLabel}>{t.bondRequiredExp}</ThemedText>
+          <ThemedText style={styles.totalExpValue}>
+            {result.totalExp.toLocaleString()}
+          </ThemedText>
+        </View>
 
-          <View style={styles.resourceSection}>
-            <ThemedText style={styles.resourceSectionTitle}>
-              {t.bondRequiredResources}
-            </ThemedText>
-            <View style={styles.resourceList}>
-              <ResultItem
-                icon={require("../../assets/images/icons/pink_book.png")}
-                label={t.charaExpSuperiorReports}
-                value={result.pinkBooks}
-              />
-              <ResultItem
-                icon={require("../../assets/images/icons/orange_book.png")}
-                label={t.charaExpAdvancedReports}
-                value={result.orangeBooks}
-              />
-              <ResultItem
-                icon={require("../../assets/images/icons/blue_book.png")}
-                label={t.charaExpNormalReports}
-                value={result.blueBooks}
-              />
-              <ResultItem
-                icon={require("../../assets/images/icons/grey_book.png")}
-                label={t.charaExpNoviceReports}
-                value={result.greyBooks}
-              />
-              <ResultItem
-                icon={require("../../assets/images/icons/credit.png")}
-                label={t.charaExpCredits}
-                value={result.creditsNeeded}
-              />
-            </View>
+        <View style={styles.resourceSection}>
+          <ThemedText style={styles.resourceSectionTitle}>
+            {t.bondRequiredResources}
+          </ThemedText>
+          <View style={styles.resourceList}>
+            <ResultItem
+              icon={require("../../assets/images/icons/pink_book.png")}
+              label={t.charaExpSuperiorReports}
+              value={result.pinkBooks}
+            />
+            <ResultItem
+              icon={require("../../assets/images/icons/orange_book.png")}
+              label={t.charaExpAdvancedReports}
+              value={result.orangeBooks}
+            />
+            <ResultItem
+              icon={require("../../assets/images/icons/blue_book.png")}
+              label={t.charaExpNormalReports}
+              value={result.blueBooks}
+            />
+            <ResultItem
+              icon={require("../../assets/images/icons/grey_book.png")}
+              label={t.charaExpNoviceReports}
+              value={result.greyBooks}
+            />
+            <ResultItem
+              icon={require("../../assets/images/icons/credit.png")}
+              label={t.charaExpCredits}
+              value={result.creditsNeeded}
+            />
           </View>
-        </Card.Content>
-      </Card>
+        </View>
+      </AppCard>
     </ThemedView>
   );
 };
 
 export default function CharaExpCalc() {
   const scrollRef = useRef<{ resetScroll: () => void } | null>(null);
-  const cardBackground = useThemeColor({}, "background");
   const c = useColors();
   const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
@@ -315,52 +310,50 @@ export default function CharaExpCalc() {
             iconSize={12}
             fontType="smallSemiBold"
           >
-            <Card style={[styles.inventoryCard, { backgroundColor: cardBackground }]}>
-              <Card.Content style={styles.inventoryContent}>
-                <View style={styles.inventoryHeader}>
-                  <ThemedText style={styles.inventoryTitle}>{t.calcAvailableResources}</ThemedText>
-                  <View style={styles.inventoryAccent} />
-                </View>
+            <AppCard level={1} padding={20}>
+              <View style={styles.inventoryHeader}>
+                <ThemedText style={styles.inventoryTitle}>{t.calcAvailableResources}</ThemedText>
+                <View style={styles.inventoryAccent} />
+              </View>
 
-                <View style={styles.resourceInputsContainer}>
-                  <ResourceInput
-                    icon={require("../../assets/images/icons/pink_book.png")}
-                    label={t.charaExpSuperiorReport}
-                    value={expSource.pinkBook}
-                    onChangeText={handleExpSourceChange}
-                    fieldName="pinkBook"
-                  />
-                  <ResourceInput
-                    icon={require("../../assets/images/icons/orange_book.png")}
-                    label={t.charaExpAdvancedReport}
-                    value={expSource.orangeBook}
-                    onChangeText={handleExpSourceChange}
-                    fieldName="orangeBook"
-                  />
-                  <ResourceInput
-                    icon={require("../../assets/images/icons/blue_book.png")}
-                    label={t.charaExpNormalReport}
-                    value={expSource.blueBook}
-                    onChangeText={handleExpSourceChange}
-                    fieldName="blueBook"
-                  />
-                  <ResourceInput
-                    icon={require("../../assets/images/icons/grey_book.png")}
-                    label={t.charaExpNoviceReport}
-                    value={expSource.greyBook}
-                    onChangeText={handleExpSourceChange}
-                    fieldName="greyBook"
-                  />
-                  <ResourceInput
-                    icon={require("../../assets/images/icons/credit.png")}
-                    label={t.charaExpCredits}
-                    value={expSource.credits}
-                    onChangeText={handleExpSourceChange}
-                    fieldName="credits"
-                  />
-                </View>
-              </Card.Content>
-            </Card>
+              <View style={styles.resourceInputsContainer}>
+                <ResourceInput
+                  icon={require("../../assets/images/icons/pink_book.png")}
+                  label={t.charaExpSuperiorReport}
+                  value={expSource.pinkBook}
+                  onChangeText={handleExpSourceChange}
+                  fieldName="pinkBook"
+                />
+                <ResourceInput
+                  icon={require("../../assets/images/icons/orange_book.png")}
+                  label={t.charaExpAdvancedReport}
+                  value={expSource.orangeBook}
+                  onChangeText={handleExpSourceChange}
+                  fieldName="orangeBook"
+                />
+                <ResourceInput
+                  icon={require("../../assets/images/icons/blue_book.png")}
+                  label={t.charaExpNormalReport}
+                  value={expSource.blueBook}
+                  onChangeText={handleExpSourceChange}
+                  fieldName="blueBook"
+                />
+                <ResourceInput
+                  icon={require("../../assets/images/icons/grey_book.png")}
+                  label={t.charaExpNoviceReport}
+                  value={expSource.greyBook}
+                  onChangeText={handleExpSourceChange}
+                  fieldName="greyBook"
+                />
+                <ResourceInput
+                  icon={require("../../assets/images/icons/credit.png")}
+                  label={t.charaExpCredits}
+                  value={expSource.credits}
+                  onChangeText={handleExpSourceChange}
+                  fieldName="credits"
+                />
+              </View>
+            </AppCard>
           </Collapsible>
         </ThemedView>
 
