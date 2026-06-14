@@ -13,6 +13,7 @@ import {
 import { Collapsible } from "@/components/Collapsible";
 import { ExternalLink } from "@/components/ExternalLink";
 import { ScreenLayout, type ScreenLayoutRef } from "@/components/ScreenLayout";
+import { RangeSelector } from "@/components/RangeSelector";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
@@ -182,85 +183,18 @@ export default function BondExpScreen() {
               >
                 {t.bondLevelRange}
               </ThemedText>
-              <ThemedView style={styles.inputRow}>
-                <View style={styles.inputWrapper}>
-                  <ThemedText style={styles.inputLabel}>
-                    {t.bondCurrentLevel}
-                  </ThemedText>
-                  <TextInput
-                    mode="outlined"
-                    placeholder="1 - 99"
-                    value={from}
-                    onChangeText={(text) => {
-                      const numericValue = parseInt(text, 10);
-                      if (
-                        !isNaN(numericValue) &&
-                        numericValue >= 1 &&
-                        numericValue <= 99
-                      ) {
-                        setFrom(text);
-                      } else if (text === "") {
-                        setFrom("");
-                      }
-                    }}
-                    keyboardType="numeric"
-                    maxLength={2}
-                    style={styles.textInput}
-                    contentStyle={styles.textInputContent}
-                    outlineStyle={styles.textInputOutline}
-                    right={
-                      from !== "" && (
-                        <TextInput.Icon
-                          icon="close"
-                          size={16}
-                          onPress={() => setFrom("")}
-                          color={c.textSecondary}
-                        />
-                      )
-                    }
-                  />
-                </View>
-                <View style={styles.inputArrow}>
-                  <ThemedText style={styles.arrowText}>→</ThemedText>
-                </View>
-                <View style={styles.inputWrapper}>
-                  <ThemedText style={styles.inputLabel}>
-                    {t.bondTargetLevel}
-                  </ThemedText>
-                  <TextInput
-                    mode="outlined"
-                    placeholder="2 - 100"
-                    value={to}
-                    onChangeText={(text) => {
-                      const numericValue = parseInt(text, 10);
-                      if (
-                        !isNaN(numericValue) &&
-                        numericValue >= 1 &&
-                        numericValue <= 100
-                      ) {
-                        setTo(text);
-                      } else if (text === "") {
-                        setTo("");
-                      }
-                    }}
-                    keyboardType="numeric"
-                    maxLength={3}
-                    style={styles.textInput}
-                    contentStyle={styles.textInputContent}
-                    outlineStyle={styles.textInputOutline}
-                    right={
-                      to !== "" && (
-                        <TextInput.Icon
-                          icon="close"
-                          size={16}
-                          onPress={() => setTo("")}
-                          color={c.textSecondary}
-                        />
-                      )
-                    }
-                  />
-                </View>
-              </ThemedView>
+              <RangeSelector
+                min={1}
+                max={100}
+                low={parseInt(from, 10) || 1}
+                high={parseInt(to, 10) || 100}
+                lowLabel={t.bondCurrentLevel}
+                highLabel={t.bondTargetLevel}
+                onChange={(lo, hi) => {
+                  setFrom(String(lo));
+                  setTo(String(hi));
+                }}
+              />
 
               {error && (
                 <View style={styles.errorContainer}>

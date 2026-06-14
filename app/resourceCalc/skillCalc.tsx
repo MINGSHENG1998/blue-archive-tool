@@ -6,10 +6,10 @@ import {
   Button,
   HelperText,
 } from "react-native-paper";
-import { Dropdown } from "react-native-paper-dropdown";
 import { useFocusEffect } from "@react-navigation/native";
 
 import { Collapsible } from "@/components/Collapsible";
+import { RangeSelector } from "@/components/RangeSelector";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -68,44 +68,6 @@ type LevelKey = keyof typeof INITIAL_LEVELS;
 type InventoryKey = keyof typeof INITIAL_INVENTORY;
 
 // Level pair row: current + target dropdowns for one skill
-const SkillLevelRow = ({ label, options, value, onChange, tCurrent, tTarget }: any) => {
-  const c = useColors();
-  const styles = useMemo(() => makeStyles(c), [c]);
-  return (
-    <ThemedView style={styles.skillRow}>
-      <ThemedText type="defaultSemiBold" style={styles.skillRowLabel}>
-        {label}
-      </ThemedText>
-      <ThemedView style={styles.dropdownPair}>
-        <ThemedView style={styles.dropdownField}>
-          <Dropdown
-            mode="outlined"
-            label={tCurrent}
-            options={options}
-            value={value.current}
-            onSelect={(v: string | undefined) =>
-              v !== undefined && onChange({ ...value, current: v })
-            }
-            hideMenuHeader={true}
-          />
-        </ThemedView>
-        <ThemedView style={styles.dropdownField}>
-          <Dropdown
-            mode="outlined"
-            label={tTarget}
-            options={options}
-            value={value.target}
-            onSelect={(v: string | undefined) =>
-              v !== undefined && onChange({ ...value, target: v })
-            }
-            hideMenuHeader={true}
-          />
-        </ThemedView>
-      </ThemedView>
-    </ThemedView>
-  );
-};
-
 // Inventory input with icon (pattern: charaExp ResourceInput)
 const InventoryInput = ({ icon, label, value, onChangeText, fieldName }: any) => {
   const c = useColors();
@@ -256,17 +218,29 @@ export default function SkillCalc() {
       {/* Level Inputs */}
       <View style={styles.section}>
         <ThemedText style={styles.sectionLabel}>{t.skillLevelConfig}</ThemedText>
-        {skillRows.map((row) => (
-          <SkillLevelRow
-            key={row.key}
-            label={row.label}
-            options={row.options}
-            value={levels[row.key]}
-            onChange={(v: any) => handleLevelChange(row.key, v)}
-            tCurrent={t.bondCurrentLevel}
-            tTarget={t.bondTargetLevel}
-          />
-        ))}
+        {skillRows.map((row) => {
+          const v = levels[row.key];
+          const max = row.options.length;
+          return (
+            <View key={row.key} style={styles.skillRangeRow}>
+              <RangeSelector
+                label={row.label}
+                min={1}
+                max={max}
+                low={parseInt(v.current, 10) || 1}
+                high={parseInt(v.target, 10) || max}
+                lowLabel={t.bondCurrentLevel}
+                highLabel={t.bondTargetLevel}
+                onChange={(lo, hi) =>
+                  handleLevelChange(row.key, {
+                    current: String(lo),
+                    target: String(hi),
+                  })
+                }
+              />
+            </View>
+          );
+        })}
       </View>
 
       {/* Inventory Section */}
@@ -393,6 +367,9 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     fontWeight: "600",
     marginBottom: 12,
     color: c.textPrimary,
+  },
+  skillRangeRow: {
+    marginBottom: 20,
   },
   skillRow: {
     marginBottom: 16,

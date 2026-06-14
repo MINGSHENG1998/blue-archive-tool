@@ -10,6 +10,7 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 
 import { Collapsible } from "@/components/Collapsible";
+import { RangeSelector } from "@/components/RangeSelector";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { charaExpData } from "@/constants/charaLvlData";
@@ -63,44 +64,6 @@ const ResourceInput = ({ icon, label, value, onChangeText, fieldName }: any) => 
         }}
       />
     </ThemedView>
-  );
-};
-
-// Level input component
-const LevelInput = ({ label, placeholder, value, onChangeText, onClear }: any) => {
-  const c = useColors();
-  const styles = useMemo(() => makeStyles(c), [c]);
-  return (
-    <TextInput
-      mode="outlined"
-      label={label}
-      placeholder={placeholder}
-      value={value}
-      onChangeText={onChangeText}
-      keyboardType="numeric"
-      maxLength={2}
-      style={[styles.input, styles.halfInput]}
-      theme={{
-        colors: {
-          primary: c.primaryColor,
-          outline: c.surfaceBorder,
-          onSurface: c.textPrimary,
-          surface: c.surfaceBg,
-          onSurfaceVariant: c.textSecondary,
-          placeholder: c.textMuted,
-        },
-      }}
-      right={
-        value !== "" && (
-          <TextInput.Icon
-            icon="close"
-            size={16}
-            onPress={onClear}
-            color={c.textSecondary}
-          />
-        )
-      }
-    />
   );
 };
 
@@ -330,25 +293,19 @@ export default function CharaExpCalc() {
 
         {/* Level Input Section */}
         <View style={styles.section}>
-          <ThemedText style={styles.sectionLabel}>
-            {t.charaExpLevelConfig}
-          </ThemedText>
-          <ThemedView style={styles.row}>
-            <LevelInput
-              label={t.bondCurrentLevel}
-              placeholder="1 - 89"
-              value={currentLevel}
-              onChangeText={setCurrentLevel}
-              onClear={() => setCurrentLevel("")}
-            />
-            <LevelInput
-              label={t.bondTargetLevel}
-              placeholder="2 - 90"
-              value={targetLevel}
-              onChangeText={setTargetLevel}
-              onClear={() => setTargetLevel("")}
-            />
-          </ThemedView>
+          <RangeSelector
+            label={t.charaExpLevelConfig}
+            min={1}
+            max={90}
+            low={parseInt(currentLevel, 10) || 1}
+            high={parseInt(targetLevel, 10) || 90}
+            lowLabel={t.bondCurrentLevel}
+            highLabel={t.bondTargetLevel}
+            onChange={(lo, hi) => {
+              setCurrentLevel(String(lo));
+              setTargetLevel(String(hi));
+            }}
+          />
         </View>
 
         {/* Inventory Section */}

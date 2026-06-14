@@ -11,6 +11,7 @@ import { Dropdown } from "react-native-paper-dropdown";
 import { useFocusEffect } from "@react-navigation/native";
 
 import { Collapsible } from "@/components/Collapsible";
+import { RangeSelector } from "@/components/RangeSelector";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -35,14 +36,6 @@ export default function ElephCalc() {
   const [result, setResult]: any = useState(null);
 
   const cardBackground = useThemeColor({}, "background");
-
-  const rarityOptions = [
-    { label: "1", value: "1" },
-    { label: "2", value: "2" },
-    { label: "3", value: "3" },
-    { label: "4", value: "4" },
-    { label: "5", value: "5" },
-  ];
 
   const weaponRankOptions = [
     { label: "0", value: "0" },
@@ -169,30 +162,18 @@ export default function ElephCalc() {
 
       {/* Input Section */}
       <View style={styles.inputSection}>
-        <ThemedView style={styles.rarityContainer}>
-          <ThemedView style={styles.rarityField}>
-            <Dropdown
-              mode="outlined"
-              label={t.elephCurrentRarity}
-              placeholder="1 - 4"
-              options={rarityOptions}
-              value={currentRarity}
-              onSelect={setCurrentRarity}
-              hideMenuHeader={true}
-            />
-          </ThemedView>
-          <ThemedView style={styles.rarityField}>
-            <Dropdown
-              mode="outlined"
-              label={t.elephTargetRarity}
-              placeholder="2 - 5"
-              options={rarityOptions}
-              value={targetRarity}
-              onSelect={setTargetRarity}
-              hideMenuHeader={true}
-            />
-          </ThemedView>
-        </ThemedView>
+        <RangeSelector
+          min={1}
+          max={5}
+          low={parseInt(currentRarity, 10) || 1}
+          high={parseInt(targetRarity, 10) || 5}
+          lowLabel={t.elephCurrentRarity}
+          highLabel={t.elephTargetRarity}
+          onChange={(lo, hi) => {
+            setCurrentRarity(String(lo));
+            setTargetRarity(String(hi));
+          }}
+        />
 
         {/* Weapon Rank Input */}
         {parseInt(targetRarity, 10) === 5 && (
