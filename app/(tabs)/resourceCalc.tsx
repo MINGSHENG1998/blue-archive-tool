@@ -6,20 +6,19 @@ import {
   Pressable,
 } from "react-native";
 import {
-  Card,
   HelperText,
   ActivityIndicator,
   SegmentedButtons,
 } from "react-native-paper";
 import { useFocusEffect } from "@react-navigation/native";
 
+import { AppCard } from "@/components/AppCard";
 import { ScreenLayout, type ScreenLayoutRef } from "@/components/ScreenLayout";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import CharaExpCalc from "../resourceCalc/charaExp";
 import ElephCalc from "../resourceCalc/elephCalc";
 import SkillCalc from "../resourceCalc/skillCalc";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n } from "@/constants/i18n";
 import { useColors } from "@/hooks/useColors";
@@ -61,7 +60,6 @@ const AnimatedCard = ({ children, style, ...props }: any) => {
 
 // Calculator type selector component
 const CalculatorTypeSelector = ({ selectedType, onTypeChange }: any) => {
-  const cardBackground = useThemeColor({}, "background");
   const c = useColors();
   const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
@@ -75,37 +73,35 @@ const CalculatorTypeSelector = ({ selectedType, onTypeChange }: any) => {
 
   return (
     <AnimatedCard style={styles.cardWrapper}>
-      <Card style={[styles.card, { backgroundColor: cardBackground }]}>
-        <Card.Content style={styles.cardContent}>
-          <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>
-            {t.resourceChooseCalc}
+      <AppCard level={2} padding={24}>
+        <ThemedText type="defaultSemiBold" style={styles.sectionTitle}>
+          {t.resourceChooseCalc}
+        </ThemedText>
+        <SegmentedButtons
+          value={selectedType}
+          onValueChange={onTypeChange}
+          density="medium"
+          buttons={calculatorTypes.map((type) => ({
+            value: type.value,
+            label: type.label,
+            labelStyle: styles.segmentLabel,
+          }))}
+          theme={{
+            colors: {
+              secondaryContainer: c.accentSoft,
+              onSecondaryContainer: c.primaryColor,
+              onSurface: c.textSecondary,
+              outline: c.surfaceBorder,
+              primary: c.primaryColor,
+            },
+          }}
+        />
+        {selected && (
+          <ThemedText style={styles.selectorDesc}>
+            {selected.description}
           </ThemedText>
-          <SegmentedButtons
-            value={selectedType}
-            onValueChange={onTypeChange}
-            density="medium"
-            buttons={calculatorTypes.map((type) => ({
-              value: type.value,
-              label: type.label,
-              labelStyle: styles.segmentLabel,
-            }))}
-            theme={{
-              colors: {
-                secondaryContainer: c.accentSoft,
-                onSecondaryContainer: c.primaryColor,
-                onSurface: c.textSecondary,
-                outline: c.surfaceBorder,
-                primary: c.primaryColor,
-              },
-            }}
-          />
-          {selected && (
-            <ThemedText style={styles.selectorDesc}>
-              {selected.description}
-            </ThemedText>
-          )}
-        </Card.Content>
-      </Card>
+        )}
+      </AppCard>
     </AnimatedCard>
   );
 };
@@ -133,7 +129,6 @@ const ErrorDisplay = ({ error }: any) => {
 
 // Loading display component
 const LoadingDisplay = () => {
-  const cardBackground = useThemeColor({}, "background");
   const c = useColors();
   const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
@@ -141,19 +136,16 @@ const LoadingDisplay = () => {
 
   return (
     <AnimatedCard style={styles.cardWrapper}>
-      <Card style={[styles.card, { backgroundColor: cardBackground }]}>
-        <Card.Content style={styles.loadingContent}>
-          <ActivityIndicator size="large" color={c.primaryColor} />
-          <ThemedText style={styles.loadingText}>{t.resourceCalculating}</ThemedText>
-        </Card.Content>
-      </Card>
+      <AppCard level={2} padding={40} style={styles.loadingContent}>
+        <ActivityIndicator size="large" color={c.primaryColor} />
+        <ThemedText style={styles.loadingText}>{t.resourceCalculating}</ThemedText>
+      </AppCard>
     </AnimatedCard>
   );
 };
 
 // Calculator content component
 const CalculatorContent = ({ calculatorType }: any) => {
-  const cardBackground = useThemeColor({}, "background");
   const c = useColors();
   const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
@@ -167,17 +159,15 @@ const CalculatorContent = ({ calculatorType }: any) => {
 
   return (
     <AnimatedCard style={styles.cardWrapper}>
-      <Card style={[styles.card, { backgroundColor: cardBackground }]}>
-        <Card.Content style={styles.cardContent}>
-          <View style={styles.calculatorHeader}>
-            <ThemedText type="defaultSemiBold" style={styles.calculatorTitle}>
-              {title}
-            </ThemedText>
-            <View style={styles.accent} />
-          </View>
-          <CalculatorComponent />
-        </Card.Content>
-      </Card>
+      <AppCard level={2} padding={24}>
+        <View style={styles.calculatorHeader}>
+          <ThemedText type="defaultSemiBold" style={styles.calculatorTitle}>
+            {title}
+          </ThemedText>
+          <View style={styles.accent} />
+        </View>
+        <CalculatorComponent />
+      </AppCard>
     </AnimatedCard>
   );
 };
