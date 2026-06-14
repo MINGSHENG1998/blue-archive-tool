@@ -11,7 +11,6 @@ import { ScreenLayout, type ScreenLayoutRef } from "@/components/ScreenLayout";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import {
-  Card,
   Chip,
   Searchbar,
   Menu,
@@ -19,13 +18,13 @@ import {
   ActivityIndicator,
 } from "react-native-paper";
 import { useRef, useState, useCallback, useMemo, useEffect } from "react";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { typeColor } from "@/constants/Colors";
 import { AtkType, DefType } from "@/dto/game.dto";
 import CustomChip from "@/components/ui/customChip";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 import React from "react";
+import { AppCard } from "@/components/AppCard";
 import InlineAd from "../ads/InlineAd";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n, atkTypeLabels, defTypeLabels } from "@/constants/i18n";
@@ -201,7 +200,6 @@ const makePortraitStyles = (c: ThemeTokens) => StyleSheet.create({
 
 export default function FutureBannerScreen() {
   const scrollRef = useRef<ScreenLayoutRef>(null);
-  const cardBackground = useThemeColor({}, "background");
   const c = useColors();
   const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
@@ -342,58 +340,56 @@ export default function FutureBannerScreen() {
 
   const renderCharacterCard = (character: Character) => (
     <AnimatedCard key={character.id} style={styles.characterCardWrapper}>
-      <Card style={[styles.characterCard, { backgroundColor: cardBackground }]}>
-        <Card.Content style={styles.characterContent}>
-          <View style={styles.imageContainer}>
-            <Image
-              source={{ uri: character.image }}
-              style={styles.characterImage}
-            />
-            {character.isLimited && (
-              <View style={styles.limitedOverlay}>
-                <Image
-                  source={require("@/assets/images/characters/limited_icon.png")}
-                  style={styles.limitedBadge}
-                />
-              </View>
-            )}
-            {character.isNew && (
-              <View style={styles.newBadge}>
-                <ThemedText style={styles.newBadgeText}>NEW</ThemedText>
-              </View>
-            )}
-            {character?.class && (
-              <View style={styles.classContainer}>
-                <CharacterClassBadge classType={character.class} />
-              </View>
-            )}
-          </View>
-          <View style={styles.characterInfo}>
-            <ThemedView style={styles.characterHeader}>
-              <ThemedText
-                type="cardtitle"
-                style={styles.characterName}
-                numberOfLines={2}
-              >
-                {getCharacterName(character, locale)}
-              </ThemedText>
-            </ThemedView>
+      <AppCard level={1} padding={12} style={styles.characterContent}>
+        <View style={styles.imageContainer}>
+          <Image
+            source={{ uri: character.image }}
+            style={styles.characterImage}
+          />
+          {character.isLimited && (
+            <View style={styles.limitedOverlay}>
+              <Image
+                source={require("@/assets/images/characters/limited_icon.png")}
+                style={styles.limitedBadge}
+              />
+            </View>
+          )}
+          {character.isNew && (
+            <View style={styles.newBadge}>
+              <ThemedText style={styles.newBadgeText}>NEW</ThemedText>
+            </View>
+          )}
+          {character?.class && (
+            <View style={styles.classContainer}>
+              <CharacterClassBadge classType={character.class} />
+            </View>
+          )}
+        </View>
+        <View style={styles.characterInfo}>
+          <ThemedView style={styles.characterHeader}>
+            <ThemedText
+              type="cardtitle"
+              style={styles.characterName}
+              numberOfLines={2}
+            >
+              {getCharacterName(character, locale)}
+            </ThemedText>
+          </ThemedView>
 
-            <ThemedView style={styles.tags}>
-              <CustomChip
-                bgColor={typeColor[character.atkType]?.background}
-                icon={typeColor[character.atkType]?.icon}
-                label={atkTypeLabels[character.atkType]?.[locale] ?? character.atkType}
-              />
-              <CustomChip
-                bgColor={typeColor[character.defType]?.background}
-                icon={typeColor[character.defType]?.icon}
-                label={defTypeLabels[character.defType]?.[locale] ?? character.defType}
-              />
-            </ThemedView>
-          </View>
-        </Card.Content>
-      </Card>
+          <ThemedView style={styles.tags}>
+            <CustomChip
+              bgColor={typeColor[character.atkType]?.background}
+              icon={typeColor[character.atkType]?.icon}
+              label={atkTypeLabels[character.atkType]?.[locale] ?? character.atkType}
+            />
+            <CustomChip
+              bgColor={typeColor[character.defType]?.background}
+              icon={typeColor[character.defType]?.icon}
+              label={defTypeLabels[character.defType]?.[locale] ?? character.defType}
+            />
+          </ThemedView>
+        </View>
+      </AppCard>
     </AnimatedCard>
   );
 
