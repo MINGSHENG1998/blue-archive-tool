@@ -511,9 +511,10 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   calculateButton: {
     borderRadius: RADIUS.control,
     elevation: 2,
+    marginTop: 20,
   },
   calculateButtonContent: {
-    paddingVertical: 10,
+    paddingVertical: 4,
   },
   calculateButtonLabel: {
     fontSize: 16,

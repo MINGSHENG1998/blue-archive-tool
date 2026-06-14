@@ -2,6 +2,7 @@ import React, { useRef, useState, useCallback, useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 import { useColors } from '@/hooks/useColors';
+import { RADIUS } from '@/constants/layout';
 import type { ThemeTokens } from '@/constants/theme';
 
 interface NumberInputProps {
@@ -103,7 +104,7 @@ const NumberInput: React.FC<NumberInputProps> = ({
           delayLongPress={200}
           style={styles.button}
         >
-          <Text style={styles.buttonText}>-</Text>
+          <Text style={styles.buttonText}>−</Text>
         </TouchableOpacity>
         
         <View style={styles.valueContainer}>
@@ -125,39 +126,43 @@ const NumberInput: React.FC<NumberInputProps> = ({
   );
 };
 
+// Matches the RangeSelector stepper look: surfaceBg pill with rounded
+// accentSoft -/+ buttons and the value centered between them.
 const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   wrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 12,
   },
   container: {
     flexDirection: 'row',
-    backgroundColor: c.surfaceBg,
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  button: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: c.surfaceBg,
+    borderRadius: RADIUS.control,
+    paddingHorizontal: 6,
+    paddingVertical: 6,
+    gap: 8,
+  },
+  button: {
+    width: 34,
+    height: 34,
+    borderRadius: RADIUS.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: c.accentSoft,
   },
   buttonText: {
     fontSize: 20,
-    color: c.textPrimary,
-    fontWeight: '400',
+    color: c.primaryColor,
+    fontWeight: '700',
   },
   valueContainer: {
-    width: 40,
-    height: 40,
+    minWidth: 36,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: c.surfaceBg,
   },
   value: {
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: '700',
     color: c.textPrimary,
   },
   label: {
