@@ -2,7 +2,7 @@
   "expo": {
     "name": "Blue Archive Tool",
     "slug": "blue-archive-tool",
-    "version": "1.0.11",
+    "version": "1.0.12",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -42,9 +42,8 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 1200,
-          "resizeMode": "contain",
-          "backgroundColor": "#02D3FB"
+          "resizeMode": "cover",
+          "backgroundColor": "#022CD8"
         }
       ],
       [
