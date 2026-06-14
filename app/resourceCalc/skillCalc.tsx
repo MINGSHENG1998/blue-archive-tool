@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { Image, StyleSheet, View, Keyboard } from "react-native";
 import {
-  Card,
   TextInput,
   Button,
   HelperText,
@@ -9,11 +8,11 @@ import {
 } from "react-native-paper";
 import { useFocusEffect } from "@react-navigation/native";
 
+import { AppCard } from "@/components/AppCard";
 import { Collapsible } from "@/components/Collapsible";
 import { RangeSelector } from "@/components/RangeSelector";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n } from "@/constants/i18n";
 import {
@@ -123,7 +122,6 @@ const ResultRow = ({ icon, label, value, approx }: any) => {
 };
 
 export default function SkillCalc() {
-  const cardBackground = useThemeColor({}, "background");
   const c = useColors();
   const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
@@ -280,28 +278,26 @@ export default function SkillCalc() {
           iconSize={12}
           fontType="smallSemiBold"
         >
-          <Card style={[styles.inventoryCard, { backgroundColor: cardBackground }]}>
-            <Card.Content style={styles.inventoryContent}>
-              <View style={styles.inventoryHeader}>
-                <ThemedText style={styles.inventoryTitle}>
-                  {t.calcAvailableResources}
-                </ThemedText>
-                <View style={styles.inventoryAccent} />
-              </View>
-              <View style={styles.inventoryInputsContainer}>
-                {inventoryFields.map((f) => (
-                  <InventoryInput
-                    key={f.field}
-                    icon={f.icon}
-                    label={f.label}
-                    value={inventory[f.field]}
-                    onChangeText={handleInventoryChange}
-                    fieldName={f.field}
-                  />
-                ))}
-              </View>
-            </Card.Content>
-          </Card>
+          <AppCard level={1} padding={20}>
+            <View style={styles.inventoryHeader}>
+              <ThemedText style={styles.inventoryTitle}>
+                {t.calcAvailableResources}
+              </ThemedText>
+              <View style={styles.inventoryAccent} />
+            </View>
+            <View style={styles.inventoryInputsContainer}>
+              {inventoryFields.map((f) => (
+                <InventoryInput
+                  key={f.field}
+                  icon={f.icon}
+                  label={f.label}
+                  value={inventory[f.field]}
+                  onChangeText={handleInventoryChange}
+                  fieldName={f.field}
+                />
+              ))}
+            </View>
+          </AppCard>
         </Collapsible>
       </ThemedView>
 
@@ -320,49 +316,47 @@ export default function SkillCalc() {
       {/* Results */}
       {result && (
         <View style={styles.resultSection}>
-          <Card style={[styles.resultCard, { backgroundColor: cardBackground }]}>
-            <Card.Content style={styles.resultContent}>
-              <View style={styles.resultHeader}>
-                <ThemedText type="defaultSemiBold" style={styles.resultTitle}>
-                  {t.bondRequiredResources}
-                </ThemedText>
-                <View style={styles.resultAccent} />
-              </View>
-
-              {/* Hero shows the full credit cost before inventory; the
-                  breakdown rows below show what is still needed after it. */}
-              <View style={styles.totalCredits}>
-                <ThemedText style={styles.totalCreditsLabel}>
-                  {t.skillTotalCredits}
-                </ThemedText>
-                <ThemedText style={styles.totalCreditsValue}>
-                  {result.totals.credits.toLocaleString()}
-                </ThemedText>
-              </View>
-
-              <ThemedText type="defaultSemiBold" style={styles.breakdownTitle}>
-                {t.elephResourceBreakdown}
+          <AppCard level={2} padding={24}>
+            <View style={styles.resultHeader}>
+              <ThemedText type="defaultSemiBold" style={styles.resultTitle}>
+                {t.bondRequiredResources}
               </ThemedText>
-              <View style={styles.resultList}>
-                <ResultRow icon={BD_ICONS[0]} label={t.skillBd1} value={result.needed.bd[0]} />
-                <ResultRow icon={BD_ICONS[1]} label={t.skillBd2} value={result.needed.bd[1]} />
-                <ResultRow icon={BD_ICONS[2]} label={t.skillBd3} value={result.needed.bd[2]} />
-                <ResultRow icon={BD_ICONS[3]} label={t.skillBd4} value={result.needed.bd[3]} />
-                <ResultRow icon={TN_ICONS[0]} label={t.skillTn1} value={result.needed.tn[0]} />
-                <ResultRow icon={TN_ICONS[1]} label={t.skillTn2} value={result.needed.tn[1]} />
-                <ResultRow icon={TN_ICONS[2]} label={t.skillTn3} value={result.needed.tn[2]} />
-                <ResultRow icon={TN_ICONS[3]} label={t.skillTn4} value={result.needed.tn[3]} />
-                <ResultRow icon={SECRET_ICON} label={t.skillSecretNotes} value={result.needed.secretNotes} />
-                <ResultRow icon={OOPART_LOW_ICON} label={t.skillOoLow} value={result.needed.artifactLow} approx />
-                <ResultRow icon={OOPART_HIGH_ICON} label={t.skillOoHigh} value={result.needed.artifactHigh} approx />
-                <ResultRow icon={CREDIT_ICON} label={t.charaExpCredits} value={result.needed.credits} />
-              </View>
+              <View style={styles.resultAccent} />
+            </View>
 
-              <ThemedText style={styles.artifactNote}>
-                {t.skillArtifactNote}
+            {/* Hero shows the full credit cost before inventory; the
+                breakdown rows below show what is still needed after it. */}
+            <View style={styles.totalCredits}>
+              <ThemedText style={styles.totalCreditsLabel}>
+                {t.skillTotalCredits}
               </ThemedText>
-            </Card.Content>
-          </Card>
+              <ThemedText style={styles.totalCreditsValue}>
+                {result.totals.credits.toLocaleString()}
+              </ThemedText>
+            </View>
+
+            <ThemedText type="defaultSemiBold" style={styles.breakdownTitle}>
+              {t.elephResourceBreakdown}
+            </ThemedText>
+            <View style={styles.resultList}>
+              <ResultRow icon={BD_ICONS[0]} label={t.skillBd1} value={result.needed.bd[0]} />
+              <ResultRow icon={BD_ICONS[1]} label={t.skillBd2} value={result.needed.bd[1]} />
+              <ResultRow icon={BD_ICONS[2]} label={t.skillBd3} value={result.needed.bd[2]} />
+              <ResultRow icon={BD_ICONS[3]} label={t.skillBd4} value={result.needed.bd[3]} />
+              <ResultRow icon={TN_ICONS[0]} label={t.skillTn1} value={result.needed.tn[0]} />
+              <ResultRow icon={TN_ICONS[1]} label={t.skillTn2} value={result.needed.tn[1]} />
+              <ResultRow icon={TN_ICONS[2]} label={t.skillTn3} value={result.needed.tn[2]} />
+              <ResultRow icon={TN_ICONS[3]} label={t.skillTn4} value={result.needed.tn[3]} />
+              <ResultRow icon={SECRET_ICON} label={t.skillSecretNotes} value={result.needed.secretNotes} />
+              <ResultRow icon={OOPART_LOW_ICON} label={t.skillOoLow} value={result.needed.artifactLow} approx />
+              <ResultRow icon={OOPART_HIGH_ICON} label={t.skillOoHigh} value={result.needed.artifactHigh} approx />
+              <ResultRow icon={CREDIT_ICON} label={t.charaExpCredits} value={result.needed.credits} />
+            </View>
+
+            <ThemedText style={styles.artifactNote}>
+              {t.skillArtifactNote}
+            </ThemedText>
+          </AppCard>
         </View>
       )}
     </ThemedView>
