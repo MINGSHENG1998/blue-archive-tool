@@ -22,7 +22,6 @@ import NumberInput from "@/components/NumberInput";
 
 //components
 import {
-  Card,
   DataTable,
   TextInput,
   Button,
@@ -35,7 +34,7 @@ import { useRef, useState, useMemo } from "react";
 //constant
 import { bondExpData, bondResourceTable } from "../../constants/bondData";
 import React from "react";
-import { useThemeColor } from "@/hooks/useThemeColor";
+import { AppCard } from "@/components/AppCard";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n, bondResourceNames } from "@/constants/i18n";
 import { useColors } from "@/hooks/useColors";
@@ -102,8 +101,6 @@ export default function BondExpScreen() {
   const [monthlyExpGain, setMonthlyExpGain] = useState(
     expSource.pat * 15 + expSource.monthlyGift * 60 + 2410
   );
-  const cardBackground = useThemeColor({}, "background");
-
   const handleCalculate = async () => {
     const fromValue = parseInt(from, 10);
     const toValue = parseInt(to, 10);
@@ -175,61 +172,57 @@ export default function BondExpScreen() {
     <ScreenLayout ref={scrollRef} title={t.bondPageTitle}>
         {/* Input Section */}
         <AnimatedCard style={styles.inputCardWrapper}>
-          <Card style={[styles.inputCard, { backgroundColor: cardBackground }]}>
-            <Card.Content style={styles.inputCardContent}>
-              <ThemedText
-                type="defaultSemiBold"
-                style={styles.inputSectionTitle}
-              >
-                {t.bondLevelRange}
-              </ThemedText>
-              <RangeSelector
-                min={1}
-                max={100}
-                low={parseInt(from, 10) || 1}
-                high={parseInt(to, 10) || 100}
-                lowLabel={t.bondCurrentLevel}
-                highLabel={t.bondTargetLevel}
-                onChange={(lo, hi) => {
-                  setFrom(String(lo));
-                  setTo(String(hi));
-                }}
-              />
+          <AppCard level={2} padding={24}>
+            <ThemedText
+              type="defaultSemiBold"
+              style={styles.inputSectionTitle}
+            >
+              {t.bondLevelRange}
+            </ThemedText>
+            <RangeSelector
+              min={1}
+              max={100}
+              low={parseInt(from, 10) || 1}
+              high={parseInt(to, 10) || 100}
+              lowLabel={t.bondCurrentLevel}
+              highLabel={t.bondTargetLevel}
+              onChange={(lo, hi) => {
+                setFrom(String(lo));
+                setTo(String(hi));
+              }}
+            />
 
-              {error && (
-                <View style={styles.errorContainer}>
-                  <HelperText
-                    type="error"
-                    visible={!!error}
-                    style={styles.errorText}
-                  >
-                    {error}
-                  </HelperText>
-                </View>
-              )}
+            {error && (
+              <View style={styles.errorContainer}>
+                <HelperText
+                  type="error"
+                  visible={!!error}
+                  style={styles.errorText}
+                >
+                  {error}
+                </HelperText>
+              </View>
+            )}
 
-              <Button
-                mode="contained"
-                onPress={handleCalculate}
-                style={styles.calculateButton}
-                contentStyle={styles.calculateButtonContent}
-                labelStyle={styles.calculateButtonLabel}
-                loading={calculating}
-                disabled={calculating || !from || !to}
-                buttonColor={c.primaryColor}
-                textColor={c.primaryText}
-              >
-                {t.bondCalculate}
-              </Button>
-            </Card.Content>
-          </Card>
+            <Button
+              mode="contained"
+              onPress={handleCalculate}
+              style={styles.calculateButton}
+              contentStyle={styles.calculateButtonContent}
+              labelStyle={styles.calculateButtonLabel}
+              loading={calculating}
+              disabled={calculating || !from || !to}
+              buttonColor={c.primaryColor}
+              textColor={c.primaryText}
+            >
+              {t.bondCalculate}
+            </Button>
+          </AppCard>
         </AnimatedCard>
 
         {/* Advanced Settings */}
         <View style={styles.settingsSection}>
-          <Card
-            style={[styles.settingsCard, { backgroundColor: cardBackground }]}
-          >
+          <AppCard level={1} variant="surface" padding={0}>
             <Collapsible
               title={t.bondAdvancedSettings}
               iconSize={14}
@@ -262,7 +255,7 @@ export default function BondExpScreen() {
                 </View>
               </View>
             </Collapsible>
-          </Card>
+          </AppCard>
         </View>
 
         {/* Results Section */}
@@ -270,50 +263,41 @@ export default function BondExpScreen() {
           <View style={styles.resultsSection}>
             {/* Main Result Card */}
             <AnimatedCard style={styles.resultCardWrapper}>
-              <Card
-                style={[styles.resultCard, { backgroundColor: cardBackground }]}
-              >
-                <Card.Content style={styles.resultCardContent}>
-                  <ThemedText style={styles.resultTitle}>
-                    {t.bondRequiredExp}
-                  </ThemedText>
-                  <ThemedText type="title" style={styles.resultValue}>
-                    {totalExp.toLocaleString()}
-                  </ThemedText>
+              <AppCard level={2} padding={24}>
+                <ThemedText style={styles.resultTitle}>
+                  {t.bondRequiredExp}
+                </ThemedText>
+                <ThemedText type="title" style={styles.resultValue}>
+                  {totalExp.toLocaleString()}
+                </ThemedText>
 
-                  <View style={styles.estimationRow}>
-                    <View style={styles.estimationItem}>
-                      <ThemedText style={styles.estimationLabel}>
-                        {t.bondEstimatedTime}
-                      </ThemedText>
-                      <ThemedText style={styles.estimationValue}>
-                        {totalExp > monthlyExpGain
-                          ? Math.ceil(totalExp / monthlyExpGain) + " " + t.bondMonths
-                          : t.bondLessMonth}
-                      </ThemedText>
-                    </View>
-                    <View style={styles.estimationDivider} />
-                    <View style={styles.estimationItem}>
-                      <ThemedText style={styles.estimationLabel}>
-                        {t.bondDays}
-                      </ThemedText>
-                      <ThemedText style={styles.estimationValue}>
-                        {getEstimatedDays()} {t.bondDaysUnit}
-                      </ThemedText>
-                    </View>
+                <View style={styles.estimationRow}>
+                  <View style={styles.estimationItem}>
+                    <ThemedText style={styles.estimationLabel}>
+                      {t.bondEstimatedTime}
+                    </ThemedText>
+                    <ThemedText style={styles.estimationValue}>
+                      {totalExp > monthlyExpGain
+                        ? Math.ceil(totalExp / monthlyExpGain) + " " + t.bondMonths
+                        : t.bondLessMonth}
+                    </ThemedText>
                   </View>
-                </Card.Content>
-              </Card>
+                  <View style={styles.estimationDivider} />
+                  <View style={styles.estimationItem}>
+                    <ThemedText style={styles.estimationLabel}>
+                      {t.bondDays}
+                    </ThemedText>
+                    <ThemedText style={styles.estimationValue}>
+                      {getEstimatedDays()} {t.bondDaysUnit}
+                    </ThemedText>
+                  </View>
+                </View>
+              </AppCard>
             </AnimatedCard>
 
             {/* Resources Table */}
             <View style={styles.resourceSection}>
-              <Card
-                style={[
-                  styles.resourceCard,
-                  { backgroundColor: cardBackground },
-                ]}
-              >
+              <AppCard level={1} variant="surface" padding={0}>
                 <Collapsible
                   title={t.bondRequiredResources}
                   isDefaultOpen={true}
@@ -392,7 +376,7 @@ export default function BondExpScreen() {
                     </DataTable>
                   </View>
                 </Collapsible>
-              </Card>
+              </AppCard>
             </View>
           </View>
         )}
