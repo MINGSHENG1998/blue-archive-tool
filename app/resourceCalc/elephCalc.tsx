@@ -505,7 +505,7 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     marginBottom: 12,
   },
   resourceList: {
-    backgroundColor: c.surfaceBg,
+    backgroundColor: c.accentSoft,
     borderRadius: RADIUS.control,
     padding: 16,
     gap: 16,

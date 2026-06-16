@@ -297,7 +297,7 @@ export default function BondExpScreen() {
 
             {/* Resources Table */}
             <View style={styles.resourceSection}>
-              <AppCard level={1} variant="surface" padding={0}>
+              <AppCard level={1} variant="surface" padding={16}>
                 <Collapsible
                   title={t.bondRequiredResources}
                   isDefaultOpen={true}
@@ -606,9 +606,9 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     ...elevation(c, 1),
   },
   tableContainer: {
-    paddingHorizontal: 4,
-    paddingBottom: 16,
-    paddingTop: 4,
+    paddingHorizontal: 0,
+    paddingBottom: 0,
+    paddingTop: 12,
   },
   dataTable: {
     backgroundColor: "transparent",

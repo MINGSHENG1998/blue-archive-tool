@@ -556,7 +556,7 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     marginBottom: 12,
   },
   resourceList: {
-    backgroundColor: c.surfaceBg,
+    backgroundColor: "transparent",
     gap: 12,
   },
   resourceItemContainer: {

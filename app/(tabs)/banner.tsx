@@ -395,14 +395,12 @@ export default function FutureBannerScreen() {
 
   if (loading && !refreshing) {
     return (
-      <ScreenLayout>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={c.primaryColor} />
-          <ThemedText type="default" style={styles.loadingText}>
-            {t.loading}
-          </ThemedText>
-        </View>
-      </ScreenLayout>
+      <View style={[styles.loadingContainer, { backgroundColor: c.appBg }]}>
+        <ActivityIndicator size="large" color={c.primaryColor} />
+        <ThemedText type="default" style={styles.loadingText}>
+          {t.loading}
+        </ThemedText>
+      </View>
     );
   }
 
@@ -886,8 +884,8 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   charactersContainer: {
     gap: 12,
-    padding: 12,
-    backgroundColor: c.appBg,
+    paddingTop: 4,
+    backgroundColor: "transparent",
   },
   characterCardWrapper: {
     marginHorizontal: 2,
@@ -942,8 +940,6 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   rarityContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    backgroundColor: c.surfaceBg,
-    borderRadius: 8,
     paddingVertical: 1,
   },
   star: {
