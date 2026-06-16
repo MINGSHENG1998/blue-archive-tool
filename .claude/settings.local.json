@@ -60,7 +60,19 @@
       "Bash(node -e \"console.log\\(require\\('babel-preset-expo/package.json'\\).version\\)\")",
       "Bash(node -e \"console.log\\('config loads:', typeof require\\('./babel.config.js'\\)\\)\")",
       "Bash(node -e \"const p=require\\('babel-preset-expo'\\); const cfg=p\\({cache:\\(\\)=>{},assertVersion:\\(\\)=>{}},{}\\); const plugins=JSON.stringify\\(cfg.plugins||cfg\\); console.log\\(plugins.includes\\('reanimated'\\)?'YES reanimated plugin present':'reanimated NOT auto-added'\\)\")",
-      "Bash(npx babel *)"
+      "Bash(npx babel *)",
+      "WebFetch(domain:sites.google.com)",
+      "WebFetch(domain:play.google.com)",
+      "Bash(node -p \"require\\('next/package.json'\\).version\")",
+      "Bash(node -p \"JSON.stringify\\(require\\('C:/project/chill-and-code-site/package.json'\\).scripts\\)\")",
+      "Bash(node -p \"JSON.stringify\\(require\\('C:/project/blue-archive-tool/package.json'\\).scripts\\)\")",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(python scripts/search.py \"warm friendly cozy professional editorial soft serif\" --domain typography -n 4)",
+      "Bash(python scripts/search.py \"portfolio hero showcase product gallery social proof\" --domain landing -n 4)",
+      "Bash(curl -s -o /dev/null -w \"home:%{http_code} \" http://localhost:3000/)",
+      "Bash(curl -s -o /dev/null -w \"studio:%{http_code}\\\\n\" http://localhost:3000/studio/)",
+      "PowerShell(Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 1; \"port 3000 cleared\")",
+      "Bash(cd /c/project/chill-and-code-site && rm -f components/PSPBrowser.tsx components/ProductCard.tsx && echo \"deleted\")"
     ]
   }
 }

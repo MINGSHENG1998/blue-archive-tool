@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "next-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:\\project\\chill-and-code-site", "run", "dev", "--", "C:\\project\\chill-and-code-site"],
+      "port": 3000
+    },
+    {
+      "name": "static-preview",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "C:\\project\\chill-and-code-site\\out", "-l", "4000"],
+      "port": 4000
+    }
+  ]
+}
