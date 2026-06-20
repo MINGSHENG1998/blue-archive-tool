@@ -45,12 +45,28 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
+// Darkens a hex color toward black by `amount` (0..1). Used to tint shadows so
+// they carry the surface hue instead of reading as a flat pure-black halo.
+function darken(hex: string, amount: number): string {
+  const m = /^#?([0-9a-fA-F]{6})$/.exec(hex.trim());
+  if (!m) return hex;
+  const n = parseInt(m[1], 16);
+  const f = 1 - amount;
+  const r = Math.round(((n >> 16) & 255) * f);
+  const g = Math.round(((n >> 8) & 255) * f);
+  const b = Math.round((n & 255) * f);
+  return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`;
+}
+
 export function buildTheme(core: ThemeCore): ThemeTokens {
   return {
     ...core,
     accentSoft: hexToRgba(core.primaryColor, 0.12),
     overlay: core.isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.35)",
-    shadow: "#000000",
+    // Dark themes: shadows barely show, so keep near-black. Light themes: tint
+    // the shadow with a deeply darkened surface hue so cards lift warmly instead
+    // of casting a hard grey outline.
+    shadow: core.isDark ? "#000000" : darken(core.surfaceBg, 0.78),
   };
 }
 

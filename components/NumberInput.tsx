@@ -4,6 +4,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useColors } from '@/hooks/useColors';
 import { RADIUS } from '@/constants/layout';
 import type { ThemeTokens } from '@/constants/theme';
+import { font, tabularNums } from '@/constants/typography';
 
 interface NumberInputProps {
   value: number;
@@ -164,11 +165,14 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: c.textPrimary,
+    ...font('bold'),
+    ...tabularNums,
   },
   label: {
     color: c.textPrimary,
     marginLeft: 12,
     fontSize: 16,
+    ...font('regular'),
   },
 });
 

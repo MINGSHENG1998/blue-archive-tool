@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemedText } from "@/components/ThemedText";
 import { useColors } from "@/hooks/useColors";
 import { LAYOUT } from "@/constants/layout";
+import { displayTitle } from "@/constants/typography";
 
 export type ScreenLayoutRef = { resetScroll: () => void };
 
@@ -102,10 +103,7 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   header: {},
   title: {
-    fontSize: 24,
-    fontWeight: "800",
-    fontStyle: "italic",
-    letterSpacing: 0.2,
+    ...displayTitle,
   },
   accent: {
     width: 44,

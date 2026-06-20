@@ -9,6 +9,8 @@ export interface UIStrings {
   errorText: string;
   retryButton: string;
   searchPlaceholder: string;
+  bannerEmptyTitle: string;
+  bannerEmptyBody: string;
   sortButton: string;
   sortEarliest: string;
   sortLatest: string;
@@ -186,6 +188,8 @@ export const i18n: Record<Locale, UIStrings> = {
     errorText: "Failed to load banners",
     retryButton: "Try Again",
     searchPlaceholder: "Search banners...",
+    bannerEmptyTitle: "No banners match",
+    bannerEmptyBody: "Try a different name or clear the filters.",
     sortButton: "Sort",
     sortEarliest: "Earliest First",
     sortLatest: "Latest First",
@@ -360,6 +364,8 @@ export const i18n: Record<Locale, UIStrings> = {
     errorText: "加载失败",
     retryButton: "重试",
     searchPlaceholder: "搜索卡池...",
+    bannerEmptyTitle: "没有匹配的卡池",
+    bannerEmptyBody: "换个名字或清除筛选条件试试。",
     sortButton: "排序",
     sortEarliest: "最早优先",
     sortLatest: "最新优先",
@@ -534,6 +540,8 @@ export const i18n: Record<Locale, UIStrings> = {
     errorText: "배너를 불러오지 못했습니다",
     retryButton: "다시 시도",
     searchPlaceholder: "배너 검색...",
+    bannerEmptyTitle: "일치하는 배너 없음",
+    bannerEmptyBody: "다른 이름으로 검색하거나 필터를 해제하세요.",
     sortButton: "정렬",
     sortEarliest: "가장 이른 순",
     sortLatest: "가장 최근 순",
@@ -708,6 +716,8 @@ export const i18n: Record<Locale, UIStrings> = {
     errorText: "バナーの読み込みに失敗しました",
     retryButton: "もう一度試す",
     searchPlaceholder: "バナーを検索...",
+    bannerEmptyTitle: "該当するバナーなし",
+    bannerEmptyBody: "別の名前で検索するか、フィルターを解除してください。",
     sortButton: "並び替え",
     sortEarliest: "古い順",
     sortLatest: "新しい順",

@@ -25,6 +25,7 @@ import { useColors } from "@/hooks/useColors";
 import type { ThemeTokens } from "@/constants/theme";
 import { elevation } from "@/constants/elevation";
 import { RADIUS } from "@/constants/layout";
+import { font } from "@/constants/typography";
 
 
 // Reusable animated card component
@@ -238,8 +239,10 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   mainTitle: {
     fontSize: 24,
-    fontWeight: "800", fontStyle: "italic", letterSpacing: 0.2,
+    fontWeight: "800",
+    letterSpacing: -0.4,
     color: c.textPrimary,
+    ...font("extrabold"),
   },
   subtitle: {
     fontSize: 14,

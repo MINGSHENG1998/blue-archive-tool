@@ -18,6 +18,7 @@ import { AppCard } from "@/components/AppCard";
 import { useColors } from "@/hooks/useColors";
 import { RADIUS, LAYOUT } from "@/constants/layout";
 import type { ThemeTokens } from "@/constants/theme";
+import { font } from "@/constants/typography";
 
 // Spring-bounce press wrapper.
 function SpringCard({
@@ -211,19 +212,21 @@ const makeStyles = (c: ThemeTokens) =>
       marginBottom: 2,
       letterSpacing: 1.2,
       textTransform: "uppercase",
+      ...font("semibold"),
     },
     appName: {
       fontSize: 22,
       fontWeight: "800",
-      fontStyle: "italic",
       color: c.textPrimary,
-      letterSpacing: 0.2,
+      letterSpacing: -0.3,
+      ...font("extrabold"),
     },
     appSub: {
       fontSize: 13,
       color: c.textMuted,
       fontWeight: "500",
       letterSpacing: 0.3,
+      ...font("medium"),
     },
 
     // Section label
@@ -235,6 +238,7 @@ const makeStyles = (c: ThemeTokens) =>
       fontSize: 16,
       fontWeight: "700",
       color: c.textPrimary,
+      ...font("bold"),
     },
     sectionAccent: {
       width: 44,
@@ -273,11 +277,13 @@ const makeStyles = (c: ThemeTokens) =>
       fontWeight: "700",
       color: c.textPrimary,
       marginBottom: 3,
+      ...font("bold"),
     },
     cardSubtitle: {
       fontSize: 12,
       color: c.textMuted,
       lineHeight: 17,
+      ...font("regular"),
     },
     chevron: {
       fontSize: 24,

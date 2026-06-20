@@ -49,7 +49,10 @@ describe("THEMES registry", () => {
       }
       expect(typeof t.tokens.accentSoft).toBe("string");
       expect(typeof t.tokens.overlay).toBe("string");
-      expect(t.tokens.shadow).toBe("#000000");
+      // Dark themes keep a pure-black shadow (it barely shows); light themes use
+      // a tinted dark shadow derived from the surface hue. Either way: a hex.
+      expect(t.tokens.shadow).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(t.tokens.shadow).toBe(t.tokens.isDark ? "#000000" : t.tokens.shadow);
     }
   });
 

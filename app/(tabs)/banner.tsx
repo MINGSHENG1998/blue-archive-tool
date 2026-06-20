@@ -34,6 +34,7 @@ import { categoryColors } from "@/constants/categoryColors";
 import type { ThemeTokens } from "@/constants/theme";
 import { elevation } from "@/constants/elevation";
 import { RADIUS } from "@/constants/layout";
+import { font, displayTitle, tabularNums } from "@/constants/typography";
 
 // Define types
 interface Character {
@@ -532,6 +533,13 @@ export default function FutureBannerScreen() {
 
             {/* Banners List */}
             <View style={styles.bannerList}>
+              {filteredAndSortedBanners.length === 0 && (
+                <View style={styles.emptyState}>
+                  <Text style={styles.emptyIcon}>🔍</Text>
+                  <Text style={styles.emptyTitle}>{t.bannerEmptyTitle}</Text>
+                  <Text style={styles.emptyBody}>{t.bannerEmptyBody}</Text>
+                </View>
+              )}
               {filteredAndSortedBanners.map((banner, index) => {
                 const daysUntil = getDaysUntil(banner.startDate);
                 const isActive =
@@ -658,11 +666,8 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     marginBottom: 24,
   },
   mainTitle: {
-    fontSize: 24,
-    fontWeight: "800",
+    ...displayTitle,
     color: c.textPrimary,
-    fontStyle: "italic",
-    letterSpacing: 0.2,
   },
   subtitle: {
     fontSize: 14,
@@ -754,6 +759,29 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     gap: 16,
     paddingBottom: 20,
   },
+  emptyState: {
+    alignItems: "center",
+    paddingVertical: 48,
+    paddingHorizontal: 24,
+    gap: 6,
+  },
+  emptyIcon: {
+    fontSize: 40,
+    marginBottom: 6,
+    opacity: 0.7,
+  },
+  emptyTitle: {
+    color: c.textPrimary,
+    fontSize: 17,
+    ...font("bold"),
+  },
+  emptyBody: {
+    color: c.textMuted,
+    fontSize: 13,
+    textAlign: "center",
+    lineHeight: 19,
+    ...font("regular"),
+  },
   bannerCardWrapper: {
     marginHorizontal: 2,
   },
@@ -763,13 +791,13 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     backgroundColor: c.elevatedBg,
     ...elevation(c, 2),
   },
+  // Active banners stand out via a primary-tinted glow, not a hard 2px border —
+  // keeps the borderless-elevation language the rest of the app commits to.
   activeBannerCard: {
-    borderColor: c.primaryColor,
-    borderWidth: 2,
     shadowColor: c.primaryColor,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
     elevation: 8,
   },
   bannerBadgeRow: {
@@ -794,10 +822,13 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     color: c.textPrimary,
     fontSize: 16,
     fontWeight: "700",
+    ...font("bold"),
   },
   bannerDateRange: {
     color: c.textMuted,
     fontSize: 12,
+    ...font("regular"),
+    ...tabularNums,
   },
   bannerPreviewRow: {
     flexDirection: "row",
@@ -881,6 +912,7 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     fontSize: 10,
     fontWeight: "600",
     lineHeight: 16,
+    ...tabularNums,
   },
   charactersContainer: {
     gap: 12,

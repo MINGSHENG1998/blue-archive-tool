@@ -41,6 +41,7 @@ import { useColors } from "@/hooks/useColors";
 import type { ThemeTokens } from "@/constants/theme";
 import { elevation } from "@/constants/elevation";
 import { RADIUS } from "@/constants/layout";
+import { font, tabularNums } from "@/constants/typography";
 
 const { width } = Dimensions.get("window");
 
@@ -408,8 +409,10 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   mainTitle: {
     fontSize: 24,
-    fontWeight: "800", fontStyle: "italic", letterSpacing: 0.2,
+    fontWeight: "800",
+    letterSpacing: -0.4,
     color: c.textPrimary,
+    ...font("extrabold"),
   },
   subtitle: {
     fontSize: 14,
@@ -570,6 +573,8 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     fontSize: 32,
     fontWeight: "bold",
     marginBottom: 24,
+    ...font("extrabold"),
+    ...tabularNums,
   },
   estimationRow: {
     flexDirection: "row",
@@ -594,6 +599,8 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
     color: c.textPrimary,
     fontSize: 16,
     fontWeight: "600",
+    ...font("semibold"),
+    ...tabularNums,
   },
 
   // Resource Section Styles
@@ -641,11 +648,14 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   tableCellText: {
     color: c.textSecondary,
     fontSize: 13,
+    ...tabularNums,
   },
   tableCellTextAmount: {
     color: c.primaryColor,
     fontSize: 14,
     fontWeight: "600",
+    ...font("semibold"),
+    ...tabularNums,
   },
 
   // Column widths for better text display

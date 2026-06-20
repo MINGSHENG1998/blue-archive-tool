@@ -21,6 +21,7 @@ import { requestTrackingPermissionsAsync } from "expo-tracking-transparency";
 
 import { LanguageProvider } from "@/contexts/language-context";
 import { ThemeProvider, useTheme } from "@/contexts/theme-context";
+import { FONT_ASSETS } from "@/constants/typography";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -69,6 +70,7 @@ function ThemedApp() {
 export default function RootLayout() {
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    ...FONT_ASSETS,
   });
 
   useEffect(() => {
