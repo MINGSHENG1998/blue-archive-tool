@@ -80,8 +80,8 @@ export default function RootLayout() {
   useEffect(() => {
     (async () => {
       const { status: trackingStatus } = await requestTrackingPermissionsAsync();
-      if (trackingStatus !== "granted") {
-        console.log(trackingStatus);
+      if (__DEV__ && trackingStatus !== "granted") {
+        console.log("tracking permission:", trackingStatus);
       }
       await mobileAds().initialize();
     })();

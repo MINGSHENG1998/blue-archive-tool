@@ -1,0 +1,28 @@
+# Build artifacts and caches — never needed by EAS Build (it builds fresh).
+# Keeps the uploaded project archive small (was ~627 MB without this).
+node_modules/
+.expo/
+dist/
+web-build/
+
+# Android native build outputs (source under android/ is still uploaded)
+android/build/
+android/app/build/
+android/.gradle/
+android/.cxx/
+android/.kotlin/
+*.apk
+*.aab
+*.keystore
+
+# iOS native build outputs
+ios/build/
+ios/Pods/
+ios/DerivedData/
+
+# Local / editor / VCS
+.git/
+.idea/
+.vscode/
+.claude/
+*.log
