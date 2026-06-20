@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { ScreenLayout, type ScreenLayoutRef } from "@/components/ScreenLayout";
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
 import {
   Chip,
   Searchbar,
@@ -367,7 +366,7 @@ export default function FutureBannerScreen() {
           )}
         </View>
         <View style={styles.characterInfo}>
-          <ThemedView style={styles.characterHeader}>
+          <View style={styles.characterHeader}>
             <ThemedText
               type="cardtitle"
               style={styles.characterName}
@@ -375,9 +374,9 @@ export default function FutureBannerScreen() {
             >
               {getCharacterName(character, locale)}
             </ThemedText>
-          </ThemedView>
+          </View>
 
-          <ThemedView style={styles.tags}>
+          <View style={styles.tags}>
             <CustomChip
               bgColor={typeColor[character.atkType]?.background}
               icon={typeColor[character.atkType]?.icon}
@@ -388,7 +387,7 @@ export default function FutureBannerScreen() {
               icon={typeColor[character.defType]?.icon}
               label={defTypeLabels[character.defType]?.[locale] ?? character.defType}
             />
-          </ThemedView>
+          </View>
         </View>
       </AppCard>
     </AnimatedCard>
@@ -411,7 +410,7 @@ export default function FutureBannerScreen() {
       onRefresh={onRefresh}
       refreshing={refreshing}
     >
-        <ThemedView style={styles.titleContainer}>
+        <View style={styles.titleContainer}>
           <View style={{ flex: 1 }}>
             <ThemedText type="title" style={styles.mainTitle}>
               {t.pageTitle}
@@ -433,7 +432,7 @@ export default function FutureBannerScreen() {
               {""}
             </Button>
           </View>
-        </ThemedView>
+        </View>
 
         {error ? (
           <View style={styles.errorContainer}>

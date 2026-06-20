@@ -768,19 +768,6 @@ export default function OtherScreen() {
         <List.Section>
           <List.Subheader>{t.miscSettings}</List.Subheader>
           <List.Item
-            title={t.language}
-            description={LOCALE_LABELS[locale]}
-            left={(props) => (
-              <List.Icon
-                {...props}
-                icon="translate"
-                color={theme.tokens.primaryColor}
-              />
-            )}
-            onPress={() => setOpenDrawer("language")}
-            right={(props) => <List.Icon {...props} icon="chevron-right" />}
-          />
-          <List.Item
             title={t.theme}
             description={THEMES[themeId].name}
             left={(props) => (
@@ -792,6 +779,19 @@ export default function OtherScreen() {
             )}
             onPress={() => setOpenDrawer("theme")}
             right={() => <ThemeSwatches id={themeId} />}
+          />
+          <List.Item
+            title={t.language}
+            description={LOCALE_LABELS[locale]}
+            left={(props) => (
+              <List.Icon
+                {...props}
+                icon="translate"
+                color={theme.tokens.primaryColor}
+              />
+            )}
+            onPress={() => setOpenDrawer("language")}
+            right={(props) => <List.Icon {...props} icon="chevron-right" />}
           />
         </List.Section>
 
@@ -834,13 +834,23 @@ export default function OtherScreen() {
               Application.nativeApplicationVersion ??
               "1.0.7"
             }
-            left={(props) => <List.Icon {...props} icon="information" />}
+            left={(props) => (
+              <List.Icon
+                {...props}
+                icon="information"
+                color={theme.tokens.primaryColor}
+              />
+            )}
           />
           <List.Item
             title={t.miscDisclaimer}
             description={t.miscDisclaimerTap}
             left={(props) => (
-              <List.Icon {...props} icon="hand-front-right" />
+              <List.Icon
+                {...props}
+                icon="hand-front-right"
+                color={theme.tokens.primaryColor}
+              />
             )}
             onPress={() => setOpenDrawer("disclaimer")}
             right={(props) => <List.Icon {...props} icon="chevron-right" />}
