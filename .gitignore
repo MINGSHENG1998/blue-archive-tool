@@ -35,8 +35,6 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-app-example
-
 # Superpowers (planning/brainstorm artifacts)
 .superpowers/
 docs/superpowers/

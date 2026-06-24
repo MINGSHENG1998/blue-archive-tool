@@ -21,6 +21,6 @@ required resolving conflicts across many files. Working on `master` avoids this.
 ```bash
 npm run lint:colors   # no hardcoded colors / OS-scheme reads (theme system)
 npx jest --watchAll=false
-npx tsc --noEmit      # ignore the app-example/ baseline errors
+npx tsc --noEmit      # ignore the known baseline errors
 npm run lint
 ```
