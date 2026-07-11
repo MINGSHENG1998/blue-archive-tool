@@ -483,9 +483,10 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   inventoryInput: {
     flex: 1,
-    // Fill + floating-label patch both derive from this; "transparent" made
-    // Paper fall back to theme background (appBg), a near-black box on cards.
-    backgroundColor: c.surfaceBg,
+    // Outlined-input fill + floating-label patch both derive from this; it must
+    // equal the card behind it (elevatedBg), else Paper falls back to appBg
+    // (near-black) and the input reads as a mismatched box.
+    backgroundColor: c.elevatedBg,
   },
 
   // Calculate button - matching charaExp

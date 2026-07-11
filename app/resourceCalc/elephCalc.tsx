@@ -211,22 +211,26 @@ export default function ElephCalc() {
           }}
         />
 
-        {/* Weapon Rank Input */}
+        {/* Weapon Rank Input — carded so it sits on the same elevatedBg
+            surface as the inventory block below (matching outlined-input fill). */}
         {parseInt(targetRarity, 10) === 5 && (
           <ThemedView style={styles.weaponRankContainer}>
-            <ThemedText type="defaultSemiBold" style={styles.fieldLabel}>
-              {t.elephWeaponUpgradeLabel}
-            </ThemedText>
-            <Dropdown
-              mode="outlined"
-              label={t.elephWeaponRank}
-              placeholder="1 - 4"
-              options={weaponRankOptions}
-              value={weaponRank}
-              onSelect={setWeaponRank}
-              hideMenuHeader={true}
-              CustomDropdownInput={ThemedDropdownInput}
-            />
+            <AppCard level={1} padding={16}>
+              <ThemedText type="defaultSemiBold" style={styles.inventoryTitle}>
+                {t.elephWeaponUpgradeLabel}
+              </ThemedText>
+              <Divider style={styles.inventoryDivider} />
+              <Dropdown
+                mode="outlined"
+                label={t.elephWeaponRank}
+                placeholder="1 - 4"
+                options={weaponRankOptions}
+                value={weaponRank}
+                onSelect={setWeaponRank}
+                hideMenuHeader={true}
+                CustomDropdownInput={ThemedDropdownInput}
+              />
+            </AppCard>
           </ThemedView>
         )}
 
@@ -458,12 +462,12 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   resourceInput: {
     flex: 1,
-    // Explicit fill; without it Paper falls back to theme background (appBg),
-    // a near-black box on cards.
-    backgroundColor: c.surfaceBg,
+    // Outlined-input fill must equal the card behind it (elevatedBg); without
+    // it Paper falls back to theme background (appBg), a near-black box.
+    backgroundColor: c.elevatedBg,
   },
   dropdownInput: {
-    backgroundColor: c.surfaceBg,
+    backgroundColor: c.elevatedBg,
   },
   inputContent: {
     color: c.textPrimary,
