@@ -20,6 +20,8 @@ import { useColors } from "@/hooks/useColors";
 import type { ThemeTokens } from "@/constants/theme";
 import { elevation } from "@/constants/elevation";
 import { RADIUS } from "@/constants/layout";
+import { useAdFreeContext } from "@/contexts/ad-free-context";
+import { maybeShowCalcInterstitial } from "@/services/ads/interstitial";
 
 const EXP_VALUES = {
   pinkBook: 10000,
@@ -154,6 +156,7 @@ export default function CharaExpCalc() {
   const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
   const t = i18n[locale];
+  const { isAdFree } = useAdFreeContext();
 
   const [currentLevel, setCurrentLevel] = useState("1");
   const [targetLevel, setTargetLevel] = useState("90");
@@ -244,6 +247,7 @@ export default function CharaExpCalc() {
       });
 
       Keyboard.dismiss();
+      maybeShowCalcInterstitial(isAdFree);
     } else {
       setError(
         t.charaExpValidationError
@@ -476,7 +480,9 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   resourceInput: {
     flex: 1,
-    backgroundColor: "transparent",
+    // Fill + floating-label patch both derive from this; "transparent" made
+    // Paper fall back to theme background (appBg), a near-black box on cards.
+    backgroundColor: c.surfaceBg,
   },
 
   // Button styles

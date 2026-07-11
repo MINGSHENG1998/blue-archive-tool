@@ -5,9 +5,11 @@ import {
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
+import * as ScreenOrientation from "expo-screen-orientation";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
+import { Dimensions } from "react-native";
 import "react-native-reanimated";
 
 import {
@@ -15,9 +17,9 @@ import {
   MD3DarkTheme,
   MD3LightTheme,
 } from "react-native-paper";
-import { AdFreeProvider } from "@/contexts/ad-free-context";
-import mobileAds from "react-native-google-mobile-ads";
-import { requestTrackingPermissionsAsync } from "expo-tracking-transparency";
+import { AdFreeProvider, useAdFreeContext } from "@/contexts/ad-free-context";
+import { AdsProvider, useAds } from "@/contexts/ads-context";
+import { useAppOpenAd } from "@/services/ads/appOpen";
 
 import { LanguageProvider } from "@/contexts/language-context";
 import { ThemeProvider, useTheme } from "@/contexts/theme-context";
@@ -36,8 +38,23 @@ function ThemedApp() {
       ...paperBase.colors,
       primary: theme.tokens.primaryColor,
       background: theme.tokens.appBg,
+      onBackground: theme.tokens.textPrimary,
       surface: theme.tokens.elevatedBg,
       onSurface: theme.tokens.textPrimary,
+      surfaceVariant: theme.tokens.surfaceBg,
+      onSurfaceVariant: theme.tokens.textSecondary,
+      outline: theme.tokens.surfaceBorder,
+      // Paper surfaces (Menu, Dialog, Snackbar) pick their bg from these MD3
+      // elevation tints; left at defaults they render neutral grey/black
+      // panels that ignore the active theme.
+      elevation: {
+        level0: "transparent",
+        level1: theme.tokens.elevatedBg,
+        level2: theme.tokens.elevatedBg,
+        level3: theme.tokens.elevatedBg,
+        level4: theme.tokens.elevatedBg,
+        level5: theme.tokens.elevatedBg,
+      },
     },
   };
 
@@ -57,6 +74,7 @@ function ThemedApp() {
   return (
     <PaperProvider theme={paperTheme}>
       <NavThemeProvider value={navTheme}>
+        <AppOpenAdGate />
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
@@ -65,6 +83,14 @@ function ThemedApp() {
       </NavThemeProvider>
     </PaperProvider>
   );
+}
+
+// Renders nothing; owns the foreground-return app-open ad.
+function AppOpenAdGate() {
+  const { isAdFree } = useAdFreeContext();
+  const { ready, personalized } = useAds();
+  useAppOpenAd(ready && !isAdFree, personalized);
+  return null;
 }
 
 export default function RootLayout() {
@@ -78,24 +104,28 @@ export default function RootLayout() {
   }, [loaded]);
 
   useEffect(() => {
-    (async () => {
-      const { status: trackingStatus } = await requestTrackingPermissionsAsync();
-      if (__DEV__ && trackingStatus !== "granted") {
-        console.log("tracking permission:", trackingStatus);
-      }
-      await mobileAds().initialize();
-    })();
+    // Manifest no longer locks orientation (Android 16 ignores it on large
+    // screens and Play flags it). Lock portrait at runtime on phones only;
+    // tablets/foldables (smallest width >= 600dp) rotate freely.
+    const { width, height } = Dimensions.get("screen");
+    if (Math.min(width, height) < 600) {
+      ScreenOrientation.lockAsync(
+        ScreenOrientation.OrientationLock.PORTRAIT_UP
+      ).catch(() => {});
+    }
   }, []);
 
   if (!loaded) return null;
 
   return (
     <AdFreeProvider>
-      <LanguageProvider>
-        <ThemeProvider>
-          <ThemedApp />
-        </ThemeProvider>
-      </LanguageProvider>
+      <AdsProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <ThemedApp />
+          </ThemeProvider>
+        </LanguageProvider>
+      </AdsProvider>
     </AdFreeProvider>
   );
 }

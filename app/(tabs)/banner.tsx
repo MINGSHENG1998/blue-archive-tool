@@ -24,7 +24,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 import React from "react";
 import { AppCard } from "@/components/AppCard";
-import InlineAd from "../ads/InlineAd";
+import InlineAd from "@/services/ads/InlineAd";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n, atkTypeLabels, defTypeLabels } from "@/constants/i18n";
 import type { Locale } from "@/constants/i18n";

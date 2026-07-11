@@ -42,6 +42,8 @@ import type { ThemeTokens } from "@/constants/theme";
 import { elevation } from "@/constants/elevation";
 import { RADIUS } from "@/constants/layout";
 import { font, tabularNums } from "@/constants/typography";
+import { useAdFreeContext } from "@/contexts/ad-free-context";
+import { maybeShowCalcInterstitial } from "@/services/ads/interstitial";
 
 const { width } = Dimensions.get("window");
 
@@ -82,6 +84,7 @@ export default function BondExpScreen() {
   const t = i18n[locale];
   const c = useColors();
   const styles = useMemo(() => makeStyles(c), [c]);
+  const { isAdFree } = useAdFreeContext();
   const [from, setFrom]: any = useState("1");
   const [to, setTo]: any = useState("100");
   const [error, setError] = useState("");
@@ -127,6 +130,7 @@ export default function BondExpScreen() {
         );
         setCalculating(false);
         Keyboard.dismiss();
+        maybeShowCalcInterstitial(isAdFree);
       }, 300);
     } else {
       setError(

@@ -20,6 +20,37 @@ import { useColors } from "@/hooks/useColors";
 import type { ThemeTokens } from "@/constants/theme";
 import { elevation } from "@/constants/elevation";
 import { RADIUS } from "@/constants/layout";
+import { useAdFreeContext } from "@/contexts/ad-free-context";
+import { maybeShowCalcInterstitial } from "@/services/ads/interstitial";
+
+// Themed replacement for the library's bare DropdownInput, which renders a
+// Paper TextInput with no style/theme and inherits the appBg fill.
+const ThemedDropdownInput = (props: any) => {
+  const c = useColors();
+  const styles = useMemo(() => makeStyles(c), [c]);
+  const { placeholder, label, rightIcon, selectedLabel, mode, disabled, error } = props;
+  return (
+    <TextInput
+      placeholder={placeholder}
+      label={label}
+      value={selectedLabel}
+      right={rightIcon}
+      mode={mode}
+      editable={false}
+      disabled={disabled}
+      error={error}
+      style={styles.dropdownInput}
+      theme={{
+        colors: {
+          primary: c.primaryColor,
+          outline: c.surfaceBorder,
+          onSurface: c.textPrimary,
+          onSurfaceVariant: c.textSecondary,
+        },
+      }}
+    />
+  );
+};
 
 export default function ElephCalc() {
   const scrollRef = useRef<{ resetScroll: () => void }>(null);
@@ -27,17 +58,22 @@ export default function ElephCalc() {
   const t = i18n[locale];
   const c = useColors();
   const styles = useMemo(() => makeStyles(c), [c]);
+  const { isAdFree } = useAdFreeContext();
   const [currentRarity, setCurrentRarity]: any = useState("1");
   const [targetRarity, setTargetRarity]: any = useState("5");
   const [currentEleph, setCurrentEleph] = useState("0");
-  const [weaponRank, setWeaponRank]: any = useState("0");
+  const [weaponRank, setWeaponRank]: any = useState("1");
   const [error, setError] = useState("");
   const [result, setResult]: any = useState(null);
 
+  // Weapon rank = the in-game star rank of the unique weapon (1 = base,
+  // unlocked free at character 5★). Max released rank is 4 (JP 2025-07-22,
+  // KR/Global 2025-09-23); rank 5 is announced but not yet released.
   const weaponRankOptions = [
-    { label: "0", value: "0" },
     { label: "1", value: "1" },
     { label: "2", value: "2" },
+    { label: "3", value: "3" },
+    { label: "4", value: "4" },
   ];
 
   const PROMOTION_COSTS: any = {
@@ -53,7 +89,8 @@ export default function ElephCalc() {
     "4-5": { fragments: 120, cost: 600 },
   };
 
-  const WEAPON_UPGRADE_COSTS = [120, 180];
+  // Eleph cost per weapon rank-up: ★1→★2, ★2→★3, ★3→★4.
+  const WEAPON_UPGRADE_COSTS = [120, 180, 200];
 
   const calculateEligmaCost = (elephCount: number) => {
     if (elephCount <= 20) return 1;
@@ -102,10 +139,11 @@ export default function ElephCalc() {
       }
 
       let weaponUpgradeFragments = 0;
-      if (toValue === 5 && weaponRankValue > 0) {
+      if (toValue === 5 && weaponRankValue > 1) {
+        // Rank N needs the first N-1 rank-up costs (rank 1 is the free base).
         weaponUpgradeFragments = WEAPON_UPGRADE_COSTS.slice(
           0,
-          weaponRankValue
+          weaponRankValue - 1
         ).reduce((sum, cost) => sum + cost, 0);
         neededFragments += weaponUpgradeFragments;
       }
@@ -120,6 +158,7 @@ export default function ElephCalc() {
       });
 
       Keyboard.dismiss();
+      maybeShowCalcInterstitial(isAdFree);
     } else {
       setError(
         t.elephValidationError
@@ -138,7 +177,7 @@ export default function ElephCalc() {
       setCurrentRarity("1");
       setTargetRarity("5");
       setCurrentEleph("0");
-      setWeaponRank("0");
+      setWeaponRank("1");
       setError("");
       setResult(null);
       scrollRef.current?.resetScroll();
@@ -181,11 +220,12 @@ export default function ElephCalc() {
             <Dropdown
               mode="outlined"
               label={t.elephWeaponRank}
-              placeholder="0 - 2"
+              placeholder="1 - 4"
               options={weaponRankOptions}
               value={weaponRank}
               onSelect={setWeaponRank}
               hideMenuHeader={true}
+              CustomDropdownInput={ThemedDropdownInput}
             />
           </ThemedView>
         )}
@@ -418,6 +458,12 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   resourceInput: {
     flex: 1,
+    // Explicit fill; without it Paper falls back to theme background (appBg),
+    // a near-black box on cards.
+    backgroundColor: c.surfaceBg,
+  },
+  dropdownInput: {
+    backgroundColor: c.surfaceBg,
   },
   inputContent: {
     color: c.textPrimary,

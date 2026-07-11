@@ -23,7 +23,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Application from "expo-application";
 import Constants from "expo-constants";
 import { ScreenLayout } from "@/components/ScreenLayout";
-import InlineAd from "../ads/InlineAd";
+import InlineAd from "@/services/ads/InlineAd";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n, type Locale, type UIStrings } from "@/constants/i18n";
 import { useAdFreeContext } from "@/contexts/ad-free-context";

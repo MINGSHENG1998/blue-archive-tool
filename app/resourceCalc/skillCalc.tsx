@@ -25,6 +25,8 @@ import { useColors } from "@/hooks/useColors";
 import type { ThemeTokens } from "@/constants/theme";
 import { elevation } from "@/constants/elevation";
 import { RADIUS } from "@/constants/layout";
+import { useAdFreeContext } from "@/contexts/ad-free-context";
+import { maybeShowCalcInterstitial } from "@/services/ads/interstitial";
 
 const BD_ICONS = [
   require("../../assets/images/icons/bd_t1.webp"),
@@ -126,6 +128,7 @@ export default function SkillCalc() {
   const styles = useMemo(() => makeStyles(c), [c]);
   const { locale } = useLanguage();
   const t = i18n[locale];
+  const { isAdFree } = useAdFreeContext();
 
   const [levels, setLevels] = useState(INITIAL_LEVELS);
   const [enabled, setEnabled] = useState<Record<LevelKey, boolean>>({
@@ -185,6 +188,7 @@ export default function SkillCalc() {
     };
     setResult({ totals, needed: applyInventory(totals, owned) });
     Keyboard.dismiss();
+    maybeShowCalcInterstitial(isAdFree);
   };
 
   useFocusEffect(
@@ -479,7 +483,9 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   },
   inventoryInput: {
     flex: 1,
-    backgroundColor: "transparent",
+    // Fill + floating-label patch both derive from this; "transparent" made
+    // Paper fall back to theme background (appBg), a near-black box on cards.
+    backgroundColor: c.surfaceBg,
   },
 
   // Calculate button - matching charaExp
