@@ -22,11 +22,13 @@ export function elevation(c: ThemeTokens, level: ElevationLevel = 1): ViewStyle 
     // Light themes especially: a strong shadow looks like an ugly border.
     shadowOpacity: c.isDark ? l.opacity * 0.6 : l.opacity * 0.4,
     shadowRadius: l.radius,
-    // Android elevation renders a tight shadow halo; keep it low so it doesn't
-    // look like a border on light backgrounds.
+    // Android elevation tints a near-black shadow that bleeds past the card's
+    // rounded corners as dark boxes. On dark themes the card already reads as
+    // raised via the lighter `elevatedBg`, so drop the Android shadow entirely
+    // and keep it only on light themes where it reads as a soft lift.
     elevation:
-      Platform.OS === "android"
-        ? Math.max(1, Math.round(l.android * (c.isDark ? 0.4 : 0.5)))
+      Platform.OS === "android" && !c.isDark
+        ? Math.max(1, Math.round(l.android * 0.5))
         : 0,
   };
 }
