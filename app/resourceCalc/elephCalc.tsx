@@ -421,6 +421,9 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   // Weapon rank
   weaponRankContainer: {
     marginBottom: 20,
+    // ThemedView defaults to appBg — must stay transparent or it paints a
+    // dark rectangle behind the card on elevated surfaces.
+    backgroundColor: "transparent",
   },
   fieldLabel: {
     color: c.textPrimary,
@@ -431,6 +434,8 @@ const makeStyles = (c: ThemeTokens) => StyleSheet.create({
   // Advanced settings
   advancedSettings: {
     marginBottom: 24,
+    // See weaponRankContainer — transparent to avoid an appBg box.
+    backgroundColor: "transparent",
   },
   inventoryCard: {
     backgroundColor: c.elevatedBg,
