@@ -2,7 +2,7 @@
 
 buildscript {
     ext {
-        buildToolsVersion = findProperty('android.buildToolsVersion') ?: '35.0.0'
+        buildToolsVersion = findProperty('android.buildToolsVersion') ?: '36.0.0'
         minSdkVersion = Integer.parseInt(findProperty('android.minSdkVersion') ?: '24')
         compileSdkVersion = Integer.parseInt(findProperty('android.compileSdkVersion') ?: '35')
         targetSdkVersion = Integer.parseInt(findProperty('android.targetSdkVersion') ?: '34')
@@ -16,7 +16,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.google.gms:google-services:4.4.1'
-        classpath('com.android.tools.build:gradle')
+        classpath('com.android.tools.build:gradle:8.9.3')
         classpath('com.facebook.react:react-native-gradle-plugin')
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     }

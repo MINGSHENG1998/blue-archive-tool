@@ -2,7 +2,7 @@
   "expo": {
     "name": "Blue Archive Tool",
     "slug": "blue-archive-tool",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -58,8 +58,9 @@
         "expo-build-properties",
         {
           "android": {
-            "compileSdkVersion": 35,
-            "targetSdkVersion": 35,
+            "compileSdkVersion": 36,
+            "targetSdkVersion": 36,
+            "buildToolsVersion": "36.0.0",
             "kotlinVersion": "1.9.25"
           }
         }
