@@ -832,7 +832,7 @@ export default function OtherScreen() {
             description={
               Constants.expoConfig?.version ??
               Application.nativeApplicationVersion ??
-              "1.0.7"
+              "1.2.2"
             }
             left={(props) => (
               <List.Icon
