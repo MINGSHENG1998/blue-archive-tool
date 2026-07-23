@@ -140,7 +140,7 @@ const BannerTypeChip = ({ type }: { type: string }) => {
   return (
     <View style={[styles.bannerTypeChip, getTypeStyle()]}>
       <ThemedText type="small" style={styles.bannerTypeText}>
-        {type.toUpperCase()}
+        {String(type ?? "").toUpperCase()}
       </ThemedText>
     </View>
   );
@@ -300,9 +300,9 @@ export default function FutureBannerScreen() {
       const query = searchQuery.toLowerCase();
       result = result.filter((banner) =>
         banner.characters.some((char) => {
-          const translated = getCharacterName(char, locale).toLowerCase();
+          const translated = (getCharacterName(char, locale) ?? "").toLowerCase();
           return (
-            char.name.toLowerCase().includes(query) ||
+            (char.name ?? "").toLowerCase().includes(query) ||
             translated.includes(query)
           );
         }),

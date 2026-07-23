@@ -25,6 +25,10 @@ import { LanguageProvider } from "@/contexts/language-context";
 import { ThemeProvider, useTheme } from "@/contexts/theme-context";
 import { FONT_ASSETS } from "@/constants/typography";
 
+// Route-level error boundary: a render throw degrades to an in-app error
+// screen instead of a fatal JavascriptException in release builds.
+export { ErrorBoundary } from "expo-router";
+
 SplashScreen.preventAutoHideAsync();
 
 function ThemedApp() {
