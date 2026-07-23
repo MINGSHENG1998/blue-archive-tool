@@ -35,6 +35,12 @@ import { elevation } from "@/constants/elevation";
 import { RADIUS } from "@/constants/layout";
 import { font, displayTitle, tabularNums } from "@/constants/typography";
 
+// One inline ad per this many banners, capped at MAX_INLINE_ADS. The list is
+// rendered inside a plain ScrollView, so every ad stays mounted at once — an
+// uncapped list means unbounded concurrent AdMob views and OOM on low-RAM devices.
+const BANNERS_PER_AD = 5;
+const MAX_INLINE_ADS = 3;
+
 // Define types
 interface Character {
   id: string;
@@ -616,7 +622,8 @@ export default function FutureBannerScreen() {
                       )}
                     </View>
                   </AnimatedCard>
-                  {(index + 1) % 5 === 0 && <InlineAd />}
+                  {(index + 1) % BANNERS_PER_AD === 0 &&
+                    (index + 1) / BANNERS_PER_AD <= MAX_INLINE_ADS && <InlineAd />}
                   </React.Fragment>
                 );
               })}
