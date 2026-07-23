@@ -54,6 +54,7 @@
         }
       ],
       "expo-tracking-transparency",
+      "expo-iap",
       [
         "expo-build-properties",
         {

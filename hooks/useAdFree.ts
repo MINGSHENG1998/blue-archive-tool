@@ -1,16 +1,19 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   initConnection,
   endConnection,
-  getProducts,
+  fetchProducts,
   getAvailablePurchases,
   requestPurchase,
   finishTransaction,
   purchaseUpdatedListener,
   purchaseErrorListener,
-} from 'react-native-iap';
+} from 'expo-iap';
+
+// expo-iap reports cancellation as the OpenIAP code; the second value is the
+// legacy react-native-iap code, kept so either shape is handled.
+const CANCELLED_CODES = ['user-cancelled', 'E_USER_CANCELLED'];
 
 export const TIP_SKUS = {
   SMALL: 'tip_kopi_ice',
@@ -52,7 +55,7 @@ export function useAdFree(): AdFreeHookResult {
       await initConnection();
       if (!mounted) return;
 
-      await getProducts({ skus: ALL_SKUS });
+      await fetchProducts({ skus: ALL_SKUS, type: 'in-app' });
       if (!mounted) return;
 
       const purchases = await getAvailablePurchases();
@@ -72,16 +75,22 @@ export function useAdFree(): AdFreeHookResult {
     init().catch(console.warn);
 
     const purchaseSub = purchaseUpdatedListener(async (purchase) => {
-      if (purchase.transactionReceipt) {
-        await finishTransaction({ purchase, isConsumable: true });
-        await markAdFree();
-        pendingRef.current?.resolve('success');
+      if (purchase.purchaseToken) {
+        try {
+          await finishTransaction({ purchase, isConsumable: true });
+          await markAdFree();
+          pendingRef.current?.resolve('success');
+        } catch (err: any) {
+          // Without this the promise never settles and the user is locked out
+          // of retrying a purchase they may already have paid for.
+          pendingRef.current?.reject(err?.message ?? 'Could not finish purchase');
+        }
         pendingRef.current = null;
       }
     });
 
     const errorSub = purchaseErrorListener((error: any) => {
-      if (error.code === 'E_USER_CANCELLED') {
+      if (CANCELLED_CODES.includes(error.code)) {
         pendingRef.current?.resolve('cancelled');
       } else {
         pendingRef.current?.reject(error.message ?? 'Purchase failed');
@@ -106,9 +115,10 @@ export function useAdFree(): AdFreeHookResult {
       }
       return new Promise((resolve, reject) => {
         pendingRef.current = { resolve, reject };
-        requestPurchase(
-          Platform.OS === 'android' ? { skus: [sku] } : { sku }
-        ).catch((err: Error) => {
+        requestPurchase({
+          request: { google: { skus: [sku] }, apple: { sku } },
+          type: 'in-app',
+        }).catch((err: Error) => {
           pendingRef.current = null;
           reject(err.message ?? 'Request failed');
         });

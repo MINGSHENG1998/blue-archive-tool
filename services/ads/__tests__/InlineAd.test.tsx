@@ -55,10 +55,10 @@ jest.mock('expo-tracking-transparency', () => ({
   ),
 }));
 
-jest.mock('react-native-iap', () => ({
+jest.mock('expo-iap', () => ({
   initConnection: jest.fn(),
   endConnection: jest.fn(),
-  getProducts: jest.fn(() => Promise.resolve([])),
+  fetchProducts: jest.fn(() => Promise.resolve([])),
   requestPurchase: jest.fn(),
   getAvailablePurchases: jest.fn(() => Promise.resolve([])),
   consumePurchaseAndroid: jest.fn(),

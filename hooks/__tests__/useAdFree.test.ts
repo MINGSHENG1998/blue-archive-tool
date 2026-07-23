@@ -8,12 +8,12 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
   setItem: jest.fn(),
 }));
 
-// Mock react-native-iap
-jest.mock('react-native-iap', () => ({
+// Mock expo-iap
+jest.mock('expo-iap', () => ({
   __esModule: true,
   initConnection: jest.fn().mockResolvedValue(true),
   endConnection: jest.fn(),
-  getProducts: jest.fn().mockResolvedValue([]),
+  fetchProducts: jest.fn().mockResolvedValue([]),
   getAvailablePurchases: jest.fn(),
   requestPurchase: jest.fn(),
   finishTransaction: jest.fn().mockResolvedValue(undefined),
@@ -21,7 +21,7 @@ jest.mock('react-native-iap', () => ({
   purchaseErrorListener: jest.fn(),
 }));
 
-import * as RNIap from 'react-native-iap';
+import * as RNIap from 'expo-iap';
 
 const mockGetAvailablePurchases = RNIap.getAvailablePurchases as jest.Mock;
 const mockPurchaseUpdatedListener = RNIap.purchaseUpdatedListener as jest.Mock;
@@ -56,7 +56,7 @@ describe('useAdFree', () => {
 
   it('sets isAdFree=true when getAvailablePurchases returns a matching SKU', async () => {
     mockGetAvailablePurchases.mockResolvedValue([
-      { productId: TIP_SKUS.SMALL, transactionReceipt: 'receipt' },
+      { productId: TIP_SKUS.SMALL, purchaseToken: 'receipt' },
     ]);
     const { result } = renderHook(() => useAdFree());
     await act(async () => {});
@@ -94,7 +94,7 @@ describe('useAdFree', () => {
 describe('purchaseTip', () => {
   it('resolves "success" when purchaseUpdatedListener fires with a receipt', async () => {
     let capturedPurchaseCallback: ((purchase: any) => void) | null = null;
-    const mockRNIap = require('react-native-iap');
+    const mockRNIap = require('expo-iap');
     mockRNIap.purchaseUpdatedListener.mockImplementation((cb: any) => {
       capturedPurchaseCallback = cb;
       return { remove: jest.fn() };
@@ -107,7 +107,7 @@ describe('purchaseTip', () => {
     await act(async () => {
       const promise = result.current.purchaseTip('tip_kopi_ice');
       // simulate the purchase completing
-      capturedPurchaseCallback?.({ transactionReceipt: 'receipt123', productId: 'tip_kopi_ice' });
+      capturedPurchaseCallback?.({ purchaseToken: 'receipt123', productId: 'tip_kopi_ice' });
       outcome = await promise;
     });
 
@@ -117,7 +117,7 @@ describe('purchaseTip', () => {
 
   it('resolves "cancelled" when purchaseErrorListener fires with E_USER_CANCELLED', async () => {
     let capturedErrorCallback: ((error: any) => void) | null = null;
-    const mockRNIap = require('react-native-iap');
+    const mockRNIap = require('expo-iap');
     mockRNIap.purchaseErrorListener.mockImplementation((cb: any) => {
       capturedErrorCallback = cb;
       return { remove: jest.fn() };
@@ -138,7 +138,7 @@ describe('purchaseTip', () => {
 
   it('rejects when purchaseErrorListener fires with a non-cancellation error', async () => {
     let capturedErrorCallback: ((error: any) => void) | null = null;
-    const mockRNIap = require('react-native-iap');
+    const mockRNIap = require('expo-iap');
     mockRNIap.purchaseErrorListener.mockImplementation((cb: any) => {
       capturedErrorCallback = cb;
       return { remove: jest.fn() };
