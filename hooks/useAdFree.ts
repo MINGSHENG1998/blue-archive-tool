@@ -55,7 +55,7 @@ export function useAdFree(): AdFreeHookResult {
       await initConnection();
       if (!mounted) return;
 
-      await fetchProducts({ skus: ALL_SKUS, type: 'in-app' });
+      await fetchProducts({ skus: ALL_SKUS, type: 'inapp' });
       if (!mounted) return;
 
       const purchases = await getAvailablePurchases();
@@ -75,7 +75,9 @@ export function useAdFree(): AdFreeHookResult {
     init().catch(console.warn);
 
     const purchaseSub = purchaseUpdatedListener(async (purchase) => {
-      if (purchase.purchaseToken) {
+      // purchaseToken is optional on this version; transactionReceipt is the
+      // cross-platform fallback.
+      if (purchase.purchaseToken ?? purchase.transactionReceipt) {
         try {
           await finishTransaction({ purchase, isConsumable: true });
           await markAdFree();
@@ -116,8 +118,8 @@ export function useAdFree(): AdFreeHookResult {
       return new Promise((resolve, reject) => {
         pendingRef.current = { resolve, reject };
         requestPurchase({
-          request: { google: { skus: [sku] }, apple: { sku } },
-          type: 'in-app',
+          request: { android: { skus: [sku] }, ios: { sku } },
+          type: 'inapp',
         }).catch((err: Error) => {
           pendingRef.current = null;
           reject(err.message ?? 'Request failed');
