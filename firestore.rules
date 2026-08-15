@@ -1,0 +1,38 @@
+// Firestore security rules for the blue-archive-tool Firebase project.
+// Deploy: `firebase deploy --only firestore:rules`
+//
+// Checked in on 2026-08-15 to mirror the ruleset that was already live (last
+// edited in the console on 2025-01-19). Behaviour is unchanged — this file
+// exists so the rules are reviewable, diffable and revertable like code,
+// instead of living only in the console where nothing can see them.
+//
+// Access model:
+//   Public   — the Android app reads /banners and /characters with no auth.
+//   Operator — personal-backoffice-react, signed in, reads/writes/deletes.
+//
+// Note the read rule is a blanket `{document=**}`: ANY collection added to this
+// project is world-readable from the moment it is created. That is fine for
+// game reference data, but do not put anything private here without narrowing
+// this first.
+//
+// Operator writes are pinned to a uid rather than `request.auth != null`,
+// because the Web API key is public by necessity (it ships in the app bundle),
+// so `auth != null` would be satisfiable by anyone who self-registers.
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Allow read access for all users
+    match /{document=**} {
+      allow read: if true;  // Public read access for all
+    }
+
+    // Allow read, write, and delete only for a specific user (admin)
+    match /{document=**} {
+      allow read, write, delete: if request.auth != null
+        && request.auth.uid == "sjQD36M751VXouIpnyUCyK0hUpY2";
+    }
+  }
+}
