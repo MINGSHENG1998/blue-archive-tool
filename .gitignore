@@ -38,3 +38,11 @@ yarn-error.*
 # Superpowers (planning/brainstorm artifacts)
 .superpowers/
 docs/superpowers/
+# Firebase CLI deploy cache
+.firebase/
+
+# Kotlin compiler daemon cache
+android/.kotlin/
+
+# Scratch GitHub tree dumps
+tree.json

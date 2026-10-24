@@ -21,6 +21,7 @@ import { AdFreeProvider, useAdFreeContext } from "@/contexts/ad-free-context";
 import { AdsProvider, useAds } from "@/contexts/ads-context";
 import { useAppOpenAd } from "@/services/ads/appOpen";
 
+import { GameDataProvider } from "@/contexts/gamedata-context";
 import { LanguageProvider } from "@/contexts/language-context";
 import { ThemeProvider, useTheme } from "@/contexts/theme-context";
 import { FONT_ASSETS } from "@/constants/typography";
@@ -125,9 +126,11 @@ export default function RootLayout() {
     <AdFreeProvider>
       <AdsProvider>
         <LanguageProvider>
-          <ThemeProvider>
-            <ThemedApp />
-          </ThemeProvider>
+          <GameDataProvider>
+            <ThemeProvider>
+              <ThemedApp />
+            </ThemeProvider>
+          </GameDataProvider>
         </LanguageProvider>
       </AdsProvider>
     </AdFreeProvider>

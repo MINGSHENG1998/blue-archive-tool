@@ -24,6 +24,9 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 import React from "react";
 import { AppCard } from "@/components/AppCard";
+import { LiveNowBanner } from "@/components/LiveNowBanner";
+import { FallbackImage } from "@/components/FallbackImage";
+import { characterImageUris } from "@/services/gamedata";
 import InlineAd from "@/services/ads/InlineAd";
 import { useLanguage } from "@/contexts/language-context";
 import { i18n, atkTypeLabels, defTypeLabels } from "@/constants/i18n";
@@ -44,6 +47,8 @@ const MAX_INLINE_ADS = 3;
 // Define types
 interface Character {
   id: string;
+  /** SchaleDB student id, set by the backoffice link step; lets images fall back. */
+  studentId?: number;
   name: string;
   image: string;
   rarity: number;
@@ -161,9 +166,10 @@ const PortraitStrip = ({ characters }: { characters: Character[] }) => {
   return (
     <View style={styles.strip}>
       {visible.map((char, index) => (
-        <Image
+        <FallbackImage
           key={char.id}
-          source={{ uri: char.image }}
+          uris={characterImageUris(char)}
+          label={char.name}
           style={[
             styles.avatar,
             { marginLeft: index === 0 ? 0 : -18 },
@@ -348,8 +354,9 @@ export default function FutureBannerScreen() {
     <AnimatedCard key={character.id} style={styles.characterCardWrapper}>
       <AppCard level={1} padding={12} style={styles.characterContent}>
         <View style={styles.imageContainer}>
-          <Image
-            source={{ uri: character.image }}
+          <FallbackImage
+            uris={characterImageUris(character)}
+            label={character.name}
             style={styles.characterImage}
           />
           {character.isLimited && (
@@ -439,6 +446,10 @@ export default function FutureBannerScreen() {
             </Button>
           </View>
         </View>
+
+        {/* Independent of Firestore: always correct even if the curated
+            schedule below has not been updated yet. */}
+        <LiveNowBanner />
 
         {error ? (
           <View style={styles.errorContainer}>

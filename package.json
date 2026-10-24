@@ -10,7 +10,9 @@
     "test": "jest --watchAll",
     "lint": "expo lint",
     "lint:colors": "node scripts/check-theme-coverage.js",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "gamedata:refresh": "tsx scripts/fetch-gamedata.ts",
+    "icons:refresh": "tsx scripts/fetch-icons.ts && firebase deploy --only hosting --project blue-archive-tool"
   },
   "jest": {
     "preset": "jest-expo",
@@ -69,6 +71,7 @@
     "jest-expo": "~53.0.14",
     "patch-package": "^8.0.1",
     "react-test-renderer": "^19.0.0",
+    "tsx": "^4.23.12",
     "typescript": "~5.8.3"
   },
   "private": true

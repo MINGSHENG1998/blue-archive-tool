@@ -15,6 +15,8 @@ import { useLanguage } from "@/contexts/language-context";
 import { i18n } from "@/constants/i18n";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppCard } from "@/components/AppCard";
+import { ResetTimers } from "@/components/ResetTimers";
+import { StudentOfTheDayCard } from "@/components/StudentOfTheDayCard";
 import { useColors } from "@/hooks/useColors";
 import { RADIUS, LAYOUT } from "@/constants/layout";
 import type { ThemeTokens } from "@/constants/theme";
@@ -84,6 +86,34 @@ export default function HomeScreen() {
       icon: "account-cog",
       route: "/(tabs)/resourceCalc",
     },
+    {
+      id: "raid",
+      titleKey: "toolRaidTitle" as const,
+      subtitleKey: "toolRaidSubtitle" as const,
+      icon: "sword-cross",
+      route: "/raidScore",
+    },
+    {
+      id: "students",
+      titleKey: "toolStudentsTitle" as const,
+      subtitleKey: "toolStudentsSubtitle" as const,
+      icon: "account-search",
+      route: "/students",
+    },
+    {
+      id: "gacha",
+      titleKey: "toolGachaTitle" as const,
+      subtitleKey: "toolGachaSubtitle" as const,
+      icon: "dice-multiple",
+      route: "/gachaTracker",
+    },
+    {
+      id: "birthdays",
+      titleKey: "toolBirthdayTitle" as const,
+      subtitleKey: "toolBirthdaySubtitle" as const,
+      icon: "cake-variant",
+      route: "/birthdays",
+    },
   ];
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -127,6 +157,12 @@ export default function HomeScreen() {
           </View>
         </Animated.View>
 
+        {/* Today: student of the day + live reset countdowns */}
+        <Animated.View style={[styles.todayWrap, animStyle]}>
+          <StudentOfTheDayCard />
+          <ResetTimers />
+        </Animated.View>
+
         {/* Section label */}
         <Animated.View style={[styles.sectionWrap, animStyle]}>
           <Text style={styles.sectionTitle}>{t.quickTools}</Text>
@@ -138,7 +174,13 @@ export default function HomeScreen() {
           {tools.map((tool) => (
             <SpringCard
               key={tool.id}
-              onPress={() => router.replace(tool.route as any)}
+              onPress={() =>
+                // Tab destinations replace (the tab bar is the back affordance);
+                // stack destinations push so the back button returns here.
+                tool.route.startsWith("/(tabs)")
+                  ? router.replace(tool.route as any)
+                  : router.push(tool.route as any)
+              }
             >
               <AppCard level={2} padding={16} style={styles.card}>
                 <View style={styles.iconWrap}>
@@ -227,6 +269,13 @@ const makeStyles = (c: ThemeTokens) =>
       fontWeight: "500",
       letterSpacing: 0.3,
       ...font("medium"),
+    },
+
+    // Today block
+    todayWrap: {
+      paddingHorizontal: LAYOUT.screenPaddingH,
+      marginBottom: 28,
+      gap: 12,
     },
 
     // Section label

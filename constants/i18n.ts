@@ -36,6 +36,110 @@ export interface UIStrings {
   toolCharaSubtitle: string;
   toolCharaDesc: string;
 
+  // Student Birthdays screen
+  toolBirthdayTitle: string;
+  toolBirthdaySubtitle: string;
+  toolBirthdayDesc: string;
+  birthdayPageTitle: string;
+  birthdaySubtitle: string;
+  birthdayTodayHeading: string;
+  birthdayTodayEmpty: string;
+  birthdayUpcomingHeading: string;
+  birthdayCalendarHeading: string;
+  birthdaySearchPlaceholder: string;
+  birthdayNoResults: string;
+  birthdayToday: string;
+  birthdayTomorrow: string;
+  /** "in {days} days" — {days} is substituted at render time. */
+  birthdayInDays: string;
+  navBack: string;
+  monthNames: string[];
+
+  // Home: reset timers + student of the day
+  resetHeading: string;
+  resetDaily: string;
+  resetCafe: string;
+  resetHeadpat: string;
+  sotdHeading: string;
+
+  // Banner: live-now strip, straight from SchaleDB
+  liveNowHeading: string;
+  /** "{time} left" — {time} is a formatted duration like "3d 4h". */
+  liveNowEndsIn: string;
+
+  // Raid score calculator
+  toolRaidTitle: string;
+  toolRaidSubtitle: string;
+  raidPageTitle: string;
+  raidSubtitle: string;
+  raidDurationLabel: string;
+  raidBossHint: string;
+  raidDifficultyLabel: string;
+  raidModeTimeToScore: string;
+  raidModeScoreToTime: string;
+  raidClearTimeLabel: string;
+  raidClearTimeHint: string;
+  raidScoreLabel: string;
+  raidTotalScore: string;
+  /** "Team {n}" */
+  raidTeam: string;
+  raidAddTeam: string;
+  raidInvalidTime: string;
+  raidInvalidScore: string;
+
+  // Gacha rate tracker
+  toolGachaTitle: string;
+  toolGachaSubtitle: string;
+  gachaPageTitle: string;
+  gachaSubtitle: string;
+  gachaPulls: string;
+  gachaThreeStars: string;
+  gachaPickups: string;
+  gachaRate: string;
+  /** "expected {rate}" */
+  gachaExpected: string;
+  gachaSinceLast: string;
+  gachaAddMiss: string;
+  gachaAddTen: string;
+  gachaAddThreeStar: string;
+  gachaAddPickup: string;
+  gachaUndo: string;
+  gachaReset: string;
+  gachaResetConfirm: string;
+  gachaCancel: string;
+  gachaLucky: string;
+  gachaUnlucky: string;
+  gachaEven: string;
+
+  // Student browser
+  toolStudentsTitle: string;
+  toolStudentsSubtitle: string;
+  studentsPageTitle: string;
+  studentsSubtitle: string;
+  studentsSearchPlaceholder: string;
+  studentsNoResults: string;
+  /** "{n} students" */
+  studentsCount: string;
+  studentsFilters: string;
+  studentsClearFilters: string;
+  studentsRarity: string;
+  studentsAtkType: string;
+  studentsDefType: string;
+  studentsSchool: string;
+  studentsGlobalOnly: string;
+  studentDetailClub: string;
+  studentDetailRole: string;
+  studentDetailPosition: string;
+  studentDetailWeapon: string;
+  studentDetailBirthday: string;
+  studentDetailAvailability: string;
+  regionJapan: string;
+  regionGlobal: string;
+  regionChina: string;
+  positionFront: string;
+  positionMiddle: string;
+  positionBack: string;
+
   // Bond Exp screen
   bondPageTitle: string;
   bondInstruction: string;
@@ -214,6 +318,106 @@ export const i18n: Record<Locale, UIStrings> = {
     toolCharaTitle: "Character Builder",
     toolCharaSubtitle: "Resource Optimizer",
     toolCharaDesc: "Build perfect character loadouts with smart resource management",
+    toolBirthdayTitle: "Student Birthdays",
+    toolBirthdaySubtitle: "Every student's big day",
+    toolBirthdayDesc: "Never miss a birthday — see who is celebrating and when",
+    birthdayPageTitle: "Student Birthdays",
+    birthdaySubtitle: "Who is celebrating, and when",
+    birthdayTodayHeading: "Today's birthdays",
+    birthdayTodayEmpty: "No birthdays today. Check back tomorrow!",
+    birthdayUpcomingHeading: "Coming up",
+    birthdayCalendarHeading: "Full calendar",
+    birthdaySearchPlaceholder: "Search students…",
+    birthdayNoResults: "No students match that search.",
+    birthdayToday: "Today",
+    birthdayTomorrow: "Tomorrow",
+    birthdayInDays: "in {days} days",
+    navBack: "Back",
+    monthNames: [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ],
+    resetHeading: "Reset timers",
+    resetDaily: "Daily reset",
+    resetCafe: "Cafe reset",
+    resetHeadpat: "Headpat charge",
+    sotdHeading: "Student of the day",
+    liveNowHeading: "Live now",
+    liveNowEndsIn: "{time} left",
+    toolRaidTitle: "Raid Score",
+    toolRaidSubtitle: "Convert clear time to score",
+    raidPageTitle: "Raid Score Calculator",
+    raidSubtitle: "Convert between clear time and raid score",
+    raidDurationLabel: "Boss timer",
+    raidBossHint: "Bosses: {list}",
+    raidDifficultyLabel: "Difficulty",
+    raidModeTimeToScore: "Time → Score",
+    raidModeScoreToTime: "Score → Time",
+    raidClearTimeLabel: "Clear time",
+    raidClearTimeHint: "M:SS.mmm — e.g. 1:23.456",
+    raidScoreLabel: "Raid score",
+    raidTotalScore: "Total score",
+    raidTeam: "Team {n}",
+    raidAddTeam: "Add team",
+    raidInvalidTime: "Enter a time like 1:23.456",
+    raidInvalidScore: "Enter a score",
+    toolGachaTitle: "Gacha Tracker",
+    toolGachaSubtitle: "Track your pull luck live",
+    gachaPageTitle: "Gacha Rate Tracker",
+    gachaSubtitle: "Log pulls as you go and see your real rate",
+    gachaPulls: "Pulls",
+    gachaThreeStars: "3★",
+    gachaPickups: "Rate-up",
+    gachaRate: "3★ rate",
+    gachaExpected: "expected {rate}",
+    gachaSinceLast: "Since last 3★",
+    gachaAddMiss: "+1 miss",
+    gachaAddTen: "+10 misses",
+    gachaAddThreeStar: "+1 3★",
+    gachaAddPickup: "+1 rate-up",
+    gachaUndo: "Undo",
+    gachaReset: "Reset",
+    gachaResetConfirm: "Reset this session? The counts will be cleared.",
+    gachaCancel: "Cancel",
+    gachaLucky: "Running lucky",
+    gachaUnlucky: "Running unlucky",
+    gachaEven: "On rate",
+    toolStudentsTitle: "Students",
+    toolStudentsSubtitle: "Browse every student",
+    studentsPageTitle: "Students",
+    studentsSubtitle: "Search and filter the full roster",
+    studentsSearchPlaceholder: "Search students…",
+    studentsNoResults: "No students match those filters.",
+    studentsCount: "{n} students",
+    studentsFilters: "Filters",
+    studentsClearFilters: "Clear",
+    studentsRarity: "Rarity",
+    studentsAtkType: "Attack",
+    studentsDefType: "Defense",
+    studentsSchool: "School",
+    studentsGlobalOnly: "Global only",
+    studentDetailClub: "Club",
+    studentDetailRole: "Role",
+    studentDetailPosition: "Position",
+    studentDetailWeapon: "Weapon",
+    studentDetailBirthday: "Birthday",
+    studentDetailAvailability: "Availability",
+    regionJapan: "Japan",
+    regionGlobal: "Global",
+    regionChina: "China",
+    positionFront: "Front",
+    positionMiddle: "Middle",
+    positionBack: "Back",
 
     // Bond Exp
     bondPageTitle: "Bond Exp Calculator",
@@ -390,6 +594,106 @@ export const i18n: Record<Locale, UIStrings> = {
     toolCharaTitle: "角色养成",
     toolCharaSubtitle: "资源优化",
     toolCharaDesc: "用智能资源管理打造完美角色配置",
+    toolBirthdayTitle: "学生生日",
+    toolBirthdaySubtitle: "每位学生的重要日子",
+    toolBirthdayDesc: "不再错过任何生日 —— 查看谁在庆祝以及何时庆祝",
+    birthdayPageTitle: "学生生日",
+    birthdaySubtitle: "谁在庆祝，何时庆祝",
+    birthdayTodayHeading: "今天的生日",
+    birthdayTodayEmpty: "今天没有生日，明天再来看看吧！",
+    birthdayUpcomingHeading: "即将到来",
+    birthdayCalendarHeading: "完整日历",
+    birthdaySearchPlaceholder: "搜索学生…",
+    birthdayNoResults: "没有符合的学生。",
+    birthdayToday: "今天",
+    birthdayTomorrow: "明天",
+    birthdayInDays: "{days} 天后",
+    navBack: "返回",
+    monthNames: [
+      "1月",
+      "2月",
+      "3月",
+      "4月",
+      "5月",
+      "6月",
+      "7月",
+      "8月",
+      "9月",
+      "10月",
+      "11月",
+      "12月",
+    ],
+    resetHeading: "重置倒计时",
+    resetDaily: "每日重置",
+    resetCafe: "咖啡厅重置",
+    resetHeadpat: "摸头恢复",
+    sotdHeading: "每日学生",
+    liveNowHeading: "正在进行",
+    liveNowEndsIn: "剩余 {time}",
+    toolRaidTitle: "总力战分数",
+    toolRaidSubtitle: "将通关时间换算成分数",
+    raidPageTitle: "总力战分数计算器",
+    raidSubtitle: "在通关时间与分数之间换算",
+    raidDurationLabel: "首领时限",
+    raidBossHint: "首领：{list}",
+    raidDifficultyLabel: "难度",
+    raidModeTimeToScore: "时间 → 分数",
+    raidModeScoreToTime: "分数 → 时间",
+    raidClearTimeLabel: "通关时间",
+    raidClearTimeHint: "M:SS.mmm — 例如 1:23.456",
+    raidScoreLabel: "总力战分数",
+    raidTotalScore: "总分",
+    raidTeam: "第 {n} 队",
+    raidAddTeam: "添加队伍",
+    raidInvalidTime: "请输入如 1:23.456 的时间",
+    raidInvalidScore: "请输入分数",
+    toolGachaTitle: "抽卡记录",
+    toolGachaSubtitle: "实时记录你的抽卡运气",
+    gachaPageTitle: "抽卡概率记录器",
+    gachaSubtitle: "边抽边记录，看看你的真实出货率",
+    gachaPulls: "抽数",
+    gachaThreeStars: "3★",
+    gachaPickups: "UP",
+    gachaRate: "3★ 概率",
+    gachaExpected: "期望 {rate}",
+    gachaSinceLast: "距上次 3★",
+    gachaAddMiss: "+1 未出",
+    gachaAddTen: "+10 未出",
+    gachaAddThreeStar: "+1 3★",
+    gachaAddPickup: "+1 UP",
+    gachaUndo: "撤销",
+    gachaReset: "重置",
+    gachaResetConfirm: "重置本次记录？计数将被清空。",
+    gachaCancel: "取消",
+    gachaLucky: "手气不错",
+    gachaUnlucky: "手气偏差",
+    gachaEven: "接近期望",
+    toolStudentsTitle: "学生图鉴",
+    toolStudentsSubtitle: "浏览全部学生",
+    studentsPageTitle: "学生图鉴",
+    studentsSubtitle: "搜索并筛选全部学生",
+    studentsSearchPlaceholder: "搜索学生…",
+    studentsNoResults: "没有符合条件的学生。",
+    studentsCount: "{n} 名学生",
+    studentsFilters: "筛选",
+    studentsClearFilters: "清除",
+    studentsRarity: "稀有度",
+    studentsAtkType: "攻击类型",
+    studentsDefType: "防御类型",
+    studentsSchool: "学院",
+    studentsGlobalOnly: "仅国际服",
+    studentDetailClub: "社团",
+    studentDetailRole: "定位",
+    studentDetailPosition: "站位",
+    studentDetailWeapon: "武器",
+    studentDetailBirthday: "生日",
+    studentDetailAvailability: "实装情况",
+    regionJapan: "日服",
+    regionGlobal: "国际服",
+    regionChina: "国服",
+    positionFront: "前排",
+    positionMiddle: "中排",
+    positionBack: "后排",
 
     // Bond Exp
     bondPageTitle: "好感度经验计算器",
@@ -566,6 +870,106 @@ export const i18n: Record<Locale, UIStrings> = {
     toolCharaTitle: "캐릭터 빌더",
     toolCharaSubtitle: "자원 최적화",
     toolCharaDesc: "스마트한 자원 관리로 완벽한 캐릭터 세팅을 구성하세요",
+    toolBirthdayTitle: "학생 생일",
+    toolBirthdaySubtitle: "모든 학생의 특별한 날",
+    toolBirthdayDesc: "생일을 놓치지 마세요 — 누가 언제 생일인지 확인하세요",
+    birthdayPageTitle: "학생 생일",
+    birthdaySubtitle: "누가 언제 생일인지",
+    birthdayTodayHeading: "오늘의 생일",
+    birthdayTodayEmpty: "오늘은 생일이 없어요. 내일 다시 확인해 주세요!",
+    birthdayUpcomingHeading: "다가오는 생일",
+    birthdayCalendarHeading: "전체 달력",
+    birthdaySearchPlaceholder: "학생 검색…",
+    birthdayNoResults: "검색 결과가 없습니다.",
+    birthdayToday: "오늘",
+    birthdayTomorrow: "내일",
+    birthdayInDays: "{days}일 후",
+    navBack: "뒤로",
+    monthNames: [
+      "1월",
+      "2월",
+      "3월",
+      "4월",
+      "5월",
+      "6월",
+      "7월",
+      "8월",
+      "9월",
+      "10월",
+      "11월",
+      "12월",
+    ],
+    resetHeading: "리셋 타이머",
+    resetDaily: "일일 리셋",
+    resetCafe: "카페 리셋",
+    resetHeadpat: "쓰다듬기 충전",
+    sotdHeading: "오늘의 학생",
+    liveNowHeading: "진행 중",
+    liveNowEndsIn: "{time} 남음",
+    toolRaidTitle: "총력전 점수",
+    toolRaidSubtitle: "클리어 타임을 점수로 변환",
+    raidPageTitle: "총력전 점수 계산기",
+    raidSubtitle: "클리어 타임과 점수를 서로 변환",
+    raidDurationLabel: "보스 제한시간",
+    raidBossHint: "보스: {list}",
+    raidDifficultyLabel: "난이도",
+    raidModeTimeToScore: "시간 → 점수",
+    raidModeScoreToTime: "점수 → 시간",
+    raidClearTimeLabel: "클리어 타임",
+    raidClearTimeHint: "M:SS.mmm — 예: 1:23.456",
+    raidScoreLabel: "총력전 점수",
+    raidTotalScore: "총점",
+    raidTeam: "{n}팀",
+    raidAddTeam: "팀 추가",
+    raidInvalidTime: "1:23.456 형식으로 입력하세요",
+    raidInvalidScore: "점수를 입력하세요",
+    toolGachaTitle: "가챠 트래커",
+    toolGachaSubtitle: "뽑기 운을 실시간으로 기록",
+    gachaPageTitle: "가챠 확률 트래커",
+    gachaSubtitle: "뽑을 때마다 기록하고 실제 확률을 확인하세요",
+    gachaPulls: "뽑기 수",
+    gachaThreeStars: "3★",
+    gachaPickups: "픽업",
+    gachaRate: "3★ 확률",
+    gachaExpected: "기대치 {rate}",
+    gachaSinceLast: "마지막 3★ 이후",
+    gachaAddMiss: "+1 꽝",
+    gachaAddTen: "+10 꽝",
+    gachaAddThreeStar: "+1 3★",
+    gachaAddPickup: "+1 픽업",
+    gachaUndo: "실행 취소",
+    gachaReset: "초기화",
+    gachaResetConfirm: "이 세션을 초기화할까요? 기록이 모두 지워집니다.",
+    gachaCancel: "취소",
+    gachaLucky: "운이 좋아요",
+    gachaUnlucky: "운이 나빠요",
+    gachaEven: "기대치 수준",
+    toolStudentsTitle: "학생 도감",
+    toolStudentsSubtitle: "모든 학생 둘러보기",
+    studentsPageTitle: "학생 도감",
+    studentsSubtitle: "전체 학생을 검색하고 필터링",
+    studentsSearchPlaceholder: "학생 검색…",
+    studentsNoResults: "조건에 맞는 학생이 없습니다.",
+    studentsCount: "학생 {n}명",
+    studentsFilters: "필터",
+    studentsClearFilters: "초기화",
+    studentsRarity: "희귀도",
+    studentsAtkType: "공격 속성",
+    studentsDefType: "방어 속성",
+    studentsSchool: "학원",
+    studentsGlobalOnly: "글로벌만",
+    studentDetailClub: "동아리",
+    studentDetailRole: "역할",
+    studentDetailPosition: "배치",
+    studentDetailWeapon: "무기",
+    studentDetailBirthday: "생일",
+    studentDetailAvailability: "출시 여부",
+    regionJapan: "일본",
+    regionGlobal: "글로벌",
+    regionChina: "중국",
+    positionFront: "전열",
+    positionMiddle: "중열",
+    positionBack: "후열",
 
     // Bond Exp
     bondPageTitle: "호감도 경험치 계산기",
@@ -742,6 +1146,106 @@ export const i18n: Record<Locale, UIStrings> = {
     toolCharaTitle: "キャラクタービルダー",
     toolCharaSubtitle: "リソース最適化",
     toolCharaDesc: "スマートなリソース管理で完璧なキャラクター構成を作りましょう",
+    toolBirthdayTitle: "生徒の誕生日",
+    toolBirthdaySubtitle: "すべての生徒の特別な日",
+    toolBirthdayDesc: "誕生日を見逃さない — 誰がいつ祝うのかをチェック",
+    birthdayPageTitle: "生徒の誕生日",
+    birthdaySubtitle: "誰がいつ祝うのか",
+    birthdayTodayHeading: "今日の誕生日",
+    birthdayTodayEmpty: "今日は誕生日がありません。また明日チェックしてください！",
+    birthdayUpcomingHeading: "まもなく",
+    birthdayCalendarHeading: "年間カレンダー",
+    birthdaySearchPlaceholder: "生徒を検索…",
+    birthdayNoResults: "該当する生徒がいません。",
+    birthdayToday: "今日",
+    birthdayTomorrow: "明日",
+    birthdayInDays: "{days}日後",
+    navBack: "戻る",
+    monthNames: [
+      "1月",
+      "2月",
+      "3月",
+      "4月",
+      "5月",
+      "6月",
+      "7月",
+      "8月",
+      "9月",
+      "10月",
+      "11月",
+      "12月",
+    ],
+    resetHeading: "リセットタイマー",
+    resetDaily: "デイリーリセット",
+    resetCafe: "カフェリセット",
+    resetHeadpat: "なでなで回復",
+    sotdHeading: "今日の生徒",
+    liveNowHeading: "開催中",
+    liveNowEndsIn: "残り {time}",
+    toolRaidTitle: "総力戦スコア",
+    toolRaidSubtitle: "クリアタイムをスコアに変換",
+    raidPageTitle: "総力戦スコア計算機",
+    raidSubtitle: "クリアタイムとスコアを相互変換",
+    raidDurationLabel: "ボス制限時間",
+    raidBossHint: "ボス: {list}",
+    raidDifficultyLabel: "難易度",
+    raidModeTimeToScore: "タイム → スコア",
+    raidModeScoreToTime: "スコア → タイム",
+    raidClearTimeLabel: "クリアタイム",
+    raidClearTimeHint: "M:SS.mmm — 例: 1:23.456",
+    raidScoreLabel: "総力戦スコア",
+    raidTotalScore: "合計スコア",
+    raidTeam: "{n}チーム",
+    raidAddTeam: "チームを追加",
+    raidInvalidTime: "1:23.456 の形式で入力してください",
+    raidInvalidScore: "スコアを入力してください",
+    toolGachaTitle: "ガチャ記録",
+    toolGachaSubtitle: "引きの運をリアルタイムで記録",
+    gachaPageTitle: "ガチャ確率トラッカー",
+    gachaSubtitle: "引くたびに記録して実際の排出率を確認",
+    gachaPulls: "回数",
+    gachaThreeStars: "3★",
+    gachaPickups: "ピックアップ",
+    gachaRate: "3★ 排出率",
+    gachaExpected: "期待値 {rate}",
+    gachaSinceLast: "前回の3★から",
+    gachaAddMiss: "+1 ハズレ",
+    gachaAddTen: "+10 ハズレ",
+    gachaAddThreeStar: "+1 3★",
+    gachaAddPickup: "+1 ピックアップ",
+    gachaUndo: "元に戻す",
+    gachaReset: "リセット",
+    gachaResetConfirm: "この記録をリセットしますか？カウントは消去されます。",
+    gachaCancel: "キャンセル",
+    gachaLucky: "運がいい",
+    gachaUnlucky: "運が悪い",
+    gachaEven: "期待値どおり",
+    toolStudentsTitle: "生徒図鑑",
+    toolStudentsSubtitle: "すべての生徒を閲覧",
+    studentsPageTitle: "生徒図鑑",
+    studentsSubtitle: "全生徒を検索・絞り込み",
+    studentsSearchPlaceholder: "生徒を検索…",
+    studentsNoResults: "条件に合う生徒がいません。",
+    studentsCount: "生徒 {n}人",
+    studentsFilters: "絞り込み",
+    studentsClearFilters: "クリア",
+    studentsRarity: "レアリティ",
+    studentsAtkType: "攻撃属性",
+    studentsDefType: "防御属性",
+    studentsSchool: "学園",
+    studentsGlobalOnly: "グローバルのみ",
+    studentDetailClub: "部活",
+    studentDetailRole: "ロール",
+    studentDetailPosition: "配置",
+    studentDetailWeapon: "武器",
+    studentDetailBirthday: "誕生日",
+    studentDetailAvailability: "実装状況",
+    regionJapan: "日本",
+    regionGlobal: "グローバル",
+    regionChina: "中国",
+    positionFront: "前衛",
+    positionMiddle: "中衛",
+    positionBack: "後衛",
 
     // Bond Exp
     bondPageTitle: "絆経験値計算機",
