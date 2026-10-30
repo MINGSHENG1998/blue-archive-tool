@@ -12,31 +12,48 @@ let adLoaded = false;
 let npa = true;
 let calcCount = 0;
 let lastShownAt = 0;
+let allowed = false;
+let dispose: (() => void) | null = null;
+
+/** Invalidates both a loaded request and callbacks from its old consent state. */
+export function stopInterstitial() {
+  allowed = false;
+  dispose?.();
+  dispose = null;
+  ad = null;
+  adLoaded = false;
+}
 
 function load() {
+  if (!allowed) return;
   const unitId = adUnitId("interstitial");
   if (!unitId) return;
+  dispose?.();
   adLoaded = false;
-  ad = InterstitialAd.createForAdRequest(unitId, {
+  const request = InterstitialAd.createForAdRequest(unitId, {
     requestNonPersonalizedAdsOnly: npa,
   });
-  ad.addAdEventListener(AdEventType.LOADED, () => {
-    adLoaded = true;
-  });
-  ad.addAdEventListener(AdEventType.ERROR, () => {
+  ad = request;
+  const listeners = [request.addAdEventListener(AdEventType.LOADED, () => {
+    if (allowed && ad === request) adLoaded = true;
+  }), request.addAdEventListener(AdEventType.ERROR, () => {
+    if (ad !== request) return;
     // Leave unloaded; the next eligible show attempt retries the load.
     adLoaded = false;
     ad = null;
-  });
-  ad.addAdEventListener(AdEventType.CLOSED, () => {
-    load(); // preload the next one
-  });
-  ad.load();
+  }), request.addAdEventListener(AdEventType.CLOSED, () => {
+    if (allowed && ad === request) load(); // preload the next one
+  })];
+  dispose = () => listeners.forEach(remove => remove?.());
+  request.load();
 }
 
 /** Called once by AdsProvider after SDK init, with the consent decision. */
 export function initInterstitial(personalized: boolean) {
+  const changed = npa !== !personalized;
+  if (changed) stopInterstitial();
   npa = !personalized;
+  allowed = true;
   if (!ad) load();
 }
 
@@ -45,7 +62,7 @@ export function initInterstitial(personalized: boolean) {
  * every Nth call, respecting the minimum interval and ad-free purchases.
  */
 export function maybeShowCalcInterstitial(isAdFree: boolean) {
-  if (isAdFree) return;
+  if (isAdFree || !allowed) return;
   calcCount += 1;
   if (calcCount % SHOW_EVERY_N !== 0) return;
   if (Date.now() - lastShownAt < MIN_INTERVAL_MS) return;

@@ -24,27 +24,36 @@ export function useAppOpenAd(enabled: boolean, personalized: boolean) {
   const showingRef = useRef(false);
 
   useEffect(() => {
+    let alive = true;
+    const listeners: (() => void)[] = [];
+    const clear = () => { listeners.splice(0).forEach(remove => remove?.()); adRef.current = null; loadedRef.current = false; loadedAtRef.current = 0; backgroundedAtRef.current = 0; showingRef.current = false; };
+    clear();
     if (!enabled) return;
     const unitId = adUnitId("appOpen");
     if (!unitId) return;
 
     const load = () => {
+      if (!alive) return;
+      listeners.splice(0).forEach(remove => remove?.());
       loadedRef.current = false;
       const ad = AppOpenAd.createForAdRequest(unitId, {
         requestNonPersonalizedAdsOnly: !personalized,
       });
-      ad.addAdEventListener(AdEventType.LOADED, () => {
+      listeners.push(ad.addAdEventListener(AdEventType.LOADED, () => {
+        if (!alive || adRef.current !== ad) return;
         loadedRef.current = true;
         loadedAtRef.current = Date.now();
-      });
-      ad.addAdEventListener(AdEventType.ERROR, () => {
+      }));
+      listeners.push(ad.addAdEventListener(AdEventType.ERROR, () => {
+        if (!alive || adRef.current !== ad) return;
         loadedRef.current = false;
         adRef.current = null;
-      });
-      ad.addAdEventListener(AdEventType.CLOSED, () => {
+      }));
+      listeners.push(ad.addAdEventListener(AdEventType.CLOSED, () => {
+        if (!alive || adRef.current !== ad) return;
         showingRef.current = false;
         load();
-      });
+      }));
       adRef.current = ad;
       ad.load();
     };
@@ -88,6 +97,6 @@ export function useAppOpenAd(enabled: boolean, personalized: boolean) {
       });
     });
 
-    return () => sub.remove();
+    return () => { alive = false; sub.remove(); clear(); };
   }, [enabled, personalized]);
 }

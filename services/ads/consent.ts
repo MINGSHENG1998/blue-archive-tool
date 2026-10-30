@@ -10,6 +10,15 @@ export interface ConsentResult {
   personalized: boolean;
 }
 
+/** Reread after privacy options close; never reuse the pre-form decision. */
+export async function readCurrentAdsConsent(): Promise<ConsentResult> {
+  const info = await AdsConsent.getConsentInfo();
+  if (!info.canRequestAds) return { canRequestAds: false, personalized: false };
+  if (info.status === AdsConsentStatus.NOT_REQUIRED) return { canRequestAds: true, personalized: true };
+  const choices = await AdsConsent.getUserChoices();
+  return { canRequestAds: true, personalized: choices.selectPersonalisedAds === true };
+}
+
 /**
  * Runs the Google UMP consent flow: fetches consent info and shows the
  * consent form when required (GDPR regions with a published AdMob privacy
@@ -32,9 +41,10 @@ export async function gatherAdsConsent(): Promise<ConsentResult> {
     const choices = await AdsConsent.getUserChoices();
     return { canRequestAds: true, personalized: choices.selectPersonalisedAds };
   } catch (e) {
-    // UMP unreachable (offline, or no privacy message published in AdMob).
-    // Serve non-personalized ads rather than nothing.
+    // A failed refresh does not grant consent. UMP may still have a usable
+    // cached decision; otherwise leave requests disabled until a later launch.
     if (__DEV__) console.warn("UMP consent failed:", e);
-    return { canRequestAds: true, personalized: false };
+    try { return await readCurrentAdsConsent(); }
+    catch { return { canRequestAds: false, personalized: false }; }
   }
 }

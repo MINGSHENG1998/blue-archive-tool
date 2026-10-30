@@ -1,91 +1,22 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { useColors } from '@/hooks/useColors';
+import { Tabs } from "expo-router";
+import { View } from "react-native";
+import { useReducedMotion } from "react-native-reanimated";
+import { CommandDeck } from "@/components/schale/CommandDeck";
+import { navStrings } from "@/constants/strings/nav";
+import { useStrings } from "@/constants/strings/define";
+import { useColors } from "@/hooks/useColors";
 
 export default function TabLayout() {
-  const insets = useSafeAreaInsets();
   const c = useColors();
-
-  return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: c.primaryColor,
-        tabBarInactiveTintColor: c.textSecondary,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            position: 'absolute',
-            backgroundColor: c.appBg,
-            borderTopColor: c.surfaceBorder,
-            borderTopWidth: 1,
-            paddingTop: 6,
-          },
-          default: {
-            backgroundColor: c.appBg,
-            borderTopColor: c.surfaceBorder,
-            borderTopWidth: 1,
-            elevation: 20,
-            height: 60 + insets.bottom,
-            paddingTop: 6,
-            paddingBottom: 8 + insets.bottom,
-          },
-        }),
-        tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: '600',
-          marginBottom: 2,
-        },
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-       <Tabs.Screen
-        name="banner"
-        options={{
-          title: 'Banner',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="date.fill" color={color} />,
-        }}
-      />
-       <Tabs.Screen
-        name="bondExp"
-        options={{
-          title: 'Bond Exp',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="heart.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="resourceCalc"
-        options={{
-          title: 'Chara Builder',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="calc.fill" color={color} />,
-        }}
-      />
-       <Tabs.Screen
-        name="other"
-        options={{
-          title: 'Misc',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="mics.fill" color={color} />,
-        }}
-      />
-       {/* <Tabs.Screen
-        name="incomeCalc"
-        options={{
-          title: 'Income Calculator',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="diamond.fill" color={color} />,
-        }}
-      /> */}
+  const s = useStrings(navStrings);
+  const reduced = useReducedMotion();
+  return <View style={{ flex: 1, backgroundColor: c.appBg }}>
+    <Tabs tabBar={props => <CommandDeck {...props} />} screenOptions={{ headerShown: false, animation: reduced ? "none" : "fade", sceneStyle: { backgroundColor: c.appBg } }}>
+      <Tabs.Screen name="index" options={{ title: s.tabHome }} />
+      <Tabs.Screen name="banner" options={{ title: s.tabBanners }} />
+      <Tabs.Screen name="students" options={{ title: s.tabStudents }} />
+      <Tabs.Screen name="tools" options={{ title: s.tabTools }} />
+      <Tabs.Screen name="other" options={{ title: s.tabSensei }} />
     </Tabs>
-  );
+  </View>;
 }

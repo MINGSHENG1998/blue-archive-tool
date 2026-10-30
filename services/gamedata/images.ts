@@ -1,4 +1,4 @@
-import { studentIconUrl } from "./schaledb";
+import { studentIconUrl, studentPortraitUrl } from "./schaledb";
 
 /**
  * Our own copy of every student icon on Firebase Hosting, refreshed with
@@ -13,6 +13,16 @@ export const hostedIconUrl = (id: number) => `${HOSTED_ICON_BASE}/${id}.webp`;
 export const studentIconUris = (id: number): string[] => [
   hostedIconUrl(id),
   studentIconUrl(id),
+];
+
+/**
+ * Full-body portrait candidates: SchaleDB's portrait art, then the icons. Not
+ * mirrored (too heavy for every student), so a blocked portrait degrades to
+ * the icon instead of a placeholder.
+ */
+export const studentPortraitUris = (id: number): string[] => [
+  studentPortraitUrl(id),
+  ...studentIconUris(id),
 ];
 
 /**

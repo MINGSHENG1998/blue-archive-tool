@@ -1,10 +1,8 @@
-import React, { useRef, useState, useCallback, useMemo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-
+import React, { useRef, useState, useCallback, useEffect } from 'react';
+import { AppState, View, Text, Pressable, TextInput, StyleSheet } from 'react-native';
 import { useColors } from '@/hooks/useColors';
-import { RADIUS } from '@/constants/layout';
-import type { ThemeTokens } from '@/constants/theme';
-import { font, tabularNums } from '@/constants/typography';
+import { useType } from '@/constants/typography';
+import { clampInteger, holdStep } from '@/services/calculator-controls';
 
 interface NumberInputProps {
   value: number;
@@ -14,166 +12,54 @@ interface NumberInputProps {
   max?: number;
 }
 
-const NumberInput: React.FC<NumberInputProps> = ({
-  value,
-  onChange,
-  label = 'Cafe Pat /day',
-  min = 0,
-  max = 100,
-}) => {
-  const c = useColors();
-  const styles = useMemo(() => makeStyles(c), [c]);
-  const [speed, setSpeed] = useState(1);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const speedIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const longPressTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const currentValueRef = useRef(value);
-
-  // Keep the ref in sync with the prop
-  currentValueRef.current = value;
-
-  const clearAllTimers = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-    if (speedIntervalRef.current) {
-      clearInterval(speedIntervalRef.current);
-      speedIntervalRef.current = null;
-    }
-    if (longPressTimeoutRef.current) {
-      clearTimeout(longPressTimeoutRef.current);
-      longPressTimeoutRef.current = null;
-    }
-    setSpeed(1);
-  }, []);
-
-  const startAcceleration = useCallback((increment: boolean) => {
-    clearAllTimers();
-
-    // Start with immediate first change
-    const newValue = value + (increment ? 1 : -1);
-    if (newValue <= max && newValue >= min) {
-      onChange(newValue);
-    }
-
-    // Set up continuous updates
-    intervalRef.current = setInterval(() => {
-      const nextValue = currentValueRef.current + (increment ? speed : -speed);
-      if (nextValue <= max && nextValue >= min) {
-        onChange(nextValue);
-      } else {
-        clearAllTimers();
-      }
-    }, 100);
-
-    // Gradually increase speed
-    speedIntervalRef.current = setInterval(() => {
-      setSpeed((prevSpeed) => {
-        const newSpeed = prevSpeed * 1.5;
-        return newSpeed > 10 ? 10 : newSpeed;
-      });
-    }, 500);
-  }, [value, min, max, onChange, speed, clearAllTimers]);
-
-  const handleLongPress = useCallback((increment: boolean) => {
-    // Add a small delay before starting acceleration to prevent accidental triggers
-    longPressTimeoutRef.current = setTimeout(() => {
-      startAcceleration(increment);
-    }, 200);
-  }, [startAcceleration]);
-
-  const increment = useCallback(() => {
-    if (value < max) {
-      onChange(value + 1);
-    }
-  }, [value, max, onChange]);
-
-  const decrement = useCallback(() => {
-    if (value > min) {
-      onChange(value - 1);
-    }
-  }, [value, min, onChange]);
-
-  return (
-    <View style={styles.wrapper}>
-      <View style={styles.container}>
-        <TouchableOpacity 
-          onPress={decrement}
-          onLongPress={() => handleLongPress(false)}
-          onPressOut={clearAllTimers}
-          delayLongPress={200}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>−</Text>
-        </TouchableOpacity>
-        
-        <View style={styles.valueContainer}>
-          <Text style={styles.value}>{value}</Text>
-        </View>
-        
-        <TouchableOpacity 
-          onPress={increment}
-          onLongPress={() => handleLongPress(true)}
-          onPressOut={clearAllTimers}
-          delayLongPress={200}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>+</Text>
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.label}>{label}</Text>
+/** A single press changes one; holding repeats and accelerates in whole steps. */
+export default function NumberInput({ value, onChange, label, min = 0, max = 100 }: NumberInputProps) {
+  const c = useColors(), type = useType();
+  const [draft, setDraft] = useState<string | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const latest = useRef({ value, onChange, min, max });
+  latest.current = { value, onChange, min, max };
+  const stop = useCallback(() => { if (timer.current !== null) { clearTimeout(timer.current); timer.current = null; } }, []);
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', state => { if (state !== 'active') stop(); });
+    return () => { stop(); subscription.remove(); };
+  }, [stop]);
+  const update = (next: number) => {
+    const p = latest.current;
+    const clamped = clampInteger(next, p.min, p.max);
+    if (clamped !== p.value) { latest.current = { ...p, value: clamped }; p.onChange(clamped); }
+    return clamped;
+  };
+  const start = (direction: number) => {
+    stop(); setDraft(null);
+    const startedAt = Date.now();
+    update(latest.current.value + direction);
+    const repeat = () => {
+      const p = latest.current;
+      const next = update(p.value + direction * holdStep(Date.now() - startedAt));
+      if (next > p.min && next < p.max) timer.current = setTimeout(repeat, 100);
+    };
+    timer.current = setTimeout(repeat, 350);
+  };
+  const commit = () => { if (draft !== null) update(Number(draft)); setDraft(null); };
+  const step = (direction: number) => { setDraft(null); update(latest.current.value + direction); };
+  return <View style={styles.wrapper}>
+    {label ? <Text style={[type.caption, { color: c.textSecondary }]}>{label}</Text> : null}
+    <View style={[styles.container, { borderColor: c.hairline, backgroundColor: c.surfaceBg }]}>
+      <Pressable accessibilityRole="button" accessibilityLabel={`${label ?? ''} −`} disabled={value <= min} onPress={() => step(-1)} onLongPress={() => start(-1)} delayLongPress={350} onPressOut={stop} onTouchCancel={stop}
+        style={[styles.button, { backgroundColor: c.accentSoft, opacity: value <= min ? 0.4 : 1 }]}><Text style={[type.section, { color: c.primaryInk }]}>−</Text></Pressable>
+      <TextInput accessibilityLabel={label} accessibilityValue={{ min, max, now: value }} keyboardType="number-pad" inputMode="numeric"
+        value={draft ?? String(value)} onFocus={() => { stop(); setDraft(String(value)); }} onChangeText={text => setDraft(text.replace(/[^0-9]/g, ''))}
+        onBlur={commit} onSubmitEditing={commit} selectTextOnFocus style={[type.num, styles.value, { color: c.textPrimary }]} />
+      <Pressable accessibilityRole="button" accessibilityLabel={`${label ?? ''} +`} disabled={value >= max} onPress={() => step(1)} onLongPress={() => start(1)} delayLongPress={350} onPressOut={stop} onTouchCancel={stop}
+        style={[styles.button, { backgroundColor: c.accentSoft, opacity: value >= max ? 0.4 : 1 }]}><Text style={[type.section, { color: c.primaryInk }]}>+</Text></Pressable>
     </View>
-  );
-};
-
-// Matches the RangeSelector stepper look: surfaceBg pill with rounded
-// accentSoft -/+ buttons and the value centered between them.
-const makeStyles = (c: ThemeTokens) => StyleSheet.create({
-  wrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: c.surfaceBg,
-    borderRadius: RADIUS.control,
-    paddingHorizontal: 6,
-    paddingVertical: 6,
-    gap: 8,
-  },
-  button: {
-    width: 34,
-    height: 34,
-    borderRadius: RADIUS.sm,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: c.accentSoft,
-  },
-  buttonText: {
-    fontSize: 20,
-    color: c.primaryColor,
-    fontWeight: '700',
-  },
-  valueContainer: {
-    minWidth: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  value: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: c.textPrimary,
-    ...font('bold'),
-    ...tabularNums,
-  },
-  label: {
-    color: c.textPrimary,
-    marginLeft: 12,
-    fontSize: 16,
-    ...font('regular'),
-  },
+  </View>;
+}
+const styles = StyleSheet.create({
+  wrapper: { gap: 6, flexShrink: 1 },
+  container: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: 4, padding: 4, gap: 8 },
+  button: { width: 44, height: 44, borderRadius: 3, alignItems: 'center', justifyContent: 'center' },
+  value: { minWidth: 48, minHeight: 44, textAlign: 'center', flexShrink: 1 },
 });
 
-export default NumberInput;

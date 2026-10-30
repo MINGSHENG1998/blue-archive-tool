@@ -2,7 +2,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React from "react";
 import TestRenderer, { act } from "react-test-renderer";
 
-import { GameDataProvider, useGameData } from "../gamedata-context";
+import { LanguageProvider } from "../language-context";
+import {
+  GameDataProvider,
+  effectiveBulletTypes,
+  liveEvents,
+  liveRaids,
+  useGameData,
+} from "../gamedata-context";
 
 jest.mock("@react-native-async-storage/async-storage", () =>
   require("@react-native-async-storage/async-storage/jest/async-storage-mock"),
@@ -18,6 +25,8 @@ jest.mock("../../services/gamedata/schaledb", () => ({
   fetchStudents: jest.fn().mockRejectedValue(new Error("offline")),
   fetchNameMap: jest.fn().mockRejectedValue(new Error("offline")),
   fetchLocalization: jest.fn().mockRejectedValue(new Error("offline")),
+  fetchRaids: jest.fn().mockRejectedValue(new Error("offline")),
+  fetchRaidNames: jest.fn().mockRejectedValue(new Error("offline")),
 }));
 
 let captured: ReturnType<typeof useGameData>;
@@ -26,13 +35,14 @@ function Capture() {
   return null;
 }
 
-async function renderProvider() {
+async function renderProvider({ withLanguage = false } = {}) {
+  const tree = (
+    <GameDataProvider>
+      <Capture />
+    </GameDataProvider>
+  );
   await act(async () => {
-    TestRenderer.create(
-      <GameDataProvider>
-        <Capture />
-      </GameDataProvider>,
-    );
+    TestRenderer.create(withLanguage ? <LanguageProvider>{tree}</LanguageProvider> : tree);
   });
   // flush the cache read and the background refresh
   await act(async () => {});
@@ -59,13 +69,15 @@ describe("GameDataProvider", () => {
   });
 
   it("still renders when storage itself throws", async () => {
-    const getItem = jest
-      .spyOn(AsyncStorage, "getItem")
-      .mockRejectedValue(new Error("storage unavailable"));
+    // The storage mock is itself a jest.fn, so mockRestore would strip its
+    // implementation for every later test; put the original back instead.
+    const getItem = jest.spyOn(AsyncStorage, "getItem");
+    const original = getItem.getMockImplementation();
+    getItem.mockRejectedValue(new Error("storage unavailable"));
     await renderProvider();
     expect(captured.students.length).toBeGreaterThan(200);
     expect(captured.ready).toBe(true);
-    getItem.mockRestore();
+    getItem.mockImplementation(original);
   });
 
   it("falls back to the English name, then the raw key, for labels", async () => {
@@ -90,5 +102,48 @@ describe("GameDataProvider", () => {
       await captured.refresh();
     });
     expect(captured.students).toHaveLength(before);
+  });
+
+  it("exposes the bundled raid table, with no overlay for English", async () => {
+    await renderProvider();
+    expect(Object.keys(captured.raids.raid).length).toBeGreaterThan(0);
+    expect(captured.raidNames).toBeUndefined();
+  });
+
+  it("names events in English, reruns after their original", async () => {
+    await renderProvider();
+    expect(captured.eventName(859)).toBe("The Calm After the Storm");
+    expect(captured.eventName(10859)).toBe("The Calm After the Storm");
+    expect(captured.eventName(1)).toBeNull();
+  });
+
+  it("words the availability category, Regular included", async () => {
+    await renderProvider();
+    const base = captured.students[0];
+    const as = (category: number) => ({ ...base, IsLimited: [0, category, 0] });
+    expect(captured.isLimitedLabel(as(0))).toBe("Regular");
+    expect(captured.isLimitedLabel(as(1))).toBe("Unique");
+    expect(captured.isLimitedLabel(as(3))).toBe("Fest");
+    expect(captured.isLimitedLabel(as(9))).toBeNull();
+    expect(captured.isLimitedTooltip(as(1))).toMatch(/Unique Recruitment/);
+  });
+
+  it("localizes events, categories and raid names for the active locale", async () => {
+    await AsyncStorage.setItem("app_locale", "ja");
+    await renderProvider({ withLanguage: true });
+    expect(captured.eventName(859)).toBe("嵐過天晴");
+    const base = captured.students[0];
+    expect(captured.isLimitedLabel({ ...base, IsLimited: [0, 1, 0] })).toBe("限定");
+    expect(captured.raidNames?.multiFloor["1000004"]).toBe("ティファレト");
+  });
+
+  it("re-exports the live helpers next to the hook", async () => {
+    await renderProvider();
+    const now = new Date();
+    expect(Array.isArray(liveEvents(captured.config, now))).toBe(true);
+    expect(
+      Array.isArray(liveRaids(captured.config, captured.raids, now, { names: captured.raidNames })),
+    ).toBe(true);
+    expect(effectiveBulletTypes("ElasticArmor", captured.config)).toEqual(["Sonic"]);
   });
 });

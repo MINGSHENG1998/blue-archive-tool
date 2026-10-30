@@ -1,38 +1,59 @@
 import React, { useMemo } from "react";
-import { View, StyleSheet, type ViewProps, type ViewStyle } from "react-native";
+import { StyleSheet, View, type ViewProps } from "react-native";
 
 import { useColors } from "@/hooks/useColors";
-import { elevation, type ElevationLevel } from "@/constants/elevation";
 import { RADIUS } from "@/constants/layout";
 import type { ThemeTokens } from "@/constants/theme";
 
+type Level = 1 | 2 | 3;
+type Variant = "elevated" | "surface" | "hero";
+
 type Props = ViewProps & {
-  /** Visual elevation level (depth). Default 1. */
-  level?: ElevationLevel;
+  /** Kept for API compatibility. Depth now comes from the surface tone alone. */
+  level?: Level;
   /** Inner padding. Default 20. Pass 0 for flush content. */
   padding?: number;
-  /** Use the higher-contrast surface tint (default) or the flatter inset surface. */
-  variant?: "elevated" | "surface";
+  /**
+   * 'elevated' (default) = white sheet with a hairline edge; 'surface' = the
+   * flatter tinted inset used inside another sheet; 'hero' = elevated.
+   */
+  variant?: Variant;
+  /** Kept for API compatibility; ignored. */
+  tone?: string;
+  /** Kept for API compatibility; ignored. */
+  serial?: string;
+  /** Kept for API compatibility; ignored. */
+  chamfer?: boolean;
+  /** Kept for API compatibility; ignored. */
+  on?: string;
+  /** Kept for API compatibility; ignored. */
+  spine?: boolean;
 };
 
 /**
- * The modern base surface: borderless, softly elevated, generously rounded.
- * Replaces the old bordered Card pattern. Depth comes from elevation + the
- * lighter `elevatedBg`/`surfaceBg` tokens, not outlines.
+ * The base surface. A flat sheet with a hairline edge and no shadow: depth
+ * comes from the sheet sitting a step lighter (or darker) than the page, which
+ * reads the same on every theme and on web, and never bleeds Android
+ * elevation boxes on dark themes.
  */
 export function AppCard({
-  level = 1,
+  level: _level,
   padding = 20,
   variant = "elevated",
+  tone: _tone,
+  serial: _serial,
+  chamfer: _chamfer,
+  on: _on,
+  spine: _spine,
   style,
   children,
   ...rest
 }: Props) {
   const c = useColors();
-  const styles = useMemo(() => makeStyles(c, variant), [c, variant]);
+  const styles = useMemo(() => makeStyles(c), [c]);
   return (
     <View
-      style={[styles.card, elevation(c, level), { padding }, style as ViewStyle]}
+      style={[variant === "surface" ? styles.surface : styles.sheet, { padding }, style]}
       {...rest}
     >
       {children}
@@ -40,10 +61,16 @@ export function AppCard({
   );
 }
 
-const makeStyles = (c: ThemeTokens, variant: "elevated" | "surface") =>
+const makeStyles = (c: ThemeTokens) =>
   StyleSheet.create({
-    card: {
-      backgroundColor: variant === "elevated" ? c.elevatedBg : c.surfaceBg,
+    sheet: {
+      backgroundColor: c.elevatedBg,
       borderRadius: RADIUS.card,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: c.isDark ? c.hairline : c.surfaceBorder,
+    },
+    surface: {
+      backgroundColor: c.surfaceBg,
+      borderRadius: RADIUS.control,
     },
   });

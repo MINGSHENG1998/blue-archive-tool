@@ -2,7 +2,7 @@
 //
 //   launch  -> cached (if at least as new as bundled) else bundled   [instant]
 //   then    -> config.min.json (~24 KB) to compare `build`           [throttled]
-//   then    -> full student fetch, only when `build` actually moved  [~1.6 MB]
+//   then    -> roster + labels + raids, only when `build` moved      [~400 KB on the wire]
 //
 // Everything is best-effort. A refresh that fails leaves the caller on the
 // snapshot it already has.
@@ -12,6 +12,8 @@ import {
   fetchConfig,
   fetchLocalization,
   fetchNameMap,
+  fetchRaidNames,
+  fetchRaids,
   fetchStudents,
   type GameLocale,
 } from "./schaledb";
@@ -19,6 +21,8 @@ import {
   bundledConfig,
   bundledLabels,
   bundledNames,
+  bundledRaidNames,
+  bundledRaids,
   bundledStudents,
 } from "./snapshot";
 import type { GameDataSnapshot } from "./types";
@@ -32,6 +36,8 @@ export function bundledSnapshot(): GameDataSnapshot {
     students: bundledStudents,
     names: bundledNames,
     labels: bundledLabels,
+    raids: bundledRaids,
+    raidNames: bundledRaidNames,
     source: "bundled",
   };
 }
@@ -44,7 +50,9 @@ export function bundledSnapshot(): GameDataSnapshot {
 export async function loadGameData(): Promise<GameDataSnapshot> {
   const cached = await readCache();
   if (cached && cached.config.build >= bundledConfig.build) {
-    return { ...cached, source: "cached" };
+    // A cache that lost its raid entry is still the newer roster; the shipped
+    // raids are the floor for that one piece.
+    return { ...cached, raids: cached.raids ?? bundledRaids, source: "cached" };
   }
   return bundledSnapshot();
 }
@@ -54,11 +62,15 @@ export async function loadGameData(): Promise<GameDataSnapshot> {
  * do (throttled, already current, or the network failed).
  *
  * `locale` scopes the expensive part. SchaleDB publishes no names-only
- * endpoint, so every localized name overlay costs a full ~1.6 MB roster
- * download; fetching all four would put ~6.7 MB on a phone's data plan every
- * time upstream moves. Only the locale in use is refreshed, and the other
- * overlays are carried forward from the snapshot we already have — worst case
- * a language the user is not reading stays one build behind.
+ * endpoint, so every localized name overlay costs a full roster download
+ * (~1.7 MB raw, ~300 KB gzipped); fetching all four would put over a megabyte
+ * on a phone's data plan every time upstream moves. Only the locale in use is
+ * refreshed, and the other overlays are carried forward from the snapshot we
+ * already have — worst case a language the user is not reading stays one build
+ * behind. Raid names follow the same rule.
+ *
+ * Raids are supplementary: if that file fails or changes shape, the roster
+ * still refreshes and the raids already on hand are carried forward.
  */
 export async function refreshGameData(
   current: GameDataSnapshot,
@@ -72,29 +84,49 @@ export async function refreshGameData(
       if (now - checkedAt < REFRESH_INTERVAL_MS) return null;
     }
 
-    const config = await fetchConfig();
+    const fetched = await fetchConfig();
     await writeCheckedAt(now);
-    if (config.build <= current.config.build) return null;
+    if (fetched.build <= current.config.build) return null;
 
     // English is the base record and the search fallback, so it is always
-    // refreshed; a non-English locale adds exactly one more roster download.
-    const [students, overlay, englishLabels, localeLabels] = await Promise.all([
-      fetchStudents("en"),
-      locale === "en" ? Promise.resolve(null) : fetchNameMap(locale),
-      fetchLocalization("en"),
-      locale === "en" ? Promise.resolve(null) : fetchLocalization(locale),
-    ]);
+    // refreshed; a non-English locale adds exactly one more roster download
+    // and one more raids file.
+    const overlayLocale = locale === "en" ? null : locale;
+    const [students, overlay, englishLabels, localeLabels, raids, localeRaidNames] =
+      await Promise.all([
+        fetchStudents("en"),
+        overlayLocale ? fetchNameMap(overlayLocale) : Promise.resolve(null),
+        fetchLocalization("en"),
+        overlayLocale ? fetchLocalization(overlayLocale) : Promise.resolve(null),
+        fetchRaids("en").catch(() => null),
+        overlayLocale ? fetchRaidNames(overlayLocale).catch(() => null) : Promise.resolve(null),
+      ]);
+
+    // A config that arrives without the type chart keeps the one we had,
+    // rather than blanking every "effective against" hint until next build.
+    const typeChart = fetched.TypeEffectiveness ?? current.config.TypeEffectiveness;
+    const config = typeChart ? { ...fetched, TypeEffectiveness: typeChart } : fetched;
 
     const names: GameDataSnapshot["names"] = { ...current.names };
-    if (overlay && locale !== "en") names[locale] = overlay;
+    if (overlay && overlayLocale) names[overlayLocale] = overlay;
 
     const labels: GameDataSnapshot["labels"] = {
       ...current.labels,
       en: englishLabels,
     };
-    if (localeLabels && locale !== "en") labels[locale] = localeLabels;
+    if (localeLabels && overlayLocale) labels[overlayLocale] = localeLabels;
 
-    const next = { config, students, names, labels };
+    const raidNames: GameDataSnapshot["raidNames"] = { ...current.raidNames };
+    if (localeRaidNames && overlayLocale) raidNames[overlayLocale] = localeRaidNames;
+
+    const next = {
+      config,
+      students,
+      names,
+      labels,
+      raids: raids ?? current.raids,
+      raidNames,
+    };
     await writeCache(next);
     return { ...next, source: "cached" };
   } catch {
@@ -104,8 +136,15 @@ export async function refreshGameData(
 }
 
 export { clearCache } from "./cache";
-export { LOCALE_TO_LANG, studentIconUrl, studentPortraitUrl } from "./schaledb";
-export { characterImageUris, hostedIconUrl, studentIconUris } from "./images";
+export {
+  LOCALE_TO_LANG,
+  OPTIONAL_STUDENT_FIELDS,
+  STUDENT_FIELDS,
+  studentIconUrl,
+  studentPortraitUrl,
+} from "./schaledb";
+export { characterImageUris, hostedIconUrl, studentIconUris, studentPortraitUris } from "./images";
+export * from "./live";
 export * from "./resets";
 export * from "./students";
 export * from "./types";

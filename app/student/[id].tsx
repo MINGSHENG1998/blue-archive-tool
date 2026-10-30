@@ -1,252 +1,156 @@
-import { Stack, useLocalSearchParams } from "expo-router";
-import { useMemo } from "react";
-import { StyleSheet, View } from "react-native";
-import { FallbackImage } from "@/components/FallbackImage";
-
-import { AppCard } from "@/components/AppCard";
-import { ScreenLayout } from "@/components/ScreenLayout";
-import { StackScreenHeader } from "@/components/StackScreenHeader";
-import { ThemedText } from "@/components/ThemedText";
-import { typeColor } from "@/constants/Colors";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { AppCard, EmptyState, FilterPill, IndexTab, NavBar, NumberHero, PortraitCrop, ScreenLayout, SignalButton, Stamp } from "@/components/schale";
 import { categoryColors } from "@/constants/categoryColors";
+import { typeColor } from "@/constants/Colors";
+import { GradeSheet, useStudentRegistration } from "@/components/students/Registration";
 import { i18n, atkTypeLabels, defTypeLabels } from "@/constants/i18n";
-import { RADIUS } from "@/constants/layout";
-import type { ThemeTokens } from "@/constants/theme";
-import { font } from "@/constants/typography";
+import { bannerStrings } from "@/constants/strings/banners";
+import { fmt, useStrings } from "@/constants/strings/define";
+import { equipmentStrings, studentStrings } from "@/constants/strings/students";
+import { useType } from "@/constants/typography";
+import { useBanners } from "@/contexts/banners-context";
 import { useGameData } from "@/contexts/gamedata-context";
 import { useLanguage } from "@/contexts/language-context";
 import { useColors } from "@/hooks/useColors";
 import InlineAd from "@/services/ads/InlineAd";
-import {
-  REGION,
-  parseBirthDay,
-  studentIconUris,
-  studentPortraitUrl,
-  toAtkType,
-  toDefType,
-} from "@/services/gamedata";
-
-// Route-level error boundary: a render throw here degrades to an in-app
-// error screen for this route only, instead of taking down the whole app.
+import { scheduleDate } from "@/services/banners/view";
+import { REGION, TERRAINS, adaptationGrade, daysUntilBirthday, parseBirthDay, studentIconUris, studentPortraitUrl, terrainAdaptation, toAtkType, toDefType, type GameStudent } from "@/services/gamedata";
 export { ErrorBoundary } from "expo-router";
-
 
 export default function StudentDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { locale } = useLanguage();
-  const t = i18n[locale];
-  const c = useColors();
-  const styles = useMemo(() => makeStyles(c), [c]);
-  const { byId, displayName, label } = useGameData();
-
+  const { byId } = useGameData();
+  const s = useStrings(studentStrings);
   const student = byId[Number(id)];
-
-  // A stale deep link, or an id from a newer snapshot than this build has.
-  if (!student) {
-    return (
-      <>
-        <Stack.Screen options={{ headerShown: false }} />
-        <ScreenLayout>
-          <StackScreenHeader title={t.studentsPageTitle} />
-          <AppCard level={1}>
-            <ThemedText style={styles.missing}>{t.studentsNoResults}</ThemedText>
-          </AppCard>
-        </ScreenLayout>
-      </>
-    );
-  }
-
-  const atk = toAtkType(student.BulletType);
-  const def = toDefType(student.ArmorType);
-  const birthday = parseBirthDay(student.BirthDay);
-  const positionLabel =
-    student.Position === "Front"
-      ? t.positionFront
-      : student.Position === "Middle"
-        ? t.positionMiddle
-        : t.positionBack;
-
-  const rows: { label: string; value: string }[] = [
-    { label: t.studentsSchool, value: label("School", student.School) },
-    { label: t.studentDetailClub, value: label("Club", student.Club) },
-    {
-      label: t.studentDetailRole,
-      value: label("TacticRole", student.TacticRole),
-    },
-    { label: t.studentDetailPosition, value: positionLabel },
-    { label: t.studentDetailWeapon, value: student.WeaponType },
-  ];
-  if (birthday) {
-    rows.push({
-      label: t.studentDetailBirthday,
-      value: `${t.monthNames[birthday.month - 1]} ${birthday.day}`,
-    });
-  }
-
-  const regions: { label: string; released: boolean }[] = [
-    { label: t.regionJapan, released: student.IsReleased[REGION.japan] },
-    { label: t.regionGlobal, released: student.IsReleased[REGION.global] },
-    { label: t.regionChina, released: student.IsReleased[REGION.china] },
-  ];
-
-  return (
-    <>
-      <Stack.Screen options={{ headerShown: false }} />
-      <ScreenLayout>
-        <StackScreenHeader
-          title={displayName(student)}
-          subtitle={student.Name !== displayName(student) ? student.Name : undefined}
-        />
-
-        <AppCard level={2} padding={0} style={styles.hero}>
-          <FallbackImage
-            uris={[studentPortraitUrl(student.Id), ...studentIconUris(student.Id)]}
-            label={student.Name}
-            style={styles.portrait}
-            resizeMode="cover"
-          />
-          <View style={styles.heroBody}>
-            <ThemedText style={styles.stars}>
-              {"★".repeat(student.StarGrade)}
-            </ThemedText>
-            <View style={styles.badgeRow}>
-              <View style={[styles.badge, styles.classBadge]}>
-                <ThemedText style={styles.badgeText}>
-                  {label("SquadType", student.SquadType)}
-                </ThemedText>
-              </View>
-              {atk ? (
-                <View
-                  style={[
-                    styles.badge,
-                    { backgroundColor: typeColor[atk].background },
-                  ]}
-                >
-                  <ThemedText style={styles.badgeText}>
-                    {atkTypeLabels[atk][locale]}
-                  </ThemedText>
-                </View>
-              ) : null}
-              {def ? (
-                <View
-                  style={[
-                    styles.badge,
-                    { backgroundColor: typeColor[def].background },
-                  ]}
-                >
-                  <ThemedText style={styles.badgeText}>
-                    {defTypeLabels[def][locale]}
-                  </ThemedText>
-                </View>
-              ) : null}
-            </View>
-          </View>
-        </AppCard>
-
-        <AppCard level={1} style={styles.card}>
-          {rows.map((row) => (
-            <View key={row.label} style={styles.row}>
-              <ThemedText style={styles.rowLabel}>{row.label}</ThemedText>
-              <ThemedText style={styles.rowValue}>{row.value}</ThemedText>
-            </View>
-          ))}
-        </AppCard>
-
-        <AppCard level={1} style={styles.card}>
-          <ThemedText style={styles.sectionLabel}>
-            {t.studentDetailAvailability}
-          </ThemedText>
-          <View style={styles.regionRow}>
-            {regions.map((region) => (
-              <View
-                key={region.label}
-                style={[
-                  styles.regionPill,
-                  region.released
-                    ? styles.regionReleased
-                    : styles.regionUnreleased,
-                ]}
-              >
-                <ThemedText
-                  style={[
-                    styles.regionText,
-                    region.released
-                      ? styles.regionTextReleased
-                      : styles.regionTextUnreleased,
-                  ]}
-                >
-                  {region.label}
-                </ThemedText>
-              </View>
-            ))}
-          </View>
-        </AppCard>
-
-        <InlineAd />
-      </ScreenLayout>
-    </>
-  );
+  return <>
+    <Stack.Screen options={{ headerShown: false }} />
+    {student ? <StudentDossier key={student.Id} student={student} /> : <ScreenLayout>
+      <NavBar title={s.title} /><EmptyState title={s.missingStudent} />
+    </ScreenLayout>}
+  </>;
 }
 
-const makeStyles = (c: ThemeTokens) =>
-  StyleSheet.create({
-    missing: { fontSize: 13, color: c.textMuted },
+function StudentDossier({ student }: { student: GameStudent }) {
+  const router = useRouter();
+  const c = useColors();
+  const type = useType();
+  const { locale } = useLanguage();
+  const t = i18n[locale];
+  const s = useStrings(studentStrings);
+  const b = useStrings(bannerStrings);
+  const equipment = useStrings(equipmentStrings);
+  const { displayName, label, isLimitedLabel, isLimitedTooltip } = useGameData();
+  const { bannersFor, recent, status } = useBanners();
+  const registration = useStudentRegistration(student);
+  const [editing, setEditing] = useState(false);
+  const name = displayName(student);
+  const attack = toAtkType(student.BulletType);
+  const armor = toDefType(student.ArmorType);
+  const birthday = parseBirthDay(student.BirthDay);
+  const birthdayDays = birthday ? daysUntilBirthday(birthday, new Date()) : null;
+  const ids = new Set([student.Id, student.LinkedCharacterId].filter((id): id is number => id !== undefined));
+  const appearances = [...new Map([
+    ...[...ids].flatMap(id => bannersFor(id)),
+    ...recent.filter(banner => banner.characters.some(character => character.studentId !== undefined && ids.has(character.studentId))),
+  ].map(banner => [banner.id, banner])).values()].sort((a, z) => a.startAt - z.startAt);
+  const row = (title: string, value: string | undefined) => value ? <View key={title} style={[styles.row, { borderBottomColor: c.hairline }]}>
+    <Text style={[type.caption, styles.rowLabel, { color: c.textSecondary }]}>{title}</Text>
+    <Text selectable style={[type.bodyStrong, styles.rowValue, { color: c.textPrimary }]}>{value}</Text>
+  </View> : null;
+  const position = student.Position === "Front" ? t.positionFront : student.Position === "Middle" ? t.positionMiddle : student.Position === "Back" ? t.positionBack : student.Position;
 
-    hero: { flexDirection: "row", overflow: "hidden", marginBottom: 16 },
-    portrait: {
-      width: 132,
-      height: 132,
-      backgroundColor: c.surfaceBg,
-    },
-    heroBody: { flex: 1, padding: 16, justifyContent: "center" },
-    stars: { fontSize: 16, color: categoryColors.star, marginBottom: 10 },
+  return <>
+    <ScreenLayout>
+      <NavBar title={name} subtitle={label("School", student.School)} />
+      <AppCard padding={0} style={styles.hero}>
+        <LinearGradient colors={[c.skyTop, c.skyMid]} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} style={StyleSheet.absoluteFill} />
+        <PortraitCrop uris={[studentPortraitUrl(student.Id), ...studentIconUris(student.Id)]} label={name}
+          width={170} height={HERO_H} span={0.62} top={0.06} style={styles.portrait} />
+        <View style={styles.heroText}>
+          <Text style={[type.caption, { color: c.textSecondary }]}>{label("SquadType", student.SquadType)}</Text>
+          <Text style={[type.num, { color: categoryColors.star, fontSize: 18 }]}>{"★".repeat(registration.entry?.stars ?? student.StarGrade)}</Text>
+          <View style={styles.badges}>
+            {attack ? <Stamp label={atkTypeLabels[attack][locale]} size="sm" color={typeColor[attack]?.background} on={c.skyTop} /> : null}
+            {armor ? <Stamp label={defTypeLabels[armor][locale]} size="sm" color={typeColor[armor]?.background} on={c.skyTop} /> : null}
+            {registration.entry ? <Stamp label={s.owned} tone="success" size="sm" on={c.skyTop} /> : null}
+          </View>
+        </View>
+      </AppCard>
+      <View style={styles.actions}>
+        <SignalButton compact style={styles.flex} icon={registration.entry ? "check-circle" : "plus-circle-outline"} label={registration.entry ? s.unown : s.own} variant="ghost" disabled={!registration.ready} onPress={registration.toggleOwned} />
+        <SignalButton compact style={styles.flex} icon={registration.watched ? "star" : "star-outline"} label={registration.watched ? s.unwatch : s.watch} variant="ghost" disabled={!registration.watchReady} onPress={registration.toggleWatch} />
+      </View>
+      {registration.entry ? <FilterPill label={s.grades} icon="pencil-outline" onPress={() => setEditing(true)} disabled={!registration.ready} /> : null}
+      <SignalButton label={s.bond} onPress={() => router.push({ pathname: "/tools/bond", params: { studentId: String(student.Id) } } as never)} />
 
-    badgeRow: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
-    badge: {
-      paddingHorizontal: 10,
-      paddingVertical: 4,
-      borderRadius: RADIUS.pill,
-    },
-    classBadge: { backgroundColor: categoryColors.classSpecial },
-    badgeText: {
-      fontSize: 10,
-      color: categoryColors.onBadge,
-      ...font("semibold"),
-    },
+      <View style={styles.section}><IndexTab title={s.terrain} />
+        <AppCard><View style={styles.terrain}>
+          {TERRAINS.map(terrain => {
+            const value = terrainAdaptation(student, terrain);
+            return <View key={terrain} style={styles.terrainCell}>
+              <NumberHero value={adaptationGrade(value) ?? "—"} label={label("AdaptationType", terrain)}
+                tone={value === null ? c.textMuted : value >= 3 ? c.success : value <= 1 ? c.hazardColor : c.primaryInk} />
+            </View>;
+          })}
+        </View></AppCard>
+      </View>
+      <View style={styles.section}><IndexTab title={s.profile} />
+        <AppCard>
+          {row(s.school, label("School", student.School))}
+          {row(s.club, label("Club", student.Club))}
+          {row(s.role, label("TacticRole", student.TacticRole))}
+          {row(s.position, position)}
+          {row(s.schoolYear, student.SchoolYear)}
+          {row(s.age, student.CharacterAge)}
+          {row(s.height, student.CharHeightMetric)}
+          {row(s.hobby, student.Hobby)}
+          {row(s.illustrator, student.Illustrator)}
+          {row(s.voice, student.CharacterVoice)}
+          {row(s.birthday, birthday ? `${t.monthNames[birthday.month - 1]} ${birthday.day}` : s.unknown)}
+          {birthdayDays !== null ? <View style={styles.birthday}><Stamp label={birthdayDays === 0 ? s.birthdayToday : fmt(s.birthdayIn, { days: birthdayDays })} tone={birthdayDays === 0 ? "success" : "primary"} animate={false} /></View> : null}
+        </AppCard>
+      </View>
+      <View style={styles.section}><IndexTab title={s.weapon} />
+        <AppCard>{row(s.weapon, student.WeaponName ?? s.unknown)}{row(s.weaponType, student.WeaponType)}
+          {row(s.equipment, student.Equipment?.map(slot => equipment[slot as keyof typeof equipment] ?? slot).join(" · ") ?? s.unknown)}
+        </AppCard>
+      </View>
+      <InlineAd />
+      <View style={styles.section}><IndexTab title={s.availability} />
+        <AppCard>{(["japan", "global", "china"] as const).map(region => {
+          const released = student.IsReleased[REGION[region]];
+          const regionName = region === "japan" ? t.regionJapan : region === "global" ? t.regionGlobal : t.regionChina;
+          return <View key={region} style={styles.region}>
+            <Text style={[type.bodyStrong, { color: c.textPrimary }]}>{regionName}</Text>
+            <Stamp label={released ? s.released : s.unreleased} tone={released ? "success" : "muted"} animate={false} size="sm" />
+            <Text style={[type.body, { color: c.textSecondary, width: "100%" }]}>{isLimitedLabel(student, region) ?? s.unknown}</Text>
+            {isLimitedTooltip(student, region) ? <Text style={[type.caption, { color: c.textMuted }]}>{isLimitedTooltip(student, region)}</Text> : null}
+          </View>;
+        })}</AppCard>
+      </View>
+      <View style={styles.section}><IndexTab title={s.appearances} />
+        <Text style={[type.caption, { color: c.textMuted, marginBottom: 12 }]}>{s.bannerPrediction}</Text>
+        {appearances.length ? appearances.map(banner => <AppCard key={banner.id} style={styles.banner}>
+          <Stamp label={b[banner.type]} tone={banner.type === "Fes" ? "fes" : banner.type === "Collab" ? "collab" : banner.type === "New" ? "new" : "rerun"} animate={false} />
+          {row(b.start, scheduleDate(banner.startAt, locale))}{row(b.end, scheduleDate(banner.endAt, locale))}
+        </AppCard>) : <AppCard><Text style={[type.body, { color: c.textSecondary }]}>{status === "loading" ? s.bannersLoading : status === "error" ? s.bannersError : s.noBanners}</Text></AppCard>}
+      </View>
+    </ScreenLayout>
+    <GradeSheet student={editing ? student : null} onClose={() => setEditing(false)} />
+  </>;
+}
+const HERO_H = 250;
 
-    card: { marginBottom: 16 },
-    row: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      paddingVertical: 7,
-    },
-    rowLabel: { fontSize: 13, color: c.textSecondary },
-    rowValue: {
-      fontSize: 13,
-      color: c.textPrimary,
-      flexShrink: 1,
-      textAlign: "right",
-      ...font("semibold"),
-    },
-
-    sectionLabel: {
-      fontSize: 12,
-      color: c.textSecondary,
-      letterSpacing: 1,
-      textTransform: "uppercase",
-      marginBottom: 12,
-      ...font("semibold"),
-    },
-    regionRow: { flexDirection: "row", gap: 8 },
-    regionPill: {
-      paddingHorizontal: 14,
-      paddingVertical: 6,
-      borderRadius: RADIUS.pill,
-    },
-    regionReleased: { backgroundColor: c.accentSoft },
-    regionUnreleased: { backgroundColor: c.surfaceBg },
-    regionText: { fontSize: 12, ...font("semibold") },
-    regionTextReleased: { color: c.primaryColor },
-    regionTextUnreleased: { color: c.textMuted },
-  });
+const styles = StyleSheet.create({
+  hero: { marginBottom: 14, height: HERO_H, overflow: "hidden" },
+  portrait: { position: "absolute", right: 0, bottom: 0 }, heroText: { width: "52%", padding: 18, gap: 10, justifyContent: "flex-end", flex: 1 },
+  badges: { flexDirection: "row", flexWrap: "wrap", gap: 6 }, actions: { flexDirection: "row", gap: 10, marginBottom: 12 }, flex: { flex: 1 },
+  section: { marginTop: 26 }, terrain: { flexDirection: "row", flexWrap: "wrap", gap: 12 }, terrainCell: { flex: 1, minWidth: 70 },
+  row: { flexDirection: "row", flexWrap: "wrap", alignItems: "baseline", paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, gap: 12 },
+  rowLabel: { minWidth: 80, flex: 1 }, rowValue: { flexGrow: 2, flexShrink: 1, maxWidth: "100%", textAlign: "right" },
+  birthday: { marginTop: 16, alignItems: "flex-start" }, region: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 12, paddingVertical: 12 },
+  banner: { marginBottom: 16 },
+});

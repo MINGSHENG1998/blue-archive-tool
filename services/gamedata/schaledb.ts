@@ -3,12 +3,16 @@
 // the runtime and the bundled asset can never drift apart.
 
 import type {
+  EliminateArmors,
   GameConfig,
   GameLocalization,
+  GameRaids,
   GameStudent,
   LocalizationSection,
   NameMap,
+  RaidNames,
   RegionSchedule,
+  TypeEffectiveness,
 } from "./types";
 
 const BASE = "https://schaledb.com";
@@ -29,7 +33,7 @@ export const OVERLAY_LOCALES = ["ja", "ko", "zh"] as const;
 /** Every locale the app can render, English included. */
 export const ALL_LOCALES = ["en", "ja", "ko", "zh"] as const;
 
-/** Localization sections we keep. The file upstream has ~48 of them. */
+/** Localization sections every locale must carry. The file upstream has ~48 of them. */
 export const LOCALIZATION_SECTIONS = [
   "SquadType",
   "BulletType",
@@ -39,6 +43,15 @@ export const LOCALIZATION_SECTIONS = [
   "Club",
 ] as const satisfies readonly LocalizationSection[];
 
+/** Kept when upstream has them; a locale missing one still loads. */
+export const OPTIONAL_LOCALIZATION_SECTIONS = [
+  "EventName",
+  "IsLimited",
+  "IsLimitedTooltip",
+  "IsLimitedFilter",
+  "AdaptationType",
+] as const satisfies readonly LocalizationSection[];
+
 export const studentIconUrl = (id: number) =>
   `${BASE}/images/student/icon/${id}.webp`;
 
@@ -46,7 +59,7 @@ export const studentIconUrl = (id: number) =>
 export const studentPortraitUrl = (id: number) =>
   `${BASE}/images/student/portrait/${id}.webp`;
 
-/** The only student fields this app keeps. Adding one here is the single edit needed to widen the snapshot. */
+/** The core student fields: every one is required. Adding one here is the single edit needed to widen the snapshot. */
 export const STUDENT_FIELDS = [
   "Id",
   "Name",
@@ -70,6 +83,11 @@ export const STUDENT_FIELDS = [
   "IsLimited",
 ] as const satisfies readonly (keyof GameStudent)[];
 
+export type OptionalStudentField = Exclude<
+  keyof GameStudent,
+  (typeof STUDENT_FIELDS)[number]
+>;
+
 const REGION_FIELDS = [
   "Name",
   "StudentMaxLevel",
@@ -80,10 +98,101 @@ const REGION_FIELDS = [
   "CurrentRaid",
 ] as const satisfies readonly (keyof RegionSchedule)[];
 
+// --- Shape guards ----------------------------------------------------------
+// Each returns the value when it is the shape we want and undefined otherwise,
+// so a reader can be a one-liner and "absent" and "malformed" mean the same.
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const arrayOf = (value: unknown): unknown[] =>
+  Array.isArray(value) ? value : [];
+
+const text = (value: unknown): string | undefined =>
+  typeof value === "string" && value.trim() !== "" ? value : undefined;
+
+const wholeNumber = (value: unknown): number | undefined =>
+  Number.isInteger(value) && (value as number) >= 0
+    ? (value as number)
+    : undefined;
+
+const positiveId = (value: unknown): number | undefined => {
+  const id = wholeNumber(value);
+  return id !== undefined && id > 0 ? id : undefined;
+};
+
+/** A non-empty list whose every item passes; one bad item voids the list. */
+function listOf<T>(
+  value: unknown,
+  item: (entry: unknown) => T | undefined,
+): T[] | undefined {
+  if (!Array.isArray(value) || value.length === 0) return undefined;
+  const out: T[] = [];
+  for (const entry of value) {
+    const parsed = item(entry);
+    if (parsed === undefined) return undefined;
+    out.push(parsed);
+  }
+  return out;
+}
+
+/** The usable strings out of a string or string list; never throws, may be empty. */
+const textList = (value: unknown): string[] =>
+  (Array.isArray(value) ? value : [value])
+    .map(text)
+    .filter((entry): entry is string => entry !== undefined);
+
+function stringRecord(value: unknown): Record<string, string> | null {
+  if (!isRecord(value)) return null;
+  const out: Record<string, string> = {};
+  for (const [key, entry] of Object.entries(value)) {
+    if (typeof entry === "string") out[key] = entry;
+  }
+  return out;
+}
+
+// --- Students --------------------------------------------------------------
+
+type Reader<T> = (src: Record<string, unknown>) => T | undefined;
+
 /**
- * Keep only the fields we use. Returns null for a record missing any of them —
- * a partial student is worse than no student, because callers would have to
- * null-check every field forever.
+ * How to read each optional student field. Validated rather than copied: a
+ * malformed value drops on its own and never costs the student their place in
+ * the roster, which is what a missing STUDENT_FIELDS entry does.
+ */
+const OPTIONAL_STUDENT_READERS: {
+  [K in OptionalStudentField]-?: Reader<NonNullable<GameStudent[K]>>;
+} = {
+  StreetBattleAdaptation: (src) => wholeNumber(src.StreetBattleAdaptation),
+  OutdoorBattleAdaptation: (src) => wholeNumber(src.OutdoorBattleAdaptation),
+  IndoorBattleAdaptation: (src) => wholeNumber(src.IndoorBattleAdaptation),
+  Equipment: (src) => listOf(src.Equipment, text),
+  // Upstream nests the name with a long description and stat curves; the
+  // name is the only part the app shows, so it is lifted out on its own.
+  WeaponName: (src) => (isRecord(src.Weapon) ? text(src.Weapon.Name) : undefined),
+  SchoolYear: (src) => text(src.SchoolYear),
+  CharacterAge: (src) => text(src.CharacterAge),
+  CharHeightMetric: (src) => text(src.CharHeightMetric),
+  Hobby: (src) => text(src.Hobby),
+  Illustrator: (src) => text(src.Illustrator),
+  CharacterVoice: (src) => text(src.CharacterVoice),
+  MemoryLobby: (src) => listOf(src.MemoryLobby, wholeNumber),
+  LinkedCharacterId: (src) => {
+    const id = positiveId(src.LinkedCharacterId);
+    return id !== src.Id ? id : undefined;
+  },
+};
+
+/** Every optional field trimStudent knows how to read. */
+export const OPTIONAL_STUDENT_FIELDS = Object.keys(
+  OPTIONAL_STUDENT_READERS,
+) as OptionalStudentField[];
+
+/**
+ * Keep only the fields we use. Returns null for a record missing any core
+ * field — a partial student is worse than no student, because callers would
+ * have to null-check every field forever. Optional fields are kept when
+ * well-formed and simply left off otherwise.
  */
 export function trimStudent(raw: unknown): GameStudent | null {
   if (typeof raw !== "object" || raw === null) return null;
@@ -94,7 +203,30 @@ export function trimStudent(raw: unknown): GameStudent | null {
     if (value === undefined || value === null) return null;
     out[field] = value;
   }
+  for (const field of OPTIONAL_STUDENT_FIELDS) {
+    const value = OPTIONAL_STUDENT_READERS[field](src);
+    if (value !== undefined) out[field] = value;
+  }
   return out as unknown as GameStudent;
+}
+
+// --- Config ----------------------------------------------------------------
+
+/** Keeps the numeric cells; drops any row or cell upstream got wrong. */
+function trimTypeEffectiveness(raw: unknown): TypeEffectiveness | undefined {
+  if (!isRecord(raw)) return undefined;
+  const chart: TypeEffectiveness = {};
+  for (const [bulletType, row] of Object.entries(raw)) {
+    if (!isRecord(row)) continue;
+    const cells: Record<string, number> = {};
+    for (const [armorType, multiplier] of Object.entries(row)) {
+      if (typeof multiplier === "number" && Number.isFinite(multiplier) && multiplier >= 0) {
+        cells[armorType] = multiplier;
+      }
+    }
+    if (Object.keys(cells).length > 0) chart[bulletType] = cells;
+  }
+  return Object.keys(chart).length > 0 ? chart : undefined;
 }
 
 export function trimConfig(raw: unknown): GameConfig | null {
@@ -112,7 +244,10 @@ export function trimConfig(raw: unknown): GameConfig | null {
     }
     regions.push(out as unknown as RegionSchedule);
   }
-  return { build: src.build, regions };
+  const typeEffectiveness = trimTypeEffectiveness(src.TypeEffectiveness);
+  return typeEffectiveness
+    ? { build: src.build, regions, TypeEffectiveness: typeEffectiveness }
+    : { build: src.build, regions };
 }
 
 const DEFAULT_TIMEOUT_MS = 15_000;
@@ -142,7 +277,7 @@ function studentsPath(locale: GameLocale) {
   return `/data/${LOCALE_TO_LANG[locale]}/students.min.json`;
 }
 
-/** Expensive (~1.6 MB) — only after `build` has actually moved. */
+/** Expensive (~1.7 MB raw, ~300 KB gzipped) — only after `build` has actually moved. */
 export async function fetchStudents(
   locale: GameLocale = "en",
   timeoutMs = DEFAULT_TIMEOUT_MS,
@@ -178,19 +313,25 @@ export async function fetchNameMap(
   return names;
 }
 
+// --- Localization ----------------------------------------------------------
+
 export function trimLocalization(raw: unknown): GameLocalization | null {
   if (typeof raw !== "object" || raw === null) return null;
   const src = raw as Record<string, unknown>;
   const out: Record<string, Record<string, string>> = {};
   for (const section of LOCALIZATION_SECTIONS) {
-    const value = src[section];
-    if (typeof value !== "object" || value === null) return null;
-    out[section] = value as Record<string, string>;
+    const value = stringRecord(src[section]);
+    if (!value) return null;
+    out[section] = value;
+  }
+  for (const section of OPTIONAL_LOCALIZATION_SECTIONS) {
+    const value = stringRecord(src[section]);
+    if (value && Object.keys(value).length > 0) out[section] = value;
   }
   return out as unknown as GameLocalization;
 }
 
-/** Enum labels (school, club, role, damage types) for one locale. */
+/** Enum labels (school, club, role, damage types, event titles) for one locale. */
 export async function fetchLocalization(
   locale: GameLocale,
   timeoutMs = DEFAULT_TIMEOUT_MS,
@@ -202,4 +343,124 @@ export async function fetchLocalization(
   const localization = trimLocalization(raw);
   if (!localization) throw new Error("SchaleDB localization: unexpected shape");
   return localization;
+}
+
+// --- Raids -----------------------------------------------------------------
+
+/**
+ * Grand Assault seasons kept per region. The running season is always among
+ * the newest, since upstream never carries more than the next one ahead; the
+ * ~40 older ones are history the app never shows.
+ */
+export const ELIMINATE_SEASONS_KEPT = 4;
+
+function trimEliminateSeasons(raw: unknown): Record<string, EliminateArmors>[] {
+  return arrayOf(raw).map((region) => {
+    const seasons: { id: number; armors: EliminateArmors }[] = [];
+    for (const season of arrayOf(isRecord(region) ? region.EliminateSeasons : null)) {
+      if (!isRecord(season)) continue;
+      const id = positiveId(season.SeasonId);
+      const open = isRecord(season.OpenDifficulty) ? season.OpenDifficulty : null;
+      if (id === undefined || !open) continue;
+      const armors: EliminateArmors = {};
+      for (const [armorType, difficulty] of Object.entries(open)) {
+        const tier = wholeNumber(difficulty);
+        if (tier !== undefined) armors[armorType] = tier;
+      }
+      if (Object.keys(armors).length > 0) seasons.push({ id, armors });
+    }
+    seasons.sort((a, b) => b.id - a.id);
+    const kept: Record<string, EliminateArmors> = {};
+    for (const { id, armors } of seasons.slice(0, ELIMINATE_SEASONS_KEPT)) {
+      kept[id] = armors;
+    }
+    return kept;
+  });
+}
+
+/**
+ * Raid bosses with their armor, attack and terrain. Skips any entry missing
+ * one of those rather than failing the file; null only when nothing at all is
+ * usable, which means upstream changed shape.
+ */
+export function trimRaids(raw: unknown): GameRaids | null {
+  if (!isRecord(raw)) return null;
+
+  const raid: GameRaids["raid"] = {};
+  for (const entry of arrayOf(raw.Raid)) {
+    if (!isRecord(entry)) continue;
+    const id = positiveId(entry.Id);
+    const Name = text(entry.Name);
+    const ArmorType = text(entry.ArmorType);
+    const BulletType = text(entry.BulletType);
+    if (id === undefined || !Name || !ArmorType || !BulletType) continue;
+    const BulletTypeInsane = text(entry.BulletTypeInsane);
+    raid[id] = {
+      Name,
+      ArmorType,
+      BulletType,
+      ...(BulletTypeInsane ? { BulletTypeInsane } : {}),
+      Terrain: textList(entry.Terrain),
+    };
+  }
+
+  const multiFloor: GameRaids["multiFloor"] = {};
+  for (const entry of arrayOf(raw.MultiFloorRaid)) {
+    if (!isRecord(entry)) continue;
+    const id = positiveId(entry.Id);
+    const Name = text(entry.Name);
+    const ArmorType = text(entry.ArmorType);
+    // Upstream names the per-floor list `BulletType` too; renamed here so the
+    // plural shows at every use site.
+    const BulletTypes = textList(entry.BulletType);
+    if (id === undefined || !Name || !ArmorType || BulletTypes.length === 0) continue;
+    multiFloor[id] = { Name, ArmorType, BulletTypes, Terrain: textList(entry.Terrain) };
+  }
+
+  if (Object.keys(raid).length === 0 && Object.keys(multiFloor).length === 0) {
+    return null;
+  }
+  return { raid, multiFloor, eliminate: trimEliminateSeasons(raw.RaidSeasons) };
+}
+
+/** Just the boss names out of a localized raids file. */
+export function trimRaidNames(raw: unknown): RaidNames | null {
+  if (!isRecord(raw)) return null;
+  const pick = (list: unknown) => {
+    const names: Record<string, string> = {};
+    for (const entry of arrayOf(list)) {
+      if (!isRecord(entry)) continue;
+      const id = positiveId(entry.Id);
+      const name = text(entry.Name);
+      if (id !== undefined && name) names[id] = name;
+    }
+    return names;
+  };
+  const names = { raid: pick(raw.Raid), multiFloor: pick(raw.MultiFloorRaid) };
+  const count = Object.keys(names.raid).length + Object.keys(names.multiFloor).length;
+  return count > 0 ? names : null;
+}
+
+function raidsPath(locale: GameLocale) {
+  return `/data/${LOCALE_TO_LANG[locale]}/raids.min.json`;
+}
+
+/** ~1.2 MB raw, ~70 KB gzipped — only after `build` has moved. */
+export async function fetchRaids(
+  locale: GameLocale = "en",
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+): Promise<GameRaids> {
+  const raids = trimRaids(await getJson(raidsPath(locale), timeoutMs));
+  if (!raids) throw new Error("SchaleDB raids: unexpected shape");
+  return raids;
+}
+
+/** The same download as fetchRaids, kept to one locale's boss names. */
+export async function fetchRaidNames(
+  locale: GameLocale,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+): Promise<RaidNames> {
+  const names = trimRaidNames(await getJson(raidsPath(locale), timeoutMs));
+  if (!names) throw new Error("SchaleDB raid names: unexpected shape");
+  return names;
 }

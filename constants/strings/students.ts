@@ -1,0 +1,63 @@
+import { defineStrings } from "./define";
+
+export const studentStrings = defineStrings({
+  en: {
+    title: "Students", kicker: "SCHALE / PERSONNEL FILES", subtitle: "Every student, one place to keep track.",
+    browse: "Browse", register: "Register", registerHelp: "Tap a portrait to mark ownership. Open grades to edit stars or a dossier.", search: "Search student names",
+    filters: "Filters", collection: "Collection", school: "School", rarity: "Recruitment rarity", attack: "Attack", armor: "Armor", squad: "Squad",
+    owned: "Owned", missing: "Not owned", watched: "Watching", missingLimited: "Missing limited", global: "Global released only", all: "All", clear: "Clear filters", apply: "View students",
+    count: "{count} students", grades: "Grades", editGrades: "Edit {name}'s grades", starGrade: "Student stars", weaponGrade: "Unique weapon stars", noWeapon: "None",
+    own: "Mark owned", unown: "Remove ownership", watch: "Watch student", unwatch: "Stop watching", dossier: "Open dossier", saved: "Saved on this device", loading: "Loading your collection…",
+    export: "Share backup", import: "Import backup", backupHelp: "Paste a BAT1 roster backup. Imports merge with your collection and keep the higher grades. Watchlists are separate.", paste: "Paste roster backup", merge: "Merge collection",
+    imported: "Merged {count} students. Higher grades were kept.", importEmpty: "Paste a roster backup first.", importHeader: "This is not a BAT1 roster backup.", importVersion: "This backup needs a newer version of the app.", importEntry: "A student entry is damaged. Check the complete backup and try again.", importLarge: "This backup is too large.", shareError: "The backup could not be shared. Try again.",
+    empty: "No matching students", emptyBody: "Try another name or clear a filter.", progress: "{owned} of {total} collected", bySchool: "By school", byRarity: "By recruitment rarity", linked: "Linked combat forms count as one student.",
+    profile: "Profile", terrain: "Terrain adaptation", equipment: "Equipment", weapon: "Unique weapon", availability: "Recruitment availability", appearances: "Banner appearances", noBanners: "No scheduled recruitment featuring this student.", bannersLoading: "Loading recruitment schedule…", bannersError: "Recruitment schedule unavailable. Try again on the Banner tab.", bannerPrediction: "Future recruitment dates are predictions and may change.",
+    birthday: "Birthday", birthdayIn: "Birthday in {days} days", birthdayToday: "Birthday today", bond: "Calculate Bond EXP", unknown: "Not recorded", schoolYear: "School year", age: "Age", height: "Height", hobby: "Hobby", illustrator: "Illustrator", voice: "Voice actor", club: "Club", role: "Role", position: "Position", weaponType: "Weapon type", released: "Released", unreleased: "Not released", missingStudent: "This student file is not available in the current data.",
+  },
+  zh: {
+    title: "学生", kicker: "夏莱 / 学生资料", subtitle: "每位学生，都在这里记录。",
+    browse: "浏览", register: "登记", registerHelp: "点击头像登记拥有状态。打开星级可调整星数或查看档案。", search: "搜索学生姓名",
+    filters: "筛选", collection: "收藏进度", school: "学园", rarity: "初始星级", attack: "攻击类型", armor: "防御类型", squad: "编队",
+    owned: "已拥有", missing: "未拥有", watched: "已关注", missingLimited: "未拥有的限定", global: "仅国际服已实装", all: "全部", clear: "清除筛选", apply: "查看学生",
+    count: "{count}位学生", grades: "星级", editGrades: "调整{name}的星级", starGrade: "学生星级", weaponGrade: "专属武器星级", noWeapon: "无",
+    own: "标为已拥有", unown: "移除拥有状态", watch: "关注学生", unwatch: "取消关注", dossier: "打开档案", saved: "已保存在此设备", loading: "正在加载收藏…",
+    export: "分享备份", import: "导入备份", backupHelp: "粘贴 BAT1 学生备份。导入时合并收藏并保留较高星级。关注列表单独保存。", paste: "粘贴学生备份", merge: "合并收藏",
+    imported: "已合并{count}位学生，并保留较高星级。", importEmpty: "请先粘贴学生备份。", importHeader: "这不是 BAT1 学生备份。", importVersion: "此备份需要更新版本的应用。", importEntry: "学生记录已损坏。请检查完整备份后重试。", importLarge: "备份内容过大。", shareError: "无法分享备份，请重试。",
+    empty: "没有匹配的学生", emptyBody: "请尝试其他姓名或取消筛选。", progress: "已收集 {owned} / {total}", bySchool: "按学园", byRarity: "按初始星级", linked: "关联战斗形态按一位学生计算。",
+    profile: "个人资料", terrain: "地形适应性", equipment: "装备", weapon: "专属武器", availability: "招募方式", appearances: "招募日程", noBanners: "暂无包含此学生的招募日程。", bannersLoading: "正在加载招募日程…", bannersError: "暂时无法获取招募日程，请在招募页重试。", bannerPrediction: "未来招募日期为预测，可能变更。",
+    birthday: "生日", birthdayIn: "距生日还有{days}天", birthdayToday: "今天是生日", bond: "计算羁绊经验", unknown: "暂无记录", schoolYear: "年级", age: "年龄", height: "身高", hobby: "兴趣", illustrator: "画师", voice: "声优", club: "社团", role: "职责", position: "站位", weaponType: "武器类型", released: "已实装", unreleased: "未实装", missingStudent: "当前数据中暂无此学生档案。",
+  },
+  ja: {
+    title: "生徒", kicker: "シャーレ / 人事ファイル", subtitle: "すべての生徒を、一つの記録に。",
+    browse: "閲覧", register: "登録", registerHelp: "ポートレートをタップして所持を登録。星数から育成段階やファイルを開けます。", search: "生徒名を検索",
+    filters: "絞り込み", collection: "コレクション", school: "学園", rarity: "初期レアリティ", attack: "攻撃タイプ", armor: "防御タイプ", squad: "編成",
+    owned: "所持済み", missing: "未所持", watched: "ウォッチ中", missingLimited: "未所持の限定", global: "グローバル版実装済みのみ", all: "すべて", clear: "絞り込みを解除", apply: "生徒を見る",
+    count: "生徒{count}人", grades: "星数", editGrades: "{name}の星数を編集", starGrade: "生徒の星数", weaponGrade: "固有武器の星数", noWeapon: "なし",
+    own: "所持登録", unown: "所持登録を解除", watch: "ウォッチする", unwatch: "ウォッチを解除", dossier: "ファイルを開く", saved: "この端末に保存済み", loading: "コレクションを読み込み中…",
+    export: "バックアップを共有", import: "バックアップを読込", backupHelp: "BAT1形式の生徒バックアップを貼り付けてください。所持記録を統合し、高い星数を保持します。ウォッチリストは別に保存されます。", paste: "生徒バックアップを貼付", merge: "コレクションを統合",
+    imported: "生徒{count}人を統合し、高い星数を保持しました。", importEmpty: "先にバックアップを貼り付けてください。", importHeader: "BAT1形式の生徒バックアップではありません。", importVersion: "このバックアップには新しいアプリが必要です。", importEntry: "生徒の記録が破損しています。バックアップ全体を確認して再試行してください。", importLarge: "バックアップが大きすぎます。", shareError: "バックアップを共有できませんでした。再試行してください。",
+    empty: "一致する生徒はいません", emptyBody: "別の名前で検索するか、絞り込みを解除してください。", progress: "{total}人中{owned}人を所持", bySchool: "学園別", byRarity: "初期レアリティ別", linked: "リンクした戦闘形態は一人として数えます。",
+    profile: "プロフィール", terrain: "地形適性", equipment: "装備", weapon: "固有武器", availability: "募集区分", appearances: "募集予定", noBanners: "この生徒の募集予定はありません。", bannersLoading: "募集予定を読み込み中…", bannersError: "募集予定を取得できません。募集タブから再試行してください。", bannerPrediction: "今後の募集日程は予測のため、変更される場合があります。",
+    birthday: "誕生日", birthdayIn: "誕生日まで{days}日", birthdayToday: "今日は誕生日", bond: "絆経験値を計算", unknown: "未記録", schoolYear: "学年", age: "年齢", height: "身長", hobby: "趣味", illustrator: "イラスト", voice: "声優", club: "部活", role: "役割", position: "ポジション", weaponType: "武器種", released: "実装済み", unreleased: "未実装", missingStudent: "現在のデータにはこの生徒のファイルがありません。",
+  },
+  ko: {
+    title: "학생", kicker: "샬레 / 학생 기록", subtitle: "모든 학생을 한곳에서 기록하세요.",
+    browse: "둘러보기", register: "등록", registerHelp: "초상화를 눌러 보유를 등록하세요. 등급을 열면 별을 조정하거나 학생 기록을 볼 수 있습니다.", search: "학생 이름 검색",
+    filters: "필터", collection: "수집 현황", school: "학원", rarity: "초기 등급", attack: "공격 타입", armor: "방어 타입", squad: "편성",
+    owned: "보유", missing: "미보유", watched: "관심 학생", missingLimited: "미보유 한정", global: "글로벌 출시 학생만", all: "전체", clear: "필터 초기화", apply: "학생 보기",
+    count: "학생 {count}명", grades: "등급", editGrades: "{name} 등급 편집", starGrade: "학생 별", weaponGrade: "고유 무기 별", noWeapon: "없음",
+    own: "보유 등록", unown: "보유 해제", watch: "관심 등록", unwatch: "관심 해제", dossier: "학생 기록 열기", saved: "이 기기에 저장됨", loading: "수집 현황 불러오는 중…",
+    export: "백업 공유", import: "백업 가져오기", backupHelp: "BAT1 학생 백업을 붙여 넣으세요. 수집 기록을 병합하고 높은 등급을 유지합니다. 관심 목록은 따로 저장됩니다.", paste: "학생 백업 붙여넣기", merge: "수집 기록 병합",
+    imported: "학생 {count}명을 병합하고 높은 등급을 유지했습니다.", importEmpty: "먼저 학생 백업을 붙여 넣으세요.", importHeader: "BAT1 학생 백업이 아닙니다.", importVersion: "이 백업에는 최신 앱이 필요합니다.", importEntry: "학생 기록이 손상되었습니다. 전체 백업을 확인하고 다시 시도하세요.", importLarge: "백업이 너무 큽니다.", shareError: "백업을 공유하지 못했습니다. 다시 시도하세요.",
+    empty: "일치하는 학생이 없습니다", emptyBody: "다른 이름을 검색하거나 필터를 해제하세요.", progress: "{total}명 중 {owned}명 수집", bySchool: "학원별", byRarity: "초기 등급별", linked: "연결된 전투 형태는 한 학생으로 계산합니다.",
+    profile: "프로필", terrain: "지형 적성", equipment: "장비", weapon: "고유 무기", availability: "모집 구분", appearances: "모집 일정", noBanners: "이 학생의 예정된 모집이 없습니다.", bannersLoading: "모집 일정 불러오는 중…", bannersError: "모집 일정을 불러올 수 없습니다. 모집 탭에서 다시 시도하세요.", bannerPrediction: "향후 모집 날짜는 예상이며 변경될 수 있습니다.",
+    birthday: "생일", birthdayIn: "생일까지 {days}일", birthdayToday: "오늘 생일", bond: "인연 경험치 계산", unknown: "기록 없음", schoolYear: "학년", age: "나이", height: "신장", hobby: "취미", illustrator: "일러스트레이터", voice: "성우", club: "동아리", role: "역할", position: "포지션", weaponType: "무기 종류", released: "출시됨", unreleased: "미출시", missingStudent: "현재 데이터에 이 학생의 기록이 없습니다.",
+  },
+});
+
+export const equipmentStrings = defineStrings({
+  en: { Hat: "Hat", Gloves: "Gloves", Shoes: "Shoes", Bag: "Bag", Badge: "Badge", Hairpin: "Hairpin", Necklace: "Necklace", Watch: "Watch", Charm: "Charm" },
+  zh: { Hat: "帽子", Gloves: "手套", Shoes: "鞋子", Bag: "包包", Badge: "徽章", Hairpin: "发夹", Necklace: "项链", Watch: "手表", Charm: "护符" },
+  ja: { Hat: "帽子", Gloves: "グローブ", Shoes: "シューズ", Bag: "バッグ", Badge: "バッジ", Hairpin: "ヘアピン", Necklace: "ネックレス", Watch: "腕時計", Charm: "お守り" },
+  ko: { Hat: "모자", Gloves: "장갑", Shoes: "신발", Bag: "가방", Badge: "배지", Hairpin: "머리핀", Necklace: "목걸이", Watch: "시계", Charm: "부적" },
+});

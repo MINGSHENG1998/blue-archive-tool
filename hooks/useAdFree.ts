@@ -31,12 +31,15 @@ type PendingPurchase = {
 
 export interface AdFreeHookResult {
   isAdFree: boolean;
+  /** Store-localized prices. Missing entries mean the store is unavailable. */
+  productPrices?: Readonly<Record<string, string>>;
   purchaseTip: (sku: string) => Promise<'success' | 'cancelled'>;
   restorePurchase: () => Promise<'success' | 'not_found'>;
 }
 
 export function useAdFree(): AdFreeHookResult {
   const [isAdFree, setIsAdFree] = useState(false);
+  const [productPrices, setProductPrices] = useState<Record<string, string>>({});
   const pendingRef = useRef<PendingPurchase | null>(null);
 
   const markAdFree = useCallback(async () => {
@@ -55,7 +58,12 @@ export function useAdFree(): AdFreeHookResult {
       await initConnection();
       if (!mounted) return;
 
-      await fetchProducts({ skus: ALL_SKUS, type: 'inapp' });
+      // Prices are presentation only: a store lookup failure must not stop
+      // recovery of existing purchases or change transaction handling.
+      try {
+        const products = await fetchProducts({ skus: ALL_SKUS, type: 'inapp' });
+        if (mounted && Array.isArray(products)) setProductPrices(Object.fromEntries(products.filter(p => p.displayPrice).map(p => [p.id, p.displayPrice])));
+      } catch { /* The sheet falls back to its localized store-price label. */ }
       if (!mounted) return;
 
       const purchases = await getAvailablePurchases();
@@ -141,5 +149,5 @@ export function useAdFree(): AdFreeHookResult {
     return 'not_found';
   }, [markAdFree]);
 
-  return { isAdFree, purchaseTip, restorePurchase };
+  return { isAdFree, productPrices, purchaseTip, restorePurchase };
 }

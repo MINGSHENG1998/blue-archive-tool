@@ -75,7 +75,7 @@ const renderWithContext = (isAdFree: boolean, adsReady = true) => {
   renderer.act(() => {
     tree = renderer.create(
       <AdFreeContext.Provider value={mockAdFree(isAdFree)}>
-        <AdsContext.Provider value={{ ready: adsReady, personalized: true }}>
+        <AdsContext.Provider value={{ ready: adsReady, personalized: true, refreshPrivacy: async () => false }}>
           <InlineAd />
         </AdsContext.Provider>
       </AdFreeContext.Provider>

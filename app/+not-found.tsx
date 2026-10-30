@@ -1,33 +1,19 @@
-import { Link, Stack } from 'expo-router';
-import { StyleSheet } from 'react-native';
-
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import React from 'react';
+import { router, Stack } from 'expo-router';
+import { Text, View } from 'react-native';
+import { AppCard, HaloMark, ScreenLayout, SignalButton, Stamp } from '@/components/schale';
+import { useStrings } from '@/constants/strings/define';
+import { notFoundStrings } from '@/constants/strings/notFound';
+import { useType } from '@/constants/typography';
+import { useColors } from '@/hooks/useColors';
 
 export default function NotFoundScreen() {
-  return (
-    <>
-      <Stack.Screen options={{ title: 'Oops!' }} />
-      <ThemedView style={styles.container}>
-        <ThemedText type="title">This screen doesn't exist.</ThemedText>
-        <Link href="/" style={styles.link}>
-          <ThemedText type="link">Go to home screen!</ThemedText>
-        </Link>
-      </ThemedView>
-    </>
-  );
+ const c=useColors(), type=useType(), s=useStrings(notFoundStrings);
+ return <><Stack.Screen options={{headerShown:false}}/><ScreenLayout title={s.title}>
+  <AppCard padding={24}>
+   <View style={{alignItems:'center',paddingVertical:28,gap:20}}><HaloMark size={90}/><Text style={[type.numXL,{fontSize:88,color:c.primaryInk}]}>404</Text><Stamp label={s.status} tone="hazard"/></View>
+   <Text style={[type.body,{color:c.textSecondary,marginBottom:24,textAlign:'center'}]}>{s.body}</Text>
+   <SignalButton label={s.home} icon="home-outline" onPress={()=>router.replace('/')}/>
+   <SignalButton style={{marginTop:12}} variant="ghost" label={s.sensei} onPress={()=>router.replace('/(tabs)/other')}/>
+  </AppCard>
+ </ScreenLayout></>;
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
-  },
-});

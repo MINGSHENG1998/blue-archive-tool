@@ -46,3 +46,8 @@ android/.kotlin/
 
 # Scratch GitHub tree dumps
 tree.json
+
+# Local test caches
+.cache/
+.jest-cache*/
+android-build-review.log

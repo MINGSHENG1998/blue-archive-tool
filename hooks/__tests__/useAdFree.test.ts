@@ -32,6 +32,7 @@ const mockRequestPurchase = RNIap.requestPurchase as jest.Mock;
 beforeEach(() => {
   jest.clearAllMocks();
   mockGetAvailablePurchases.mockResolvedValue([]);
+  (RNIap.fetchProducts as jest.Mock).mockResolvedValue([]);
   mockPurchaseUpdatedListener.mockReturnValue({ remove: jest.fn() });
   mockPurchaseErrorListener.mockReturnValue({ remove: jest.fn() });
   // Return a never-settling promise so listener callbacks control resolution
@@ -45,6 +46,23 @@ describe('useAdFree', () => {
     (AsyncStorage.getItem as jest.Mock).mockResolvedValue(null);
     const { result } = renderHook(() => useAdFree());
     expect(result.current.isAdFree).toBe(false);
+    await act(async () => {});
+  });
+
+  it('exposes store-localized price labels', async () => {
+    (RNIap.fetchProducts as jest.Mock).mockResolvedValue([{id:TIP_SKUS.SMALL,displayPrice:'RM 4.90'}]);
+    const {result} = renderHook(() => useAdFree());
+    await act(async () => {});
+    expect(result.current.productPrices?.[TIP_SKUS.SMALL]).toBe('RM 4.90');
+  });
+
+  it('continues purchase recovery when price fetching fails', async () => {
+    (RNIap.fetchProducts as jest.Mock).mockRejectedValue(new Error('store unavailable'));
+    mockGetAvailablePurchases.mockResolvedValue([{productId:TIP_SKUS.SMALL,purchaseToken:'receipt'}]);
+    const {result} = renderHook(() => useAdFree());
+    await act(async () => {});
+    expect(result.current.productPrices).toEqual({});
+    expect(result.current.isAdFree).toBe(true);
   });
 
   it('sets isAdFree=true immediately when AsyncStorage cache is "true"', async () => {

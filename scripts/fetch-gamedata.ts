@@ -10,7 +10,7 @@
  * Uses the same client the app uses, so the bundled shape and the fetched
  * shape cannot drift.
  */
-import { writeFileSync } from "fs";
+import { readdirSync, statSync, writeFileSync } from "fs";
 import { join } from "path";
 import {
   ALL_LOCALES,
@@ -18,10 +18,13 @@ import {
   fetchConfig,
   fetchLocalization,
   fetchNameMap,
+  fetchRaidNames,
+  fetchRaids,
   fetchStudents,
 } from "../services/gamedata/schaledb";
 
 const OUT_DIR = join(__dirname, "..", "assets", "gamedata");
+const TIMEOUT_MS = 60_000;
 
 function write(name: string, data: unknown) {
   const path = join(OUT_DIR, name);
@@ -31,22 +34,38 @@ function write(name: string, data: unknown) {
   console.log(`  ${name.padEnd(18)} ${kb.padStart(8)} KB`);
 }
 
+/** The whole folder, since that is what ships inside the app binary. */
+function folderKb(): string {
+  const bytes = readdirSync(OUT_DIR)
+    .filter((name) => name.endsWith(".json"))
+    .reduce((sum, name) => sum + statSync(join(OUT_DIR, name)).size, 0);
+  return (bytes / 1024).toFixed(1);
+}
+
 async function main() {
   console.log("Fetching SchaleDB…");
-  const [config, students] = await Promise.all([
-    fetchConfig(60_000),
-    fetchStudents("en", 60_000),
+  const before = folderKb();
+  const [config, students, raids] = await Promise.all([
+    fetchConfig(TIMEOUT_MS),
+    fetchStudents("en", TIMEOUT_MS),
+    fetchRaids("en", TIMEOUT_MS),
   ]);
-  console.log(`  build ${config.build}, ${students.length} students\n`);
+  const raidCount = Object.keys(raids.raid).length + Object.keys(raids.multiFloor).length;
+  console.log(
+    `  build ${config.build}, ${students.length} students, ${raidCount} raid bosses\n`,
+  );
 
   write("config.json", config);
   write("students.json", students);
+  write("raids.json", raids);
   for (const locale of OVERLAY_LOCALES) {
-    write(`names.${locale}.json`, await fetchNameMap(locale, 60_000));
+    write(`names.${locale}.json`, await fetchNameMap(locale, TIMEOUT_MS));
+    write(`raids.${locale}.json`, await fetchRaidNames(locale, TIMEOUT_MS));
   }
   for (const locale of ALL_LOCALES) {
-    write(`labels.${locale}.json`, await fetchLocalization(locale, 60_000));
+    write(`labels.${locale}.json`, await fetchLocalization(locale, TIMEOUT_MS));
   }
+  console.log(`\n  assets/gamedata ${before} KB -> ${folderKb()} KB`);
   console.log("\nDone. Commit assets/gamedata/ so the snapshot ships.");
 }
 

@@ -11,20 +11,43 @@ import React, {
 import { useLanguage } from "@/contexts/language-context";
 import {
   bundledSnapshot,
+  eventTitle,
   indexById,
+  limitedCategory,
   loadGameData,
   nameFor,
   refreshGameData,
   type GameDataSnapshot,
+  type GameLocalization,
+  type GameRaids,
   type GameStudent,
   type LocalizationSection,
+  type RaidNames,
+  type RegionKey,
   type StudentIndex,
+} from "@/services/gamedata";
+
+// The pure live-schedule helpers, re-exported so a screen reading the context
+// can take them from the same import:
+//   const { config, raids, raidNames } = useGameData();
+//   liveRaids(config, raids, now, { names: raidNames });
+export {
+  effectiveBulletTypes,
+  liveEvents,
+  liveRaids,
+  typeMultiplier,
+  type LiveEvent,
+  type LiveRaid,
 } from "@/services/gamedata";
 
 interface GameDataContextValue {
   students: GameStudent[];
   byId: StudentIndex;
   config: GameDataSnapshot["config"];
+  /** Raid bosses (English names), for liveRaids. */
+  raids: GameRaids;
+  /** Boss names in the active locale; undefined for English. Pass to liveRaids. */
+  raidNames: RaidNames | undefined;
   /** Where the data came from — surfaced in the Misc screen for support. */
   source: GameDataSnapshot["source"];
   /** False only for the first tick, before the cache read resolves. */
@@ -37,6 +60,19 @@ interface GameDataContextValue {
    * before we ship a new snapshot still renders as something readable.
    */
   label: (section: LocalizationSection, key: string) => string;
+  /**
+   * Event title in the active locale, English fallback; reruns resolve to the
+   * original's title. Null for an event no snapshot names yet — a bare id is
+   * not worth showing.
+   */
+  eventName: (id: number) => string | null;
+  /**
+   * The student's availability category, worded short ("Regular", "Unique",
+   * "Fest", …). Null for a category value this build does not know.
+   */
+  isLimitedLabel: (student: GameStudent, region?: RegionKey) => string | null;
+  /** One sentence explaining the category, for a tooltip or detail line. */
+  isLimitedTooltip: (student: GameStudent, region?: RegionKey) => string | null;
   /** Force an upstream check, bypassing the 12h throttle. */
   refresh: () => Promise<void>;
 }
@@ -49,12 +85,29 @@ const GameDataContext = createContext<GameDataContextValue>({
   students: initialSnapshot.students,
   byId: {},
   config: initialSnapshot.config,
+  raids: initialSnapshot.raids,
+  raidNames: undefined,
   source: initialSnapshot.source,
   ready: false,
   displayName: (student) => student.Name,
   label: (_section, key) => key,
+  eventName: () => null,
+  isLimitedLabel: () => null,
+  isLimitedTooltip: () => null,
   refresh: async () => {},
 });
+
+/** The first non-empty entry for `key` across label sections, in order. */
+function firstLabel(
+  key: string,
+  ...sections: (Record<string, string> | undefined)[]
+): string | null {
+  for (const section of sections) {
+    const value = section?.[key];
+    if (value) return value;
+  }
+  return null;
+}
 
 export function GameDataProvider({ children }: { children: React.ReactNode }) {
   const { locale } = useLanguage();
@@ -127,26 +180,79 @@ export function GameDataProvider({ children }: { children: React.ReactNode }) {
     [locale, snapshot.names],
   );
 
-  const label = useCallback(
-    (section: LocalizationSection, key: string) =>
-      snapshot.labels[locale]?.[section]?.[key] ??
-      snapshot.labels.en?.[section]?.[key] ??
-      key,
+  // Active locale first, English second; the same pair every lookup walks.
+  const labelSets = useMemo<(GameLocalization | undefined)[]>(
+    () => [snapshot.labels[locale], snapshot.labels.en],
     [locale, snapshot.labels],
   );
+
+  const label = useCallback(
+    (section: LocalizationSection, key: string) =>
+      firstLabel(key, ...labelSets.map((set) => set?.[section])) ?? key,
+    [labelSets],
+  );
+
+  const eventName = useCallback(
+    (id: number) => eventTitle(id, ...labelSets.map((set) => set?.EventName)),
+    [labelSets],
+  );
+
+  const isLimitedLabel = useCallback(
+    (student: GameStudent, region: RegionKey = "global") => {
+      const category = limitedCategory(student, region);
+      if (category === null) return null;
+      // IsLimited has the badge wording but no entry for Regular, which only
+      // the filter section names.
+      return firstLabel(
+        String(category),
+        ...labelSets.flatMap((set) => [set?.IsLimited, set?.IsLimitedFilter]),
+      );
+    },
+    [labelSets],
+  );
+
+  const isLimitedTooltip = useCallback(
+    (student: GameStudent, region: RegionKey = "global") => {
+      const category = limitedCategory(student, region);
+      if (category === null) return null;
+      return firstLabel(
+        String(category),
+        ...labelSets.map((set) => set?.IsLimitedTooltip),
+      );
+    },
+    [labelSets],
+  );
+
+  const raidNames = locale === "en" ? undefined : snapshot.raidNames[locale];
 
   const value = useMemo<GameDataContextValue>(
     () => ({
       students: snapshot.students,
       byId,
       config: snapshot.config,
+      raids: snapshot.raids,
+      raidNames,
       source: snapshot.source,
       ready,
       displayName,
       label,
+      eventName,
+      isLimitedLabel,
+      isLimitedTooltip,
       refresh,
     }),
-    [snapshot, byId, ready, displayName, label, refresh],
+    [
+      snapshot,
+      byId,
+      raidNames,
+      ready,
+      displayName,
+      label,
+      eventName,
+      isLimitedLabel,
+      isLimitedTooltip,
+      refresh,
+    ],
   );
 
   return (

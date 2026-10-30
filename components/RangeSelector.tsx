@@ -11,6 +11,8 @@ import {
 import { useColors } from "@/hooks/useColors";
 import { RADIUS } from "@/constants/layout";
 import type { ThemeTokens } from "@/constants/theme";
+import { rangeValueFromDrag } from "@/services/calculator-controls";
+import { useType } from "@/constants/typography";
 
 type Props = {
   label?: string;
@@ -45,6 +47,7 @@ export function RangeSelector({
   onChange,
 }: Props) {
   const c = useColors();
+  const type = useType();
   const styles = useMemo(() => makeStyles(c), [c]);
   const [trackWidth, setTrackWidth] = useState(0);
   // Latest values in a ref so PanResponder closures read fresh state.
@@ -52,12 +55,15 @@ export function RangeSelector({
   valsRef.current = { low, high };
   const widthRef = useRef(0);
   widthRef.current = trackWidth;
+  const configRef = useRef({ min, max, step, onChange });
+  configRef.current = { min, max, step, onChange };
+  const dragStart = useRef({ low, high });
 
   const span = Math.max(1, max - min);
   const usable = Math.max(1, trackWidth - THUMB);
   const toX = (v: number) => ((v - min) / span) * usable;
   const clampStep = (v: number) =>
-    Math.min(max, Math.max(min, Math.round(v / step) * step));
+    Math.min(max, Math.max(min, min + Math.round((v - min) / step) * step));
 
   const onTrackLayout = (e: LayoutChangeEvent) =>
     setTrackWidth(e.nativeEvent.layout.width);
@@ -66,19 +72,19 @@ export function RangeSelector({
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => { dragStart.current = { ...valsRef.current }; },
       onPanResponderMove: (_evt, gesture) => {
         const w = widthRef.current;
         if (w <= 0) return;
-        const u = Math.max(1, w - THUMB);
-        const ratio = Math.min(1, Math.max(0, (gesture.moveX - THUMB / 2) / u));
-        const raw = clampStep(min + ratio * span);
+        const config = configRef.current;
+        const raw = rangeValueFromDrag(dragStart.current[which], gesture.dx, w, config.min, config.max, config.step);
         const cur = valsRef.current;
         if (which === "low") {
           const next = Math.min(raw, cur.high);
-          if (next !== cur.low) onChange(next, cur.high);
+          if (next !== cur.low) { valsRef.current = { low: next, high: cur.high }; config.onChange(next, cur.high); }
         } else {
           const next = Math.max(raw, cur.low);
-          if (next !== cur.high) onChange(cur.low, next);
+          if (next !== cur.high) { valsRef.current = { low: cur.low, high: next }; config.onChange(cur.low, next); }
         }
       },
     });
@@ -96,11 +102,12 @@ export function RangeSelector({
 
   return (
     <View style={styles.wrap}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
+      {label ? <Text style={[type.bodyStrong, styles.label]}>{label}</Text> : null}
 
       <View style={styles.valueRow}>
         <ValueStepper
           styles={styles}
+          type={type}
           caption={lowLabel}
           value={low}
           onDec={() => stepLow(-step)}
@@ -113,6 +120,7 @@ export function RangeSelector({
         </View>
         <ValueStepper
           styles={styles}
+          type={type}
           caption={highLabel}
           value={high}
           onDec={() => stepHigh(-step)}
@@ -122,7 +130,7 @@ export function RangeSelector({
         />
       </View>
 
-      <View style={styles.track} onLayout={onTrackLayout}>
+      <View testID="range-track" style={styles.track} onLayout={onTrackLayout}>
         <View style={styles.railBg} />
         <View
           style={[
@@ -132,10 +140,20 @@ export function RangeSelector({
         />
         <View
           style={[styles.thumb, { left: lowX }]}
+          accessible accessibilityRole="adjustable" accessibilityLabel={lowLabel ?? label}
+          accessibilityValue={{ min, max: high, now: low }}
+          accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+          onAccessibilityAction={event => stepLow(event.nativeEvent.actionName === 'increment' ? step : -step)}
+          hitSlop={9}
           {...lowResponder.panHandlers}
         />
         <View
           style={[styles.thumb, { left: highX }]}
+          accessible accessibilityRole="adjustable" accessibilityLabel={highLabel ?? label}
+          accessibilityValue={{ min: low, max, now: high }}
+          accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+          onAccessibilityAction={event => stepHigh(event.nativeEvent.actionName === 'increment' ? step : -step)}
+          hitSlop={9}
           {...highResponder.panHandlers}
         />
       </View>
@@ -145,6 +163,7 @@ export function RangeSelector({
 
 function ValueStepper({
   styles,
+  type,
   caption,
   value,
   onDec,
@@ -154,19 +173,21 @@ function ValueStepper({
 }: any) {
   return (
     <View style={styles.stepper}>
-      {caption ? <Text style={styles.caption}>{caption}</Text> : null}
+      {caption ? <Text style={[type.caption, styles.caption]}>{caption}</Text> : null}
       <View style={styles.stepperRow}>
         <Pressable
           onPress={onDec}
+          accessibilityRole="button" accessibilityLabel={`${caption ?? ''} −`}
           disabled={decDisabled}
           hitSlop={8}
           style={[styles.stepBtn, decDisabled && styles.stepBtnDisabled]}
         >
           <Text style={styles.stepBtnText}>−</Text>
         </Pressable>
-        <Text style={styles.value}>{value}</Text>
+        <Text style={[type.num, styles.value]}>{value}</Text>
         <Pressable
           onPress={onInc}
+          accessibilityRole="button" accessibilityLabel={`${caption ?? ''} +`}
           disabled={incDisabled}
           hitSlop={8}
           style={[styles.stepBtn, incDisabled && styles.stepBtnDisabled]}
@@ -196,8 +217,8 @@ const makeStyles = (c: ThemeTokens) =>
       alignSelf: "stretch",
     },
     stepBtn: {
-      width: 34,
-      height: 34,
+      width: 44,
+      height: 44,
       borderRadius: RADIUS.sm,
       backgroundColor: c.accentSoft,
       alignItems: "center",
@@ -233,3 +254,4 @@ const makeStyles = (c: ThemeTokens) =>
       borderColor: c.elevatedBg,
     },
   });
+

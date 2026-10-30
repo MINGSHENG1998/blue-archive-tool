@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Menu, Button } from "react-native-paper";
 import { useLanguage } from "@/contexts/language-context";
-import { i18n, type Locale } from "@/constants/i18n";
+import { type Locale } from "@/constants/i18n";
 
 const LOCALE_LABELS: Record<Locale, string> = {
   en: "EN",
@@ -13,7 +13,6 @@ const LOCALE_LABELS: Record<Locale, string> = {
 export default function LanguageSwitcher() {
   const { locale, setLocale } = useLanguage();
   const [visible, setVisible] = useState(false);
-  const t = i18n[locale];
 
   return (
     <Menu

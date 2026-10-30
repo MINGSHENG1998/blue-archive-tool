@@ -1,6 +1,11 @@
 import {
+  LIMITED_CATEGORY,
+  adaptationGrade,
   birthdaysByMonth,
   filterStudents,
+  isLimitedPickup,
+  limitedCategory,
+  terrainAdaptation,
   schoolsOf,
   selectLiveGachas,
   toAtkType,
@@ -380,5 +385,61 @@ describe("selectLiveGachas", () => {
     };
     expect(selectLiveGachas(config, byId, now, "japan")).toHaveLength(1);
     expect(selectLiveGachas(config, byId, now, "global")).toEqual([]);
+  });
+});
+
+describe("availability category", () => {
+  const withLimited = (IsLimited: number[]) => ({
+    ...student(1, "Aru", "3/12"),
+    IsLimited,
+  });
+
+  it("reads the category per region", () => {
+    const aru = withLimited([4, 1, 0]);
+    expect(limitedCategory(aru)).toBe(LIMITED_CATEGORY.unique);
+    expect(limitedCategory(aru, "japan")).toBe(LIMITED_CATEGORY.archived);
+    expect(limitedCategory(aru, "china")).toBe(LIMITED_CATEGORY.regular);
+  });
+
+  it("is null for a value this build does not know", () => {
+    expect(limitedCategory(withLimited([0, 9, 0]))).toBeNull();
+    expect(limitedCategory(withLimited([0]))).toBeNull();
+  });
+
+  it("counts Unique and Fest, and only those, as limited pickups", () => {
+    const pickup = (category: number) => isLimitedPickup(withLimited([0, category, 0]));
+    expect(pickup(LIMITED_CATEGORY.unique)).toBe(true);
+    expect(pickup(LIMITED_CATEGORY.fest)).toBe(true);
+    expect(pickup(LIMITED_CATEGORY.regular)).toBe(false);
+    expect(pickup(LIMITED_CATEGORY.event)).toBe(false);
+    expect(pickup(LIMITED_CATEGORY.archived)).toBe(false);
+  });
+});
+
+describe("terrain adaptation", () => {
+  const aru = {
+    ...student(1, "Aru", "3/12"),
+    StreetBattleAdaptation: 4,
+    OutdoorBattleAdaptation: 2,
+    IndoorBattleAdaptation: 0,
+  };
+
+  it("reads the value for each terrain", () => {
+    expect(terrainAdaptation(aru, "Street")).toBe(4);
+    expect(terrainAdaptation(aru, "Outdoor")).toBe(2);
+    expect(terrainAdaptation(aru, "Indoor")).toBe(0);
+  });
+
+  it("is null when the snapshot lacks it or the terrain is unknown", () => {
+    expect(terrainAdaptation(student(2, "Haruka", "-"), "Street")).toBeNull();
+    expect(terrainAdaptation(aru, "Space")).toBeNull();
+  });
+
+  it("grades 0..5 as D..SS", () => {
+    expect([0, 1, 2, 3, 4, 5].map(adaptationGrade)).toEqual(["D", "C", "B", "A", "S", "SS"]);
+    expect(adaptationGrade(6)).toBeNull();
+    expect(adaptationGrade(-1)).toBeNull();
+    expect(adaptationGrade(2.5)).toBeNull();
+    expect(adaptationGrade(null)).toBeNull();
   });
 });

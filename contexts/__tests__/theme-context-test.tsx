@@ -30,9 +30,9 @@ describe("ThemeProvider", () => {
     await AsyncStorage.clear();
   });
 
-  it("defaults to baBlue when nothing stored", async () => {
+  it("defaults to daylight when nothing stored", async () => {
     await renderProvider();
-    expect(captured.themeId).toBe("baBlue");
+    expect(captured.themeId).toBe("daylight");
     expect(captured.theme.tokens.primaryColor).toBe("#128AFA");
   });
 
@@ -42,10 +42,10 @@ describe("ThemeProvider", () => {
     expect(captured.themeId).toBe("cafe");
   });
 
-  it("falls back to baBlue for an invalid persisted id", async () => {
+  it("falls back to daylight for an invalid persisted id", async () => {
     await AsyncStorage.setItem("app_theme_id", "not-a-theme");
     await renderProvider();
-    expect(captured.themeId).toBe("baBlue");
+    expect(captured.themeId).toBe("daylight");
   });
 
   it("setThemeId updates and persists", async () => {

@@ -59,6 +59,87 @@ export function isReleased(student: GameStudent, region: RegionKey): boolean {
   return student.IsReleased[REGION[region]] === true;
 }
 
+/**
+ * SchaleDB's availability categories (`IsLimited`), as its own localization
+ * defines them. The labels for each live in the IsLimited / IsLimitedFilter /
+ * IsLimitedTooltip localization sections.
+ */
+export const LIMITED_CATEGORY = {
+  /** Regular Recruitment; Eleph obtainable. */
+  regular: 0,
+  /** Limited-time "Unique Recruitment" only; no Eleph. */
+  unique: 1,
+  /** An event reward, never recruited. */
+  event: 2,
+  /** Limited-time "Fest Recruitment" only; no Eleph. */
+  fest: 3,
+  /** Archive Recruitment only; removed from the regular pool. */
+  archived: 4,
+} as const;
+
+export type LimitedCategory = (typeof LIMITED_CATEGORY)[keyof typeof LIMITED_CATEGORY];
+
+const LIMITED_VALUES = new Set<number>(Object.values(LIMITED_CATEGORY));
+
+/**
+ * The student's availability category on a server. Null for a value SchaleDB
+ * added after this build, so callers never mislabel it as Regular.
+ */
+export function limitedCategory(
+  student: GameStudent,
+  region: RegionKey = "global",
+): LimitedCategory | null {
+  const value = student.IsLimited?.[REGION[region]];
+  return typeof value === "number" && LIMITED_VALUES.has(value)
+    ? (value as LimitedCategory)
+    : null;
+}
+
+/**
+ * Recruited only on limited-time banners (Unique or Fest). These share the
+ * limited pickup pool under Recruitment Charges, apart from regular pickups.
+ */
+export function isLimitedPickup(
+  student: GameStudent,
+  region: RegionKey = "global",
+): boolean {
+  const category = limitedCategory(student, region);
+  return category === LIMITED_CATEGORY.unique || category === LIMITED_CATEGORY.fest;
+}
+
+/** The three battlefield terrains, in the order the game lists them. */
+export const TERRAINS = ["Street", "Outdoor", "Indoor"] as const;
+export type Terrain = (typeof TERRAINS)[number];
+
+/** Terrain adaptation grade by SchaleDB value: 0 = D … 5 = SS. */
+export const ADAPTATION_GRADES = ["D", "C", "B", "A", "S", "SS"] as const;
+export type AdaptationGrade = (typeof ADAPTATION_GRADES)[number];
+
+const ADAPTATION_FIELD = {
+  Street: "StreetBattleAdaptation",
+  Outdoor: "OutdoorBattleAdaptation",
+  Indoor: "IndoorBattleAdaptation",
+} as const satisfies Record<Terrain, keyof GameStudent>;
+
+/**
+ * Raw adaptation value (0–5) on a terrain, or null when the snapshot does not
+ * carry it — an older cache, or a terrain name upstream added later.
+ */
+export function terrainAdaptation(
+  student: GameStudent,
+  terrain: string,
+): number | null {
+  const field = ADAPTATION_FIELD[terrain as Terrain];
+  const value = field ? student[field] : undefined;
+  return typeof value === "number" ? value : null;
+}
+
+/** "SS".."D" for a raw adaptation value; null when out of range. */
+export function adaptationGrade(value: number | null | undefined): AdaptationGrade | null {
+  if (typeof value !== "number" || !Number.isInteger(value)) return null;
+  return ADAPTATION_GRADES[value] ?? null;
+}
+
 export interface Birthday {
   month: number;
   day: number;
