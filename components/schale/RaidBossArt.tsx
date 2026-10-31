@@ -28,7 +28,8 @@ export function RaidBossArt({
   return (
     <View style={[styles.frame, style]} accessible accessibilityRole="image" accessibilityLabel={label}>
       <LinearGradient
-        colors={[c.skyTop, c.skyMid]}
+        colors={[c.skyTop, c.skyMid, c.stageEnd]}
+        locations={[0, 0.55, 1]}
         start={{ x: 1, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={StyleSheet.absoluteFill}

@@ -10,7 +10,8 @@ type Props = {
   /** Portrait first, then any fallbacks (icon art is cropped the same way). */
   uris: readonly (string | null | undefined)[];
   label: string;
-  width: number;
+  /** Window width. Omit to show the art's full width (no side crop). */
+  width?: number;
   height: number;
   /** Fraction of the art's height shown in the window. Default 0.5 (top of the canvas to the waist). */
   span?: number;
@@ -25,20 +26,22 @@ type Props = {
  * and shoulders the same way for every student.
  */
 export function PortraitCrop({ uris, label, width, height, span = 0.5, top = 0, style }: Props) {
-  const art = useMemo(() => {
-    const artHeight = height / span;
-    const artWidth = artHeight * ART_ASPECT;
-    return {
+  const artHeight = height / span;
+  const artWidth = artHeight * ART_ASPECT;
+  const windowWidth = width ?? artWidth;
+  const art = useMemo(
+    () => ({
       position: "absolute" as const,
       width: artWidth,
       height: artHeight,
       top: -artHeight * top,
-      left: (width - artWidth) / 2,
-    };
-  }, [width, height, span, top]);
+      left: (windowWidth - artWidth) / 2,
+    }),
+    [artWidth, artHeight, windowWidth, top]
+  );
 
   return (
-    <View style={[styles.window, { width, height }, style]} accessibilityRole="image" accessibilityLabel={label}>
+    <View style={[styles.window, { width: windowWidth, height }, style]} accessibilityRole="image" accessibilityLabel={label}>
       <FallbackImage uris={uris} label={label} style={art} resizeMode="cover" />
     </View>
   );

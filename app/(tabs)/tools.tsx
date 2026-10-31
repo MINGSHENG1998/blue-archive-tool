@@ -14,7 +14,7 @@ export default function ToolsScreen() {
     <ToolGrid names={['Banners', 'Planner', 'Gacha']} featureBanner />
     <View style={styles.gap} />
     <IndexTab title={s.daily} style={styles.heading} />
-    <ToolGrid names={['Ap', 'Birthdays', 'Reminders']} />
+    <ToolGrid names={['Birthdays', 'Reminders']} />
   </ScreenLayout>;
 }
 

@@ -13,9 +13,14 @@ import { characterImageUris, studentPortraitUris } from '@/services/gamedata';
 import { bannerStudentName, localDuration, recruitmentView } from '@/services/home/view';
 import { useFocusedNow } from './useFocusedNow';
 
-const ART_H = 204;
-const ART_W = 140;
-const AVATAR = 28;
+// The window shows the art from the top of its canvas (where tall halos sit)
+// to the hips, a little narrower than the art itself, and starts HEADROOM
+// below the card's top edge so nothing touches it.
+const ART_H = 200;
+const ART_W = 160;
+const ART_SPAN = 0.58;
+const HEADROOM = 14;
+const AVATAR = 26;
 
 /** Live recruitment never depends on the success of the Firestore request. */
 export function RecruitmentHero({ showEmpty = true }: { showEmpty?: boolean }) {
@@ -45,10 +50,10 @@ export function RecruitmentHero({ showEmpty = true }: { showEmpty?: boolean }) {
   return <AppCard padding={0} style={styles.card}>
     {/* The stage: a sky wash whose bottom edge crops the figures, like the in-game recruit frame. */}
     <View style={styles.stage}>
-      <LinearGradient colors={[c.skyTop, c.skyMid]} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} style={StyleSheet.absoluteFill} />
+      <LinearGradient colors={[c.skyTop, c.skyMid, c.stageEnd]} locations={[0, 0.55, 1]} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} style={StyleSheet.absoluteFill} />
       {featured ? <PressScale spark={false} haptic={false} accessibilityLabel={featuredName} style={styles.art}
         onPress={() => openStudent(featured.studentId!)}>
-        <PortraitCrop uris={studentPortraitUris(featured.studentId!)} label={featuredName} width={ART_W} height={ART_H} />
+        <PortraitCrop uris={studentPortraitUris(featured.studentId!)} label={featuredName} width={ART_W} height={ART_H} span={ART_SPAN} />
       </PressScale> : null}
       {/* The copy column stops where the art begins, so names never sit on a face. */}
       <View style={[styles.copy, { paddingRight: artWidth + 8 }]}>
@@ -65,7 +70,7 @@ export function RecruitmentHero({ showEmpty = true }: { showEmpty?: boolean }) {
     </View>
     <View style={styles.footer}>
       <View style={styles.flex}>
-        <Text style={[type.numXL, { color: c.textPrimary }]}>{localDuration((endAt - now) / 1000, s)}</Text>
+        <Text style={[type.numXL, { color: c.secondaryInk }]}>{localDuration((endAt - now) / 1000, s)}</Text>
         <Text style={[type.caption, { color: c.textMuted }]}>{fmt(s.endsAt, { date: endsLocal })}</Text>
       </View>
       <SignalButton label={s.plan} icon="chart-timeline-variant" onPress={() => router.push('/tools/planner')} />
@@ -75,10 +80,10 @@ export function RecruitmentHero({ showEmpty = true }: { showEmpty?: boolean }) {
 
 const styles = StyleSheet.create({
   card: { marginBottom: 28, overflow: 'hidden' },
-  stage: { minHeight: ART_H + 14, overflow: 'hidden' },
+  stage: { minHeight: ART_H + HEADROOM, overflow: 'hidden' },
   art: { position: 'absolute', right: 0, bottom: 0, width: ART_W, height: ART_H },
   copy: { paddingTop: 18, paddingLeft: 18, paddingBottom: 18 },
-  avatars: { flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginTop: 12 },
+  avatars: { flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 12 },
   footer: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 18 },
   flex: { flex: 1 },
 });

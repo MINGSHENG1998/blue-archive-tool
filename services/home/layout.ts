@@ -35,7 +35,6 @@ export const DEFAULT_HIDDEN: readonly HomeWidgetId[] = [];
 export const PINNABLE_TOOLS = [
   'Planner',
   'Gacha',
-  'Ap',
   'Bond',
   'Banners',
   'Level',
@@ -47,7 +46,8 @@ export const PINNABLE_TOOLS = [
 ] as const;
 export type PinnableTool = (typeof PINNABLE_TOOLS)[number];
 
-export const DEFAULT_PINNED_TOOLS: readonly PinnableTool[] = ['Planner', 'Gacha', 'Ap', 'Bond'];
+// The AP timer is hidden for now (its route still exists, nothing links to it).
+export const DEFAULT_PINNED_TOOLS: readonly PinnableTool[] = ['Planner', 'Gacha', 'Bond', 'Raid'];
 
 /** Two rows of four keeps the row compact on a phone. */
 export const MAX_PINNED_TOOLS = 8;

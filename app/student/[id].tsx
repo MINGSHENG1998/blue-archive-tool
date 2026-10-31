@@ -66,9 +66,9 @@ function StudentDossier({ student }: { student: GameStudent }) {
     <ScreenLayout>
       <NavBar title={name} subtitle={label("School", student.School)} />
       <AppCard padding={0} style={styles.hero}>
-        <LinearGradient colors={[c.skyTop, c.skyMid]} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} style={StyleSheet.absoluteFill} />
+        <LinearGradient colors={[c.skyTop, c.skyMid, c.stageEnd]} locations={[0, 0.55, 1]} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} style={StyleSheet.absoluteFill} />
         <PortraitCrop uris={[studentPortraitUrl(student.Id), ...studentIconUris(student.Id)]} label={name}
-          width={170} height={HERO_H} span={0.66} top={0} style={styles.portrait} />
+          height={HERO_H - HERO_HEADROOM} span={0.66} style={styles.portrait} />
         <View style={styles.heroText}>
           <Text style={[type.caption, { color: c.textSecondary }]}>{label("SquadType", student.SquadType)}</Text>
           <Text style={[type.num, { color: categoryColors.star, fontSize: 18 }]}>{"★".repeat(registration.entry?.stars ?? student.StarGrade)}</Text>
@@ -143,10 +143,12 @@ function StudentDossier({ student }: { student: GameStudent }) {
   </>;
 }
 const HERO_H = 250;
+// Space above the art so a halo at the very top of the canvas clears the card edge.
+const HERO_HEADROOM = 16;
 
 const styles = StyleSheet.create({
   hero: { marginBottom: 14, height: HERO_H, overflow: "hidden" },
-  portrait: { position: "absolute", right: 0, bottom: 0 }, heroText: { width: "52%", padding: 18, gap: 10, justifyContent: "flex-end", flex: 1 },
+  portrait: { position: "absolute", right: 4, bottom: 0 }, heroText: { width: "46%", padding: 18, gap: 10, justifyContent: "flex-end", flex: 1 },
   badges: { flexDirection: "row", flexWrap: "wrap", gap: 6 }, actions: { flexDirection: "row", gap: 10, marginBottom: 12 }, flex: { flex: 1 },
   section: { marginTop: 26 }, terrain: { flexDirection: "row", flexWrap: "wrap", gap: 12 }, terrainCell: { flex: 1, minWidth: 70 },
   row: { flexDirection: "row", flexWrap: "wrap", alignItems: "baseline", paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, gap: 12 },

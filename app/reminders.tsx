@@ -13,7 +13,7 @@ export { ErrorBoundary } from 'expo-router';
 
 export default function RemindersScreen() {
  const c = useColors(), type = useType(), s = useStrings(reminderStrings), r = useReminders();
- const rows: { key: ReminderKind; description: string }[] = [{ key:'bannerStart', description:s.bannerStartDesc }, { key:'bannerEnd', description:s.bannerEndDesc }, { key:'dailyReset', description:s.dailyResetDesc }, { key:'birthdays', description:s.birthdaysDesc }, { key:'apFull', description:s.apFullDesc }];
+ const rows: { key: ReminderKind; description: string }[] = [{ key:'bannerStart', description:s.bannerStartDesc }, { key:'bannerEnd', description:s.bannerEndDesc }, { key:'dailyReset', description:s.dailyResetDesc }, { key:'birthdays', description:s.birthdaysDesc }];
  return <ScreenLayout>
   <NavBar title={s.title} />
   <AppCard>

@@ -20,7 +20,7 @@ export function BirthdaysWidget({ now }: { now: number }) {
     {today.map(({ student }) => <MomoTalkCard key={student.Id} studentId={student.Id} uris={studentIconUris(student.Id)} name={game.displayName(student)}
       message={s.birthdayMessage} header={s.birthdays} typing={false} onPress={() => router.push({ pathname: '/student/[id]', params: { id: student.Id } })} style={styles.card} />)}
     <PressScale spark={false} onPress={() => router.push('/birthdays')} style={styles.link} accessibilityLabel={s.birthdayAll}>
-      <Icon name="cake-variant-outline" size={18} color={c.primaryInk} />
+      <Icon name="cake-variant-outline" size={18} color={c.secondaryInk} />
       <Text style={[type.labelCaps, { color: c.primaryInk }]}>{s.birthdayAll}</Text>
     </PressScale>
   </View>;

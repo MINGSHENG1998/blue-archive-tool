@@ -26,7 +26,7 @@ const layout = (patch: Partial<HomeLayout> = {}): HomeLayout => ({ ...defaultHom
 describe('defaultHomeLayout', () => {
   it('shows every widget in the default order with the default tools', () => {
     const fresh = defaultHomeLayout();
-    expect(fresh).toEqual({ v: 1, order: [...HOME_WIDGETS], hidden: [], pinnedTools: ['Planner', 'Gacha', 'Ap', 'Bond'] });
+    expect(fresh).toEqual({ v: 1, order: [...HOME_WIDGETS], hidden: [], pinnedTools: ['Planner', 'Gacha', 'Bond', 'Raid'] });
     expect(visibleWidgets(fresh)).toEqual([...HOME_WIDGETS]);
     expect(isDefaultHomeLayout(fresh)).toBe(true);
   });
@@ -63,11 +63,12 @@ describe('normalizeHomeLayout', () => {
       v: 1,
       order: ['tools', 'tools', 'widgetFrom2030', 'resources', 3, null, ...HOME_WIDGETS],
       hidden: ['tools', 'ghost', 'tools', {}],
-      pinnedTools: ['Raid', 'Raid', 'Teleporter', 12, 'Ap'],
+      pinnedTools: ['Raid', 'Raid', 'Teleporter', 12, 'Ap', 'Bond'],
     });
     expect(result.order).toEqual(['tools', 'resources', 'recruitment', 'happening', 'comingUp', 'dailyStudent', 'birthdays']);
     expect(result.hidden).toEqual(['tools']);
-    expect(result.pinnedTools).toEqual(['Raid', 'Ap']);
+    // 'Ap' is no longer pinnable (the AP timer is hidden), so it drops like an unknown id.
+    expect(result.pinnedTools).toEqual(['Raid', 'Bond']);
   });
 
   it('keeps hidden in display order', () => {
@@ -199,9 +200,9 @@ describe('setWidgetVisible / toggleWidget', () => {
 
 describe('pinned tools', () => {
   it('appends on pin and removes in place', () => {
-    expect(setToolPinned(layout(), 'Raid', true).pinnedTools).toEqual(['Planner', 'Gacha', 'Ap', 'Bond', 'Raid']);
-    expect(setToolPinned(layout(), 'Gacha', false).pinnedTools).toEqual(['Planner', 'Ap', 'Bond']);
-    expect(toggleTool(layout(), 'Ap').pinnedTools).toEqual(['Planner', 'Gacha', 'Bond']);
+    expect(setToolPinned(layout(), 'Level', true).pinnedTools).toEqual(['Planner', 'Gacha', 'Bond', 'Raid', 'Level']);
+    expect(setToolPinned(layout(), 'Gacha', false).pinnedTools).toEqual(['Planner', 'Bond', 'Raid']);
+    expect(toggleTool(layout(), 'Raid').pinnedTools).toEqual(['Planner', 'Gacha', 'Bond']);
   });
 
   it('stops at the cap and ignores unknown tools', () => {

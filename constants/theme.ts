@@ -31,6 +31,11 @@ export interface ThemeCore {
   signal?: string;
   /** Optional override for the halo emblem / spark tint. */
   halo?: string;
+  /**
+   * Optional second accent (Arona's and Plana's pink). Washes the art
+   * stages and colors a few signature numbers; defaults to the halo hue.
+   */
+  secondary?: string;
 }
 
 export interface ThemeTokens extends ThemeCore {
@@ -73,6 +78,14 @@ export interface ThemeTokens extends ThemeCore {
   /** Positive state green (>= 3:1 on appBg) and its soft wash. */
   success: string;
   successBg: string;
+  /** Second accent at full strength, for fills and large shapes. */
+  secondary: string;
+  /** Second accent safe for text and icons (AA on appBg + elevatedBg). */
+  secondaryInk: string;
+  /** Second accent at 16%, for washes and soft fills. */
+  secondarySoft: string;
+  /** Far end of the art-stage gradient: the sky warmed by the second accent. */
+  stageEnd: string;
 }
 
 export interface Theme {
@@ -218,6 +231,15 @@ export function buildTheme(core: ThemeCore): ThemeTokens {
 
   const success = ensureContrast(SUCCESS_BASE, surfaces, 3, inkward);
 
+  const secondary = core.secondary ?? halo;
+  const secondaryInk = ensureContrast(
+    isDark ? secondary : mix(secondary, textPrimary, 0.35),
+    surfaces,
+    4.5,
+    inkward
+  );
+  const skyMid = mix(appBg, primary, isDark ? 0.12 : 0.08);
+
   return {
     ...core,
     accentSoft: withAlpha(primary, 0.12),
@@ -236,7 +258,7 @@ export function buildTheme(core: ThemeCore): ThemeTokens {
     haloSoft: withAlpha(halo, 0.28),
     // Each theme's sky reads as Kivotos at a different time of day.
     skyTop: mix(appBg, primary, isDark ? 0.3 : 0.22),
-    skyMid: mix(appBg, primary, isDark ? 0.12 : 0.08),
+    skyMid,
     // appBg at alpha 0, NOT the 'transparent' keyword: iOS interpolates a
     // gradient through transparent black and bands grey.
     skyFade: withAlpha(appBg, 0),
@@ -252,6 +274,10 @@ export function buildTheme(core: ThemeCore): ThemeTokens {
     sparkShard: isDark ? WHITE : halo,
     success,
     successBg: withAlpha(success, isDark ? 0.16 : 0.14),
+    secondary,
+    secondaryInk,
+    secondarySoft: withAlpha(secondary, 0.16),
+    stageEnd: mix(skyMid, secondary, isDark ? 0.18 : 0.22),
   };
 }
 
@@ -271,6 +297,8 @@ const CORES: Record<ThemeId, ThemeCore> = {
     surfaceBorder: "#CFE2F1", textPrimary: "#15304F", textSecondary: "#41617F",
     textMuted: "#56718B", primaryColor: "#2A9DF4", primaryText: "#FFFFFF",
     hazardColor: "#D23F3F", hazardBg: "#FDE8E8", hazardBorder: "#D23F3F",
+    // Her palette: sky blue, a bright cyan halo and a soft pink.
+    halo: "#2FB7E6", secondary: "#F27BAA",
   },
   // Plana, Arona's counterpart: the same tablet after dark. Near-black
   // sheets, cool silver ink, a pale steel-blue accent.
@@ -280,6 +308,8 @@ const CORES: Record<ThemeId, ThemeCore> = {
     surfaceBorder: "#2E3340", textPrimary: "#ECEEF3", textSecondary: "#AEB5C3",
     textMuted: "#868E9E", primaryColor: "#A9BCDD", primaryText: "#111318",
     hazardColor: "#E5675F", hazardBg: "#3A2224", hazardBorder: "#E5675F",
+    // Her palette: silver and steel blue, a deep indigo halo, a muted rose.
+    halo: "#7E8FE0", secondary: "#E987B4",
   },
   paper: {
     isDark: false,

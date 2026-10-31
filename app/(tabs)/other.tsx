@@ -36,6 +36,7 @@ function ThemePreview({ id }: { id: ThemeId }) {
    <View style={{flexDirection:'row',alignItems:'center',gap:6}}>
     <View style={{height:12,width:40,borderRadius:6,backgroundColor:t.signal}}/>
     <View style={{height:12,width:12,borderRadius:6,backgroundColor:t.primaryColor}}/>
+    <View style={{height:12,width:12,borderRadius:6,backgroundColor:t.secondary}}/>
    </View>
   </View>
   <View style={{flexDirection:'row',alignItems:'center',gap:4,marginTop:8}}>
