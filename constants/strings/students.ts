@@ -53,6 +53,32 @@ export const studentStrings = defineStrings({
     profile: "프로필", terrain: "지형 적성", equipment: "장비", weapon: "고유 무기", availability: "모집 구분", appearances: "모집 일정", noBanners: "이 학생의 예정된 모집이 없습니다.", bannersLoading: "모집 일정 불러오는 중…", bannersError: "모집 일정을 불러올 수 없습니다. 모집 탭에서 다시 시도하세요.", bannerPrediction: "향후 모집 날짜는 예상이며 변경될 수 있습니다.",
     birthday: "생일", birthdayIn: "생일까지 {days}일", birthdayToday: "오늘 생일", bond: "인연 경험치 계산", unknown: "기록 없음", schoolYear: "학년", age: "나이", height: "신장", hobby: "취미", illustrator: "일러스트레이터", voice: "성우", club: "동아리", role: "역할", position: "포지션", weaponType: "무기 종류", released: "출시됨", unreleased: "미출시", missingStudent: "현재 데이터에 이 학생의 기록이 없습니다.",
   },
+  vi: {
+    title: "Học sinh", kicker: "SCHALE / HỒ SƠ HỌC SINH", subtitle: "Mọi học sinh, theo dõi tại một nơi.",
+    browse: "Xem", register: "Ghi nhận", registerHelp: "Chạm vào chân dung để đánh dấu đã sở hữu. Mở phần cấp sao để sửa số sao hoặc xem hồ sơ.", search: "Tìm tên học sinh",
+    filters: "Bộ lọc", collection: "Bộ sưu tập", school: "Trường", rarity: "Độ hiếm khi chiêu mộ", attack: "Tấn công", armor: "Giáp", squad: "Đội hình",
+    owned: "Đã sở hữu", missing: "Chưa sở hữu", watched: "Đang theo dõi", missingLimited: "Giới hạn chưa có", global: "Chỉ học sinh đã ra mắt ở Global", all: "Tất cả", clear: "Xóa bộ lọc", apply: "Xem học sinh",
+    count: "{count} học sinh", grades: "Cấp sao", editGrades: "Sửa cấp sao của {name}", starGrade: "Sao học sinh", weaponGrade: "Sao vũ khí riêng", noWeapon: "Không có",
+    own: "Đánh dấu đã sở hữu", unown: "Bỏ đánh dấu sở hữu", watch: "Theo dõi học sinh", unwatch: "Bỏ theo dõi", dossier: "Mở hồ sơ", saved: "Đã lưu trên thiết bị này", loading: "Đang tải bộ sưu tập…",
+    export: "Chia sẻ bản sao lưu", import: "Nhập bản sao lưu", backupHelp: "Dán bản sao lưu danh sách BAT1. Dữ liệu nhập vào sẽ được gộp với bộ sưu tập và giữ cấp sao cao hơn. Danh sách theo dõi được lưu riêng.", paste: "Dán bản sao lưu danh sách", merge: "Gộp bộ sưu tập",
+    imported: "Đã gộp {count} học sinh, giữ lại cấp sao cao hơn.", importEmpty: "Hãy dán bản sao lưu danh sách trước.", importHeader: "Đây không phải bản sao lưu danh sách BAT1.", importVersion: "Bản sao lưu này cần phiên bản ứng dụng mới hơn.", importEntry: "Một mục học sinh bị lỗi. Hãy kiểm tra toàn bộ bản sao lưu rồi thử lại.", importLarge: "Bản sao lưu này quá lớn.", shareError: "Không thể chia sẻ bản sao lưu. Hãy thử lại.",
+    empty: "Không có học sinh phù hợp", emptyBody: "Thử tên khác hoặc bỏ bớt bộ lọc.", progress: "Đã sưu tầm {owned}/{total}", bySchool: "Theo trường", byRarity: "Theo độ hiếm khi chiêu mộ", linked: "Các dạng chiến đấu liên kết được tính là một học sinh.",
+    profile: "Thông tin cá nhân", terrain: "Thích ứng địa hình", equipment: "Trang bị", weapon: "Vũ khí riêng", availability: "Hình thức chiêu mộ", appearances: "Các lần xuất hiện trên banner", noBanners: "Chưa có lịch chiêu mộ nào có học sinh này.", bannersLoading: "Đang tải lịch chiêu mộ…", bannersError: "Không tải được lịch chiêu mộ. Hãy thử lại ở tab Banner.", bannerPrediction: "Ngày chiêu mộ trong tương lai là dự đoán và có thể thay đổi.",
+    birthday: "Sinh nhật", birthdayIn: "Còn {days} ngày đến sinh nhật", birthdayToday: "Hôm nay là sinh nhật", bond: "Tính EXP tình cảm", unknown: "Chưa ghi nhận", schoolYear: "Năm học", age: "Tuổi", height: "Chiều cao", hobby: "Sở thích", illustrator: "Họa sĩ", voice: "Diễn viên lồng tiếng", club: "Câu lạc bộ", role: "Vai trò", position: "Vị trí", weaponType: "Loại vũ khí", released: "Đã ra mắt", unreleased: "Chưa ra mắt", missingStudent: "Hồ sơ học sinh này không có trong dữ liệu hiện tại.",
+  },
+  th: {
+    title: "นักเรียน", kicker: "SCHALE / แฟ้มประวัติ", subtitle: "รวมนักเรียนทุกคนไว้ในที่เดียว",
+    browse: "ดูรายชื่อ", register: "ลงทะเบียน", registerHelp: "แตะรูปเพื่อบันทึกว่ามีนักเรียนคนนี้แล้ว เปิดระดับดาวเพื่อแก้ไขดาวหรือดูแฟ้มประวัติ", search: "ค้นหาชื่อนักเรียน",
+    filters: "ตัวกรอง", collection: "คอลเลกชัน", school: "โรงเรียน", rarity: "ดาวเริ่มต้น", attack: "ประเภทโจมตี", armor: "ประเภทเกราะ", squad: "ทีม",
+    owned: "มีแล้ว", missing: "ยังไม่มี", watched: "ติดตามอยู่", missingLimited: "ตัวลิมิเต็ดที่ยังไม่มี", global: "เฉพาะที่มาแล้วในเซิร์ฟ Global", all: "ทั้งหมด", clear: "ล้างตัวกรอง", apply: "ดูนักเรียน",
+    count: "นักเรียน {count} คน", grades: "ระดับดาว", editGrades: "แก้ไขระดับดาวของ {name}", starGrade: "ดาวนักเรียน", weaponGrade: "ดาวอาวุธเฉพาะตัว", noWeapon: "ไม่มี",
+    own: "บันทึกว่ามีแล้ว", unown: "นำออกจากตัวที่มี", watch: "ติดตามนักเรียน", unwatch: "เลิกติดตาม", dossier: "เปิดแฟ้มประวัติ", saved: "บันทึกไว้ในอุปกรณ์นี้แล้ว", loading: "กำลังโหลดคอลเลกชัน…",
+    export: "แชร์ข้อมูลสำรอง", import: "นำเข้าข้อมูลสำรอง", backupHelp: "วางข้อมูลสำรองรายชื่อ BAT1 การนำเข้าจะรวมกับคอลเลกชันของคุณและเก็บระดับดาวที่สูงกว่าไว้ ส่วนรายการติดตามเก็บแยกกัน", paste: "วางข้อมูลสำรองรายชื่อ", merge: "รวมคอลเลกชัน",
+    imported: "รวมนักเรียน {count} คนแล้ว โดยเก็บระดับดาวที่สูงกว่าไว้", importEmpty: "วางข้อมูลสำรองรายชื่อก่อน", importHeader: "นี่ไม่ใช่ข้อมูลสำรองรายชื่อ BAT1", importVersion: "ข้อมูลสำรองนี้ต้องใช้แอปเวอร์ชันใหม่กว่า", importEntry: "ข้อมูลนักเรียนบางรายการเสียหาย ตรวจสอบข้อมูลสำรองทั้งหมดแล้วลองอีกครั้ง", importLarge: "ข้อมูลสำรองนี้ใหญ่เกินไป", shareError: "แชร์ข้อมูลสำรองไม่ได้ ลองอีกครั้ง",
+    empty: "ไม่พบนักเรียนที่ตรงกัน", emptyBody: "ลองชื่ออื่นหรือล้างตัวกรองบางรายการ", progress: "สะสมแล้ว {owned} จาก {total}", bySchool: "ตามโรงเรียน", byRarity: "ตามดาวเริ่มต้น", linked: "ร่างต่อสู้ที่เชื่อมกันนับเป็นนักเรียนคนเดียว",
+    profile: "ข้อมูลส่วนตัว", terrain: "ความถนัดภูมิประเทศ", equipment: "อุปกรณ์", weapon: "อาวุธเฉพาะตัว", availability: "ประเภทกาชา", appearances: "ตู้ที่มีนักเรียนคนนี้", noBanners: "ยังไม่มีตู้ในตารางที่มีนักเรียนคนนี้", bannersLoading: "กำลังโหลดตารางตู้…", bannersError: "โหลดตารางตู้ไม่ได้ ลองอีกครั้งที่แท็บตู้กาชา", bannerPrediction: "วันที่ของตู้ในอนาคตเป็นการคาดการณ์และอาจเปลี่ยนแปลงได้",
+    birthday: "วันเกิด", birthdayIn: "อีก {days} วันถึงวันเกิด", birthdayToday: "วันนี้วันเกิด", bond: "คำนวณ EXP ความผูกพัน", unknown: "ไม่มีข้อมูล", schoolYear: "ชั้นปี", age: "อายุ", height: "ส่วนสูง", hobby: "งานอดิเรก", illustrator: "นักวาด", voice: "นักพากย์", club: "ชมรม", role: "บทบาท", position: "ตำแหน่ง", weaponType: "ประเภทอาวุธ", released: "มาแล้ว", unreleased: "ยังไม่มา", missingStudent: "ไม่มีแฟ้มประวัตินักเรียนคนนี้ในข้อมูลปัจจุบัน",
+  },
 });
 
 export const equipmentStrings = defineStrings({
@@ -60,4 +86,6 @@ export const equipmentStrings = defineStrings({
   zh: { Hat: "帽子", Gloves: "手套", Shoes: "鞋子", Bag: "包包", Badge: "徽章", Hairpin: "发夹", Necklace: "项链", Watch: "手表", Charm: "护符" },
   ja: { Hat: "帽子", Gloves: "グローブ", Shoes: "シューズ", Bag: "バッグ", Badge: "バッジ", Hairpin: "ヘアピン", Necklace: "ネックレス", Watch: "腕時計", Charm: "お守り" },
   ko: { Hat: "모자", Gloves: "장갑", Shoes: "신발", Bag: "가방", Badge: "배지", Hairpin: "머리핀", Necklace: "목걸이", Watch: "시계", Charm: "부적" },
+  vi: { Hat: "Mũ", Gloves: "Găng tay", Shoes: "Giày", Bag: "Túi", Badge: "Huy hiệu", Hairpin: "Kẹp tóc", Necklace: "Vòng cổ", Watch: "Đồng hồ", Charm: "Bùa hộ mệnh" },
+  th: { Hat: "หมวก", Gloves: "ถุงมือ", Shoes: "รองเท้า", Bag: "กระเป๋า", Badge: "เข็มกลัด", Hairpin: "กิ๊บติดผม", Necklace: "สร้อยคอ", Watch: "นาฬิกา", Charm: "เครื่องราง" },
 });

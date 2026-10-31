@@ -17,7 +17,9 @@ import Animated, {
 import { RADIUS } from "@/constants/layout";
 import { SPRING_PRESS } from "@/constants/motion";
 import type { ThemeTokens } from "@/constants/theme";
-import { font } from "@/constants/typography";
+import { fontFor } from "@/constants/typography";
+import type { Locale } from "@/constants/i18n";
+import { useLanguage } from "@/contexts/language-context";
 import { useColors } from "@/hooks/useColors";
 import { hapticPress } from "./feedback";
 import { HaloSpinner } from "./HaloMark";
@@ -63,10 +65,11 @@ export function SignalButton({
 }: Props) {
   const c = useColors();
   const reduced = useReducedMotion();
+  const { locale } = useLanguage();
   const inactive = disabled || loading;
   const styles = useMemo(
-    () => makeStyles(c, variant, inactive, compact),
-    [c, variant, inactive, compact]
+    () => makeStyles(c, variant, inactive, compact, locale),
+    [c, variant, inactive, compact, locale]
   );
 
   const scale = useSharedValue(1);
@@ -119,7 +122,8 @@ const makeStyles = (
   c: ThemeTokens,
   variant: SignalVariant,
   inactive: boolean,
-  compact: boolean
+  compact: boolean,
+  locale: Locale
 ) => {
   const fill = inactive
     ? c.surfaceBg
@@ -151,7 +155,7 @@ const makeStyles = (
       gap: 8,
     },
     label: {
-      ...font("bold"),
+      ...fontFor(locale, "bold"),
       fontWeight: "700",
       color: text,
       fontSize: compact ? 14 : 16,

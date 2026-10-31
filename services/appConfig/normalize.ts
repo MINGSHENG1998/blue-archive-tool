@@ -5,7 +5,12 @@
 import { parseInstant, parseScheduleString } from "@/services/banners/time";
 import { asHttpUrl, asRecord, asText } from "@/services/userdata/sanitize";
 
-import type { Announcement, AppConfig, GachaSystem } from "./types";
+import {
+  ANNOUNCEMENT_LOCALES,
+  type Announcement,
+  type AppConfig,
+  type GachaSystem,
+} from "./types";
 
 const ANNOUNCEMENT_MAX = 500;
 const MAX_FLAGS = 100;
@@ -40,7 +45,7 @@ export function normalizeAnnouncement(raw: unknown): Announcement | undefined {
   if (!id || !en) return undefined;
 
   const announcement: Announcement = { id, en };
-  for (const locale of ["ja", "ko", "zh"] as const) {
+  for (const locale of ANNOUNCEMENT_LOCALES) {
     const text = asText(record[locale], ANNOUNCEMENT_MAX);
     if (text) announcement[locale] = text;
   }

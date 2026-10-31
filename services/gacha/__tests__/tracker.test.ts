@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { addTrackedPulls, emptyTracker, normalizeTracker, trackerCharges, trackerStore, undoTrackedPull } from '../tracker';
+import { addTrackedPulls, atGuarantee, emptyTracker, normalizeTracker, trackerCharges, trackerProgress, trackerStore, undoTrackedPull } from '../tracker';
 
 describe('tracker v2', () => {
   beforeEach(async () => { await AsyncStorage.clear(); });
@@ -62,5 +62,28 @@ describe('tracker v2', () => {
     expect(trackerCharges(state)).toEqual({ standard: 100, limited: 200 });
     state = addTrackedPulls(state, 'pickup', 'standard');
     expect(trackerCharges(state)).toEqual({ standard: 0, limited: 200 });
+  });
+  it('reads the gauge from the selected pool under charge', () => {
+    let state = { ...emptyTracker(), initialCharges: { standard: 40, limited: 7 } };
+    state = addTrackedPulls(state, 'miss', 'limited', 3, 'charge');
+    expect(trackerProgress(state, 'charge')).toBe(40);
+    expect(trackerProgress({ ...state, pool: 'limited' }, 'charge')).toBe(10);
+  });
+  it('reads spark points per exchange: 200 is full, 201 starts over', () => {
+    expect(trackerProgress(emptyTracker(), 'spark')).toBe(0);
+    let state = emptyTracker();
+    for (let i = 0; i < 20; i++) state = addTrackedPulls(state, 'miss', 'standard', 10, 'spark');
+    expect(trackerProgress(state, 'spark')).toBe(200);
+    state = addTrackedPulls(state, 'miss', 'standard', 1, 'spark');
+    expect(trackerProgress(state, 'spark')).toBe(1);
+    // Charge pulls never feed the spark count.
+    expect(trackerProgress(addTrackedPulls(state, 'miss', 'standard', 5, 'charge'), 'spark')).toBe(1);
+  });
+  it('flags only the charge guarantee steps', () => {
+    expect(atGuarantee(100, 'charge')).toBe(true);
+    expect(atGuarantee(200, 'charge')).toBe(true);
+    expect(atGuarantee(0, 'charge')).toBe(false);
+    expect(atGuarantee(150, 'charge')).toBe(false);
+    expect(atGuarantee(200, 'spark')).toBe(false);
   });
 });

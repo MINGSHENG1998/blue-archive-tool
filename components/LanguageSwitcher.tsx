@@ -8,6 +8,8 @@ const LOCALE_LABELS: Record<Locale, string> = {
   zh: "中文",
   ko: "한국어",
   ja: "日本語",
+  vi: "Tiếng Việt",
+  th: "ไทย",
 };
 
 export default function LanguageSwitcher() {

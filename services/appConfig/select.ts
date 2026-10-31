@@ -2,7 +2,13 @@
 
 import { parseInstant, parseScheduleString } from "@/services/banners/time";
 
-import type { Announcement, AppConfig, GachaSystem } from "./types";
+import {
+  ANNOUNCEMENT_LOCALES,
+  type Announcement,
+  type AnnouncementLocale,
+  type AppConfig,
+  type GachaSystem,
+} from "./types";
 
 /**
  * Global replaces the 200-pull spark with Recruitment Charges after the
@@ -38,10 +44,10 @@ export function announcementText(
   announcement: Announcement,
   locale: string,
 ): string {
-  if (locale === "ja" || locale === "ko" || locale === "zh") {
-    return announcement[locale] || announcement.en;
-  }
-  return announcement.en;
+  const translated = (ANNOUNCEMENT_LOCALES as readonly string[]).includes(locale)
+    ? announcement[locale as AnnouncementLocale]
+    : undefined;
+  return translated || announcement.en;
 }
 
 /** The announcement to show at `now`, or null when absent or expired. */

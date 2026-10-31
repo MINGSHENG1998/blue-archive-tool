@@ -68,7 +68,7 @@ function StudentDossier({ student }: { student: GameStudent }) {
       <AppCard padding={0} style={styles.hero}>
         <LinearGradient colors={[c.skyTop, c.skyMid]} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} style={StyleSheet.absoluteFill} />
         <PortraitCrop uris={[studentPortraitUrl(student.Id), ...studentIconUris(student.Id)]} label={name}
-          width={170} height={HERO_H} span={0.62} top={0.06} style={styles.portrait} />
+          width={170} height={HERO_H} span={0.66} top={0} style={styles.portrait} />
         <View style={styles.heroText}>
           <Text style={[type.caption, { color: c.textSecondary }]}>{label("SquadType", student.SquadType)}</Text>
           <Text style={[type.num, { color: categoryColors.star, fontSize: 18 }]}>{"★".repeat(registration.entry?.stars ?? student.StarGrade)}</Text>

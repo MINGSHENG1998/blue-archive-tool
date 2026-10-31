@@ -20,6 +20,9 @@ import { ALL_LOCALES, OVERLAY_LOCALES } from "./schaledb";
 /**
  * Bump the version segment to abandon every existing cache in one move.
  *
+ * Adding a locale does NOT need a bump: its keys are simply absent from an
+ * older cache, and loadGameData() fills that gap from the bundled overlay.
+ *
  * v2 widened the student record, the config and the labels, and added raids.
  * A v1 cache is simply never read — it would load, but every student would be
  * missing their profile until upstream next moved — and writeCache sweeps its
@@ -34,14 +37,15 @@ const keyNames = (locale: string) => `${PREFIX}names:${locale}`;
 const keyLabels = (locale: string) => `${PREFIX}labels:${locale}`;
 const keyRaidNames = (locale: string) => `${PREFIX}raidNames:${locale}`;
 
-/** Every key the v1 layout wrote. */
+/** Every key the v1 layout wrote. v1 predates vi/th, so its locale list is fixed. */
 const LEGACY_PREFIX = "gamedata:v1:";
+const LEGACY_OVERLAYS = ["ja", "ko", "zh"] as const;
 const LEGACY_KEYS = [
   `${LEGACY_PREFIX}config`,
   `${LEGACY_PREFIX}students`,
   `${LEGACY_PREFIX}checkedAt`,
-  ...OVERLAY_LOCALES.map((locale) => `${LEGACY_PREFIX}names:${locale}`),
-  ...ALL_LOCALES.map((locale) => `${LEGACY_PREFIX}labels:${locale}`),
+  ...LEGACY_OVERLAYS.map((locale) => `${LEGACY_PREFIX}names:${locale}`),
+  ...["en", ...LEGACY_OVERLAYS].map((locale) => `${LEGACY_PREFIX}labels:${locale}`),
 ];
 
 async function readJson<T>(key: string): Promise<T | null> {

@@ -26,12 +26,13 @@ import {
 const OUT_DIR = join(__dirname, "..", "assets", "gamedata");
 const TIMEOUT_MS = 60_000;
 
-function write(name: string, data: unknown) {
+function write<T>(name: string, data: T): T {
   const path = join(OUT_DIR, name);
   const json = JSON.stringify(data);
   writeFileSync(path, json + "\n", "utf8");
   const kb = (Buffer.byteLength(json, "utf8") / 1024).toFixed(1);
   console.log(`  ${name.padEnd(18)} ${kb.padStart(8)} KB`);
+  return data;
 }
 
 /** The whole folder, since that is what ships inside the app binary. */
@@ -58,9 +59,17 @@ async function main() {
   write("config.json", config);
   write("students.json", students);
   write("raids.json", raids);
+  // vi and th are community datasets that stand in Japanese for anything not
+  // yet translated; fetchNameMap / fetchRaidNames drop those entries, so the
+  // counts below are what the app will actually show in that language.
   for (const locale of OVERLAY_LOCALES) {
-    write(`names.${locale}.json`, await fetchNameMap(locale, TIMEOUT_MS));
-    write(`raids.${locale}.json`, await fetchRaidNames(locale, TIMEOUT_MS));
+    const names = write(`names.${locale}.json`, await fetchNameMap(locale, TIMEOUT_MS));
+    const bosses = write(`raids.${locale}.json`, await fetchRaidNames(locale, TIMEOUT_MS));
+    const bossCount =
+      Object.keys(bosses.raid).length + Object.keys(bosses.multiFloor).length;
+    console.log(
+      `    ${locale}: kept ${Object.keys(names).length}/${students.length} names, ${bossCount}/${raidCount} boss names`,
+    );
   }
   for (const locale of ALL_LOCALES) {
     write(`labels.${locale}.json`, await fetchLocalization(locale, TIMEOUT_MS));

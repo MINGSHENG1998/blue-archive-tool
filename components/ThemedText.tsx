@@ -2,7 +2,19 @@ import { Text, type TextProps, StyleSheet } from 'react-native';
 
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useColors } from '@/hooks/useColors';
-import { font } from '@/constants/typography';
+import { font, useFont, type FontWeightKey } from '@/constants/typography';
+
+// The weight each type is drawn at, so the locale-aware face (system face for
+// vi/th) can be laid over the module-level Outfit styles at render time.
+const WEIGHT: Record<NonNullable<ThemedTextProps['type']>, FontWeightKey> = {
+  default: 'regular',
+  title: 'extrabold',
+  defaultSemiBold: 'semibold',
+  subtitle: 'bold',
+  cardtitle: 'semibold',
+  link: 'semibold',
+  small: 'regular',
+};
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;

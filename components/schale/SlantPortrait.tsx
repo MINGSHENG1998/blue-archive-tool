@@ -3,7 +3,9 @@ import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from "react-na
 
 import { FallbackImage } from "@/components/FallbackImage";
 import type { ThemeTokens } from "@/constants/theme";
-import { font } from "@/constants/typography";
+import { fontFor } from "@/constants/typography";
+import type { Locale } from "@/constants/i18n";
+import { useLanguage } from "@/contexts/language-context";
 import { useColors } from "@/hooks/useColors";
 import { PressScale } from "./PressScale";
 
@@ -46,9 +48,10 @@ export function SlantPortrait({
   style,
 }: Props) {
   const c = useColors();
+  const { locale } = useLanguage();
   const styles = useMemo(
-    () => makeStyles(c, size, tone ?? c.primaryColor),
-    [c, size, tone]
+    () => makeStyles(c, size, tone ?? c.primaryColor, locale),
+    [c, size, tone, locale]
   );
 
   const frame = (
@@ -94,7 +97,7 @@ export function SlantPortrait({
   );
 }
 
-const makeStyles = (c: ThemeTokens, size: number, _tone: string) => {
+const makeStyles = (c: ThemeTokens, size: number, _tone: string, locale: Locale) => {
   // Square icon art; slightly rounder at small sizes so it reads as an avatar.
   const radius = Math.round(size * (size < 56 ? 0.28 : 0.2));
   return StyleSheet.create({
@@ -113,7 +116,7 @@ const makeStyles = (c: ThemeTokens, size: number, _tone: string) => {
     caption: {
       marginTop: 6,
       maxWidth: size + 8,
-      ...font("medium"),
+      ...fontFor(locale, "medium"),
       fontSize: 12,
       color: c.textSecondary,
       textAlign: "center",

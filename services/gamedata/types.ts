@@ -185,7 +185,8 @@ export interface RaidNames {
   multiFloor: Record<string, string>;
 }
 
-export type OverlayLocale = "ja" | "ko" | "zh";
+/** Every locale carried as an overlay on the English base; keep in step with OVERLAY_LOCALES. */
+export type OverlayLocale = "ja" | "ko" | "zh" | "vi" | "th";
 
 export interface GameDataSnapshot {
   config: GameConfig;

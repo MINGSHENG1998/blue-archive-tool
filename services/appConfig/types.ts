@@ -7,6 +7,10 @@
 
 export type GachaSystem = "spark" | "charge";
 
+/** The optional translations an announcement may carry beside `en`. */
+export const ANNOUNCEMENT_LOCALES = ["ja", "ko", "zh", "vi", "th"] as const;
+export type AnnouncementLocale = (typeof ANNOUNCEMENT_LOCALES)[number];
+
 export interface Announcement {
   /** Stable id, so a screen can remember "dismissed" per announcement. */
   id: string;
@@ -14,6 +18,9 @@ export interface Announcement {
   ja?: string;
   ko?: string;
   zh?: string;
+  /** Added with the Vietnamese and Thai UI; older builds ignore them and show `en`. */
+  vi?: string;
+  th?: string;
   /** http(s) link for "Read more". */
   url?: string;
   /** Stop showing it from this instant ("YYYY-MM-DD" = 02:00 UTC that day). */

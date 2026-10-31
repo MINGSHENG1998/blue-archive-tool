@@ -11,7 +11,9 @@ import Animated, {
 
 import { bannerTone, categoryColors, type BannerTone } from "@/constants/categoryColors";
 import { readableOn, withAlpha, type ThemeTokens } from "@/constants/theme";
-import { font, hasCJK } from "@/constants/typography";
+import { fontFor, hasCJK, trackingFor } from "@/constants/typography";
+import type { Locale } from "@/constants/i18n";
+import { useLanguage } from "@/contexts/language-context";
 import { useColors } from "@/hooks/useColors";
 import { useScreenFocused } from "./useScreenFocused";
 
@@ -83,11 +85,12 @@ export function Stamp({
   const c = useColors();
   const reduced = useReducedMotion();
   const focused = useScreenFocused();
+  const { locale } = useLanguage();
   const paper = on ?? c.elevatedBg;
   const raw = color ?? resolveTone(tone, c);
   const styles = useMemo(
-    () => makeStyles(raw, paper, SIZES[size], hasCJK(label)),
-    [raw, paper, size, label]
+    () => makeStyles(raw, paper, SIZES[size], hasCJK(label), locale),
+    [raw, paper, size, label, locale]
   );
 
   const dot = useSharedValue(1);
@@ -116,7 +119,8 @@ const makeStyles = (
   raw: string,
   paper: string,
   size: (typeof SIZES)[Size],
-  cjk: boolean
+  cjk: boolean,
+  locale: Locale
 ) => {
   const ink = readableOn(raw, paper, 4.5);
   return StyleSheet.create({
@@ -137,11 +141,11 @@ const makeStyles = (
       backgroundColor: ink,
     },
     label: {
-      ...font("bold"),
+      ...fontFor(locale, "bold"),
       fontWeight: "700",
       color: ink,
       fontSize: size.font,
-      letterSpacing: cjk ? 0 : 0.2,
+      letterSpacing: cjk ? 0 : trackingFor(locale, 0.2),
       includeFontPadding: false,
     },
   });

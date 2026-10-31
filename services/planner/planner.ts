@@ -38,6 +38,25 @@ export function normalizePlanner(raw: unknown): PlannerState {
   return { pyroxene: safeCount(r.pyroxene), tenTickets: safeCount(r.tenTickets, 10000), singleTickets: safeCount(r.singleTickets, 100000), dailyIncome: safeCount(r.dailyIncome, 100000), charges: { standard: safeCount(charges.standard, 200), limited: safeCount(charges.limited, 200) }, override: normalizeOverride(r.override), targets, balanceAt: typeof r.balanceAt === 'number' && Number.isFinite(r.balanceAt) && r.balanceAt > 0 && r.balanceAt <= 8640000000000000 ? r.balanceAt : 0, incomes, mileageEstimate: r.mileageEstimate === true };
 }
 
+export type Holding = 'pyroxene' | 'tenTickets' | 'singleTickets';
+
+/** Pulls the current holdings buy right now, by source: no income, nothing reserved. */
+export function pullsNow(state: Pick<PlannerState, Holding>) {
+  const pyroxene = Math.floor(state.pyroxene / PYROXENE_PER_PULL), tenTickets = state.tenTickets * 10, singleTickets = state.singleTickets;
+  return { pyroxene, tenTickets, singleTickets, total: pyroxene + tenTickets + singleTickets };
+}
+
+/**
+ * Holdings are a snapshot of what the player owns at `at`: editing one moves the balance date
+ * there, so daily income accrues from the moment the numbers were last true and dated income
+ * up to then is treated as already counted. An edit that changes nothing keeps the old date.
+ * `at` is taken by the caller so the updater stays pure.
+ */
+export function setHolding(prev: PlannerState, key: Holding, value: number, at: number): PlannerState {
+  const next = normalizePlanner({ ...prev, [key]: value });
+  return next[key] === prev[key] ? prev : { ...next, balanceAt: at };
+}
+
 /** Date-only config takes effect at Global's 02:00 UTC rotation, not local midnight. */
 export function systemAt(at: number, config: RuleConfig = {}, override: SystemOverride = 'auto'): GachaSystem {
   if (override !== 'auto') return override;

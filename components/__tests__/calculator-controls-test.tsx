@@ -4,7 +4,9 @@ import { AppState, PanResponder, type AppStateStatus } from 'react-native';
 import NumberInput from '../NumberInput';
 import { RangeSelector } from '../RangeSelector';
 
-jest.mock('@/hooks/useColors', () => ({ useColors: () => require('@/constants/theme').THEMES.baBlue.tokens }));
+jest.mock('@/hooks/useColors', () => ({ useColors: () => jest.requireActual('@/constants/theme').THEMES.baBlue.tokens }));
+// The −/+ glyphs are decorative; the vector font's async load only adds act() noise here.
+jest.mock('@/components/schale/Icon', () => ({ Icon: () => null }));
 
 describe('NumberInput interaction safety', () => {
   beforeEach(() => jest.useFakeTimers());
@@ -75,6 +77,17 @@ describe('RangeSelector gestures', () => {
     act(() => responders[0].onPanResponderMove({}, { dx: 500, moveX: 900 }));
     expect(latest).toHaveBeenLastCalledWith(90, 90);
     create.mockRestore();
+  });
+  it('drops the track without a slider and still steps exactly, never past the other thumb', () => {
+    const onChange = jest.fn();
+    const screen = render(<RangeSelector min={1} max={5} low={2} high={3} lowLabel="From" highLabel="To" slider={false} captions={false} format={v => `${v}★`} onChange={onChange} />);
+    expect(screen.queryByTestId('range-track')).toBeNull();
+    expect(screen.queryByText('From')).toBeNull();
+    expect(screen.getByText('2★')).toBeTruthy();
+    fireEvent.press(screen.getByLabelText('From +'));
+    expect(onChange).toHaveBeenLastCalledWith(3, 3);
+    fireEvent.press(screen.getByLabelText('To −'));
+    expect(onChange).toHaveBeenLastCalledWith(2, 2);
   });
 });
 

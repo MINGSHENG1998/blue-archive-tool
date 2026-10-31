@@ -5,9 +5,12 @@ import { AppOpenAd, AdEventType } from "react-native-google-mobile-ads";
 import { adUnitId } from "./adUnits";
 
 // Only treat it as a "return to the app" after a real absence — short blips
-// (permission dialogs, IAP sheet, notification shade) must not trigger ads.
-const MIN_BACKGROUND_MS = 30 * 1000;
-const MIN_INTERVAL_MS = 5 * 60 * 1000;
+// (permission dialogs, IAP sheet, notification shade, a quick glance at the
+// game to read AP) must not trigger ads.
+const MIN_BACKGROUND_MS = 60 * 1000;
+// People open this app many times a day to check timers and AP. A full-screen
+// ad on every return drives them away, so it shows at most twice an hour.
+const MIN_INTERVAL_MS = 30 * 60 * 1000;
 // Google ad objects expire ~4h after load; refresh stale ones.
 const AD_TTL_MS = 3.5 * 60 * 60 * 1000;
 

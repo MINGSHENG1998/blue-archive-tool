@@ -24,3 +24,4 @@ export { SkyBand } from "./SkyBand";
 export { CommandDeck } from "./CommandDeck";
 export { ToolGrid } from "./ToolGrid";
 export { PortraitCrop } from "./PortraitCrop";
+export { ItemAmount, ItemInput } from "./Item";

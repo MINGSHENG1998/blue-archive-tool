@@ -98,13 +98,15 @@ export const toDefType = (value: unknown): DefType | null =>
 export const toCharacterClass = (value: unknown): CharacterClass | null =>
   CLASSES[enumKey(value)] ?? null;
 
-const LOCALES: readonly Locale[] = ["en", "zh", "ko", "ja"];
+const LOCALES: readonly Locale[] = ["en", "zh", "ko", "ja", "vi", "th"];
 // Keys an older or hand-written doc might use instead of ours.
 const LOCALE_ALIASES: Record<Locale, readonly string[]> = {
   en: [],
   zh: ["cn", "tw", "zh-cn", "zh-tw"],
   ko: ["kr"],
   ja: ["jp"],
+  vi: [],
+  th: [],
 };
 
 /**

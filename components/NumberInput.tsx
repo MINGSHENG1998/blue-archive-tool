@@ -1,7 +1,9 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
-import { AppState, View, Text, Pressable, TextInput, StyleSheet } from 'react-native';
+import { AppState, Image, View, Text, Pressable, TextInput, StyleSheet, type ImageSourcePropType } from 'react-native';
 import { useColors } from '@/hooks/useColors';
 import { useType } from '@/constants/typography';
+import { RADIUS } from '@/constants/layout';
+import { Icon } from '@/components/schale/Icon';
 import { clampInteger, holdStep } from '@/services/calculator-controls';
 
 interface NumberInputProps {
@@ -10,10 +12,12 @@ interface NumberInputProps {
   label?: string;
   min?: number;
   max?: number;
+  /** An item icon drawn before the label (a headpat, a gift box). */
+  icon?: ImageSourcePropType;
 }
 
 /** A single press changes one; holding repeats and accelerates in whole steps. */
-export default function NumberInput({ value, onChange, label, min = 0, max = 100 }: NumberInputProps) {
+export default function NumberInput({ value, onChange, label, min = 0, max = 100, icon }: NumberInputProps) {
   const c = useColors(), type = useType();
   const [draft, setDraft] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -43,23 +47,30 @@ export default function NumberInput({ value, onChange, label, min = 0, max = 100
   };
   const commit = () => { if (draft !== null) update(Number(draft)); setDraft(null); };
   const step = (direction: number) => { setDraft(null); update(latest.current.value + direction); };
+  const button = (direction: 1 | -1, disabled: boolean) => <Pressable accessibilityRole="button" accessibilityLabel={`${label ?? ''} ${direction > 0 ? '+' : '−'}`} disabled={disabled}
+    onPress={() => step(direction)} onLongPress={() => start(direction)} delayLongPress={350} onPressOut={stop} onTouchCancel={stop} hitSlop={4}
+    style={({ pressed }) => [styles.button, pressed && { backgroundColor: c.primaryA08 }, { opacity: disabled ? 0.3 : 1 }]}>
+    <Icon name={direction > 0 ? 'plus' : 'minus'} size={20} color={c.primaryInk} />
+  </Pressable>;
   return <View style={styles.wrapper}>
-    {label ? <Text style={[type.caption, { color: c.textSecondary }]}>{label}</Text> : null}
-    <View style={[styles.container, { borderColor: c.hairline, backgroundColor: c.surfaceBg }]}>
-      <Pressable accessibilityRole="button" accessibilityLabel={`${label ?? ''} −`} disabled={value <= min} onPress={() => step(-1)} onLongPress={() => start(-1)} delayLongPress={350} onPressOut={stop} onTouchCancel={stop}
-        style={[styles.button, { backgroundColor: c.accentSoft, opacity: value <= min ? 0.4 : 1 }]}><Text style={[type.section, { color: c.primaryInk }]}>−</Text></Pressable>
+    {label ? <View style={styles.head}>
+      {icon ? <Image source={icon} style={styles.icon} resizeMode="contain" /> : null}
+      <Text numberOfLines={1} style={[type.caption, { color: c.textSecondary, flexShrink: 1 }]}>{label}</Text>
+    </View> : null}
+    <View style={[styles.container, { backgroundColor: c.surfaceBg }]}>
+      {button(-1, value <= min)}
       <TextInput accessibilityLabel={label} accessibilityValue={{ min, max, now: value }} keyboardType="number-pad" inputMode="numeric"
         value={draft ?? String(value)} onFocus={() => { stop(); setDraft(String(value)); }} onChangeText={text => setDraft(text.replace(/[^0-9]/g, ''))}
         onBlur={commit} onSubmitEditing={commit} selectTextOnFocus style={[type.num, styles.value, { color: c.textPrimary }]} />
-      <Pressable accessibilityRole="button" accessibilityLabel={`${label ?? ''} +`} disabled={value >= max} onPress={() => step(1)} onLongPress={() => start(1)} delayLongPress={350} onPressOut={stop} onTouchCancel={stop}
-        style={[styles.button, { backgroundColor: c.accentSoft, opacity: value >= max ? 0.4 : 1 }]}><Text style={[type.section, { color: c.primaryInk }]}>+</Text></Pressable>
+      {button(1, value >= max)}
     </View>
   </View>;
 }
 const styles = StyleSheet.create({
   wrapper: { gap: 6, flexShrink: 1 },
-  container: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: 4, padding: 4, gap: 8 },
-  button: { width: 44, height: 44, borderRadius: 3, alignItems: 'center', justifyContent: 'center' },
-  value: { minWidth: 48, minHeight: 44, textAlign: 'center', flexShrink: 1 },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 24 },
+  icon: { width: 24, height: 24 },
+  container: { flexDirection: 'row', alignItems: 'center', borderRadius: RADIUS.control, padding: 4, gap: 4 },
+  button: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  value: { flex: 1, minWidth: 48, minHeight: 40, fontSize: 20, lineHeight: 26, textAlign: 'center', paddingVertical: 0 },
 });
-

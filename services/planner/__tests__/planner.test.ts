@@ -1,4 +1,4 @@
-import { defaultPlanner, normalizePlanner, projectTargets, systemAt } from '../planner';
+import { defaultPlanner, normalizePlanner, projectTargets, pullsNow, setHolding, systemAt } from '../planner';
 
 const NOW = Date.parse('2026-10-27T02:00:00Z');
 const target = (id: string, days: number, pool: 'standard' | 'limited' = 'standard') => ({ id, name: id, at: NOW + days * 86400000, pool });
@@ -52,6 +52,32 @@ describe('recruitment rules and planning', () => {
   it('uses the saved balance date and only credits dated income once', () => {
     const result = projectTargets({ ...defaultPlanner(), balanceAt: NOW, dailyIncome: 120, incomes: [{ id: 'gift', name: 'Gift', at: NOW + 86400000, pyroxene: 120 }], targets: [target('a', 2), target('b', 2)] }, NOW + 86400000);
     expect(result.map(r => r.allocated)).toEqual([3, 0]);
+  });
+  it('splits the pulls available now by source, dropping sub-pull pyroxene', () => {
+    expect(pullsNow({ pyroxene: 1559, tenTickets: 2, singleTickets: 3 })).toEqual({ pyroxene: 12, tenTickets: 20, singleTickets: 3, total: 35 });
+    expect(pullsNow(defaultPlanner()).total).toBe(0);
+  });
+  it('moves the balance date to the edit time whenever a holding changes', () => {
+    const prev = { ...defaultPlanner(), balanceAt: NOW, pyroxene: 600 };
+    const later = NOW + 3 * 86400000;
+    const next = setHolding(prev, 'tenTickets', 4, later);
+    expect(next.tenTickets).toBe(4);
+    expect(next.balanceAt).toBe(later);
+    expect(next.pyroxene).toBe(600);
+    // Clamped and normalized like the old free-text field.
+    expect(setHolding(prev, 'singleTickets', -5, later).singleTickets).toBe(0);
+    expect(setHolding(prev, 'pyroxene', 1e12, later).pyroxene).toBe(10000000);
+  });
+  it('keeps the balance date when an edit changes nothing', () => {
+    const prev = { ...defaultPlanner(), balanceAt: NOW, pyroxene: 600 };
+    expect(setHolding(prev, 'pyroxene', 600, NOW + 86400000)).toBe(prev);
+  });
+  it('restarts daily income from an updated balance and skips dated income already held', () => {
+    const base = { ...defaultPlanner(), balanceAt: NOW, dailyIncome: 120, incomes: [{ id: 'gift', name: 'Gift', at: NOW + 86400000, pyroxene: 1200 }], targets: [target('a', 5)] };
+    expect(projectTargets(base, NOW)[0].available).toBe(15);
+    const updated = setHolding(base, 'pyroxene', 120, NOW + 2 * 86400000);
+    // One pull held, three whole days of income left; the gift landed before the update.
+    expect(projectTargets(updated, NOW)[0].available).toBe(4);
   });
   it('optionally spends earned mileage tickets inside their period only', () => {
     const state = { ...defaultPlanner(), override: 'charge' as const, mileageEstimate: true, singleTickets: 70, targets: [{ ...target('a', 0), period: 'one' }, { ...target('b', 0), period: 'two' }] };

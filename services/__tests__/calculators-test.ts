@@ -1,4 +1,5 @@
-import { bondPlan, levelPlan, elephPlan } from '../calculators';
+import { bondPlan, levelPlan, elephPlan, giftEquivalents, raidTimer, raidTopDifficulty } from '../calculators';
+import type { GameRaids } from '../gamedata/types';
 import { clampInteger, rangeValueFromDrag, holdStep } from '../calculator-controls';
 
 describe('calculator formula regressions', () => {
@@ -15,6 +16,36 @@ describe('calculator formula regressions', () => {
     expect(elephPlan(1, 2, 0, 1)).toMatchObject({ totalFragments: 30, neededFragments: 30, totalEligma: 30 });
     expect(elephPlan(1, 5, 330, 4)).toMatchObject({ totalFragments: 830, neededFragments: 500, weaponUpgradeFragments: 500, totalEligma: 0 });
     expect(elephPlan(5, 5, 0, 1)).toBeNull();
+  });
+});
+
+describe('bond gift equivalents', () => {
+  it('rounds each source up to cover the whole EXP, in table order', () => {
+    const rows = giftEquivalents(100);
+    expect(rows[0]).toEqual({ key: 'checkIn', exp: 15, count: 7 });
+    expect(rows.find(row => row.key === 'loved3Star')).toEqual({ key: 'loved3Star', exp: 240, count: 1 });
+    expect(rows).toHaveLength(9);
+    expect(giftEquivalents(0).every(row => row.count === 0)).toBe(true);
+  });
+});
+
+describe('live raid presets', () => {
+  const raids: GameRaids = { raid: {}, multiFloor: {}, eliminate: [{}, { '41': { HeavyArmor: 6, ElasticArmor: 6, LightArmor: 5 }, '42': { LightArmor: 9 } }, {}] };
+  it('maps a Total or Grand Assault boss to its timer', () => {
+    expect(raidTimer({ kind: 'Raid', id: 1 })).toBe(180);
+    expect(raidTimer({ kind: 'EliminateRaid', id: 12 })).toBe(240);
+    expect(raidTimer({ kind: 'Raid', id: 13 })).toBe(270);
+  });
+  it('has no timer for multi-floor raids or unlisted bosses', () => {
+    expect(raidTimer({ kind: 'MultiFloorRaid', id: 1 })).toBeNull();
+    expect(raidTimer({ kind: 'Raid', id: 999 })).toBeNull();
+  });
+  it('picks the top open Grand Assault tier and ignores tiers the table lacks', () => {
+    expect(raidTopDifficulty({ kind: 'EliminateRaid', season: 41 }, raids)).toBe(6);
+    expect(raidTopDifficulty({ kind: 'EliminateRaid', season: 42 }, raids)).toBeNull();
+    expect(raidTopDifficulty({ kind: 'EliminateRaid', season: 7 }, raids)).toBeNull();
+    expect(raidTopDifficulty({ kind: 'Raid', season: 41 }, raids)).toBeNull();
+    expect(raidTopDifficulty({ kind: 'EliminateRaid', season: null }, raids)).toBeNull();
   });
 });
 

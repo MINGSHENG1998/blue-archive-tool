@@ -22,7 +22,7 @@ import { useColors } from '@/hooks/useColors';
 import InlineAd from '@/services/ads/InlineAd';
 import { readCheckedAt } from '@/services/gamedata/cache';
 
-const languages: { id: Locale; label: string }[] = [{id:'en',label:'English'},{id:'zh',label:'中文'},{id:'ko',label:'한국어'},{id:'ja',label:'日本語'}];
+const languages: { id: Locale; label: string }[] = [{id:'en',label:'English'},{id:'zh',label:'中文'},{id:'ko',label:'한국어'},{id:'ja',label:'日本語'},{id:'vi',label:'Tiếng Việt'},{id:'th',label:'ไทย'}];
 const COOLDOWN = 3 * 60 * 60 * 1000;
 function ThemePreview({ id }: { id: ThemeId }) {
  const {locale}=useLanguage(),{themeId,setThemeId}=useTheme(),type=useType(),c=useColors(),t=THEMES[id].tokens,selected=themeId===id;

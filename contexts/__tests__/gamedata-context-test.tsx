@@ -137,6 +137,27 @@ describe("GameDataProvider", () => {
     expect(captured.raidNames?.multiFloor["1000004"]).toBe("ティファレト");
   });
 
+  it("reads Thai names, schools and raid names from the bundled overlay", async () => {
+    await AsyncStorage.setItem("app_locale", "th");
+    await renderProvider({ withLanguage: true });
+    const aru = captured.byId[10000];
+    expect(captured.displayName(aru)).toBe("อารุ");
+    expect(captured.label("School", "Trinity")).toBe("ทรีนิตี้");
+    expect(captured.raidNames?.raid["1"]).toBe("บีนาห์");
+  });
+
+  it("falls back to English where the Vietnamese data has no translation", async () => {
+    await AsyncStorage.setItem("app_locale", "vi");
+    await renderProvider({ withLanguage: true });
+    // Upstream's vi roster names this student in Japanese; that stand-in is
+    // dropped at build time, so the English name shows.
+    const arisMaid = captured.byId[10066];
+    expect(captured.displayName(arisMaid)).toBe(arisMaid.Name);
+    expect(captured.label("AdaptationType", "Street")).toBe("Đường phố");
+    // Every boss but a handful is katakana upstream; those read in English.
+    expect(captured.raidNames?.raid["1"]).toBeUndefined();
+  });
+
   it("re-exports the live helpers next to the hook", async () => {
     await renderProvider();
     const now = new Date();

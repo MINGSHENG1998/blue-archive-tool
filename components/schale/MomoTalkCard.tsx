@@ -16,7 +16,9 @@ import { categoryColors } from "@/constants/categoryColors";
 import { RADIUS } from "@/constants/layout";
 import { DUR, DUR_REDUCED } from "@/constants/motion";
 import type { ThemeTokens } from "@/constants/theme";
-import { display, font } from "@/constants/typography";
+import { display, fontFor } from "@/constants/typography";
+import type { Locale } from "@/constants/i18n";
+import { useLanguage } from "@/contexts/language-context";
 import { useColors } from "@/hooks/useColors";
 import { PressScale } from "./PressScale";
 import { useScreenFocused } from "./useScreenFocused";
@@ -64,7 +66,8 @@ export function MomoTalkCard({
 }: Props) {
   const c = useColors();
   const reduced = useReducedMotion();
-  const styles = useMemo(() => makeStyles(c), [c]);
+  const { locale } = useLanguage();
+  const styles = useMemo(() => makeStyles(c, locale), [c, locale]);
   const playIntro = typing && !reduced;
   const [typed, setTyped] = useState(!playIntro);
 
@@ -170,7 +173,7 @@ const dotStyles = StyleSheet.create({
 
 const AVATAR = 40;
 
-const makeStyles = (c: ThemeTokens) =>
+const makeStyles = (c: ThemeTokens, locale: Locale) =>
   StyleSheet.create({
     flex: { flex: 1 },
     card: {
@@ -211,7 +214,7 @@ const makeStyles = (c: ThemeTokens) =>
       includeFontPadding: false,
     },
     header: {
-      ...font("semibold"),
+      ...fontFor(locale, "semibold"),
       fontSize: 11,
       color: categoryColors.momoInk,
       flexShrink: 1,
@@ -225,7 +228,7 @@ const makeStyles = (c: ThemeTokens) =>
       backgroundColor: c.surfaceBg,
     },
     name: {
-      ...font("bold"),
+      ...fontFor(locale, "bold"),
       fontSize: 13,
       color: c.textPrimary,
       marginBottom: 4,
@@ -248,7 +251,7 @@ const makeStyles = (c: ThemeTokens) =>
       transform: [{ rotate: "45deg" }],
     },
     message: {
-      ...font("medium"),
+      ...fontFor(locale, "medium"),
       fontSize: 14,
       lineHeight: 20,
       color: categoryColors.onBadge,

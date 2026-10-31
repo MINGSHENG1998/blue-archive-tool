@@ -12,9 +12,9 @@ type Props = {
   label: string;
   width: number;
   height: number;
-  /** Fraction of the art's height shown in the window. Default 0.46 (head to waist). */
+  /** Fraction of the art's height shown in the window. Default 0.5 (top of the canvas to the waist). */
   span?: number;
-  /** Fraction of the art's height cut off above the window. Default 0.09. */
+  /** Fraction of the art's height cut off above the window. Default 0: tall hats and halos sit at the very top of the canvas, so any cut clips them. */
   top?: number;
   style?: StyleProp<ViewStyle>;
 };
@@ -24,7 +24,7 @@ type Props = {
  * its height fills the window and shifted up by `top`, which frames the head
  * and shoulders the same way for every student.
  */
-export function PortraitCrop({ uris, label, width, height, span = 0.46, top = 0.09, style }: Props) {
+export function PortraitCrop({ uris, label, width, height, span = 0.5, top = 0, style }: Props) {
   const art = useMemo(() => {
     const artHeight = height / span;
     const artWidth = artHeight * ART_ASPECT;

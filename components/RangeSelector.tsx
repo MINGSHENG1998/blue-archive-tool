@@ -13,6 +13,7 @@ import { RADIUS } from "@/constants/layout";
 import type { ThemeTokens } from "@/constants/theme";
 import { rangeValueFromDrag } from "@/services/calculator-controls";
 import { useType } from "@/constants/typography";
+import { Icon } from "@/components/schale/Icon";
 
 type Props = {
   label?: string;
@@ -21,10 +22,16 @@ type Props = {
   step?: number;
   low: number;
   high: number;
-  /** Labels under each value (e.g. "Current" / "Target"). */
+  /** Labels under each value (e.g. "Current" / "Target"). Also the steppers' accessible names. */
   lowLabel?: string;
   highLabel?: string;
   onChange: (low: number, high: number) => void;
+  /** Show the drag track under the steppers. Default true; short ranges (1–5) read fine without it. */
+  slider?: boolean;
+  /** Draw lowLabel/highLabel above the values. Default true; they stay the accessible names either way. */
+  captions?: boolean;
+  /** How a value is drawn, e.g. v => `${v}★`. */
+  format?: (value: number) => string;
 };
 
 const THUMB = 26;
@@ -45,6 +52,9 @@ export function RangeSelector({
   lowLabel,
   highLabel,
   onChange,
+  slider = true,
+  captions = true,
+  format = String,
 }: Props) {
   const c = useColors();
   const type = useType();
@@ -108,21 +118,25 @@ export function RangeSelector({
         <ValueStepper
           styles={styles}
           type={type}
+          c={c}
           caption={lowLabel}
-          value={low}
+          showCaption={captions}
+          value={format(low)}
           onDec={() => stepLow(-step)}
           onInc={() => stepLow(step)}
           decDisabled={low <= min}
           incDisabled={low >= high}
         />
-        <View style={styles.rangeArrow}>
-          <Text style={styles.rangeArrowText}>→</Text>
+        <View style={[styles.rangeArrow, captions && (lowLabel || highLabel) ? styles.rangeArrowCaptioned : null]}>
+          <Icon name="arrow-right" size={18} color={c.textMuted} />
         </View>
         <ValueStepper
           styles={styles}
           type={type}
+          c={c}
           caption={highLabel}
-          value={high}
+          showCaption={captions}
+          value={format(high)}
           onDec={() => stepHigh(-step)}
           onInc={() => stepHigh(step)}
           decDisabled={high <= low}
@@ -130,33 +144,35 @@ export function RangeSelector({
         />
       </View>
 
-      <View testID="range-track" style={styles.track} onLayout={onTrackLayout}>
-        <View style={styles.railBg} />
-        <View
-          style={[
-            styles.railFill,
-            { left: lowX + THUMB / 2, width: Math.max(0, highX - lowX) },
-          ]}
-        />
-        <View
-          style={[styles.thumb, { left: lowX }]}
-          accessible accessibilityRole="adjustable" accessibilityLabel={lowLabel ?? label}
-          accessibilityValue={{ min, max: high, now: low }}
-          accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
-          onAccessibilityAction={event => stepLow(event.nativeEvent.actionName === 'increment' ? step : -step)}
-          hitSlop={9}
-          {...lowResponder.panHandlers}
-        />
-        <View
-          style={[styles.thumb, { left: highX }]}
-          accessible accessibilityRole="adjustable" accessibilityLabel={highLabel ?? label}
-          accessibilityValue={{ min: low, max, now: high }}
-          accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
-          onAccessibilityAction={event => stepHigh(event.nativeEvent.actionName === 'increment' ? step : -step)}
-          hitSlop={9}
-          {...highResponder.panHandlers}
-        />
-      </View>
+      {slider ? (
+        <View testID="range-track" style={styles.track} onLayout={onTrackLayout}>
+          <View style={styles.railBg} />
+          <View
+            style={[
+              styles.railFill,
+              { left: lowX + THUMB / 2, width: Math.max(0, highX - lowX) },
+            ]}
+          />
+          <View
+            style={[styles.thumb, { left: lowX }]}
+            accessible accessibilityRole="adjustable" accessibilityLabel={lowLabel ?? label}
+            accessibilityValue={{ min, max: high, now: low }}
+            accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+            onAccessibilityAction={event => stepLow(event.nativeEvent.actionName === 'increment' ? step : -step)}
+            hitSlop={9}
+            {...lowResponder.panHandlers}
+          />
+          <View
+            style={[styles.thumb, { left: highX }]}
+            accessible accessibilityRole="adjustable" accessibilityLabel={highLabel ?? label}
+            accessibilityValue={{ min: low, max, now: high }}
+            accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+            onAccessibilityAction={event => stepHigh(event.nativeEvent.actionName === 'increment' ? step : -step)}
+            hitSlop={9}
+            {...highResponder.panHandlers}
+          />
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -164,35 +180,48 @@ export function RangeSelector({
 function ValueStepper({
   styles,
   type,
+  c,
   caption,
+  showCaption,
   value,
   onDec,
   onInc,
   decDisabled,
   incDisabled,
-}: any) {
+}: {
+  styles: ReturnType<typeof makeStyles>;
+  type: ReturnType<typeof useType>;
+  c: ThemeTokens;
+  caption?: string;
+  showCaption: boolean;
+  value: string;
+  onDec: () => void;
+  onInc: () => void;
+  decDisabled: boolean;
+  incDisabled: boolean;
+}) {
   return (
     <View style={styles.stepper}>
-      {caption ? <Text style={[type.caption, styles.caption]}>{caption}</Text> : null}
+      {caption && showCaption ? <Text numberOfLines={1} style={[type.caption, styles.caption]}>{caption}</Text> : null}
       <View style={styles.stepperRow}>
         <Pressable
           onPress={onDec}
           accessibilityRole="button" accessibilityLabel={`${caption ?? ''} −`}
           disabled={decDisabled}
-          hitSlop={8}
-          style={[styles.stepBtn, decDisabled && styles.stepBtnDisabled]}
+          hitSlop={4}
+          style={({ pressed }) => [styles.stepBtn, pressed && styles.stepBtnPressed, decDisabled && styles.stepBtnDisabled]}
         >
-          <Text style={styles.stepBtnText}>−</Text>
+          <Icon name="minus" size={20} color={c.primaryInk} />
         </Pressable>
-        <Text style={[type.num, styles.value]}>{value}</Text>
+        <Text numberOfLines={1} adjustsFontSizeToFit style={[type.num, styles.value]}>{value}</Text>
         <Pressable
           onPress={onInc}
           accessibilityRole="button" accessibilityLabel={`${caption ?? ''} +`}
           disabled={incDisabled}
-          hitSlop={8}
-          style={[styles.stepBtn, incDisabled && styles.stepBtnDisabled]}
+          hitSlop={4}
+          style={({ pressed }) => [styles.stepBtn, pressed && styles.stepBtnPressed, incDisabled && styles.stepBtnDisabled]}
         >
-          <Text style={styles.stepBtnText}>+</Text>
+          <Icon name="plus" size={20} color={c.primaryInk} />
         </Pressable>
       </View>
     </View>
@@ -201,34 +230,32 @@ function ValueStepper({
 
 const makeStyles = (c: ThemeTokens) =>
   StyleSheet.create({
-    wrap: { gap: 12 },
-    label: { color: c.textPrimary, fontSize: 14, fontWeight: "600" },
-    valueRow: { flexDirection: "row", alignItems: "center", gap: 12 },
-    stepper: { flex: 1, alignItems: "center", gap: 4 },
-    caption: { color: c.textMuted, fontSize: 12 },
+    wrap: { gap: 14 },
+    label: { color: c.textPrimary },
+    valueRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+    stepper: { flex: 1, gap: 6 },
+    caption: { color: c.textMuted, textAlign: "center" },
     stepperRow: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
       backgroundColor: c.surfaceBg,
       borderRadius: RADIUS.control,
-      paddingHorizontal: 6,
-      paddingVertical: 6,
+      padding: 4,
       alignSelf: "stretch",
     },
     stepBtn: {
-      width: 44,
-      height: 44,
-      borderRadius: RADIUS.sm,
-      backgroundColor: c.accentSoft,
+      width: 40,
+      height: 40,
+      borderRadius: 20,
       alignItems: "center",
       justifyContent: "center",
     },
-    stepBtnDisabled: { opacity: 0.4 },
-    stepBtnText: { color: c.primaryColor, fontSize: 20, fontWeight: "700" },
-    value: { color: c.textPrimary, fontSize: 18, fontWeight: "700" },
-    rangeArrow: { paddingTop: 18 },
-    rangeArrowText: { color: c.textMuted, fontSize: 16 },
+    stepBtnPressed: { backgroundColor: c.primaryA08 },
+    stepBtnDisabled: { opacity: 0.3 },
+    value: { color: c.textPrimary, fontSize: 22, lineHeight: 28, flexShrink: 1, textAlign: "center" },
+    rangeArrow: { alignItems: "center", justifyContent: "center" },
+    rangeArrowCaptioned: { paddingTop: 24 },
     track: { height: THUMB, justifyContent: "center" },
     railBg: {
       position: "absolute",
@@ -254,4 +281,3 @@ const makeStyles = (c: ThemeTokens) =>
       borderColor: c.elevatedBg,
     },
   });
-

@@ -18,7 +18,10 @@ import {
   refreshGameData,
 } from "../index";
 import {
+  ALL_LOCALES,
   ELIMINATE_SEASONS_KEPT,
+  OPTIONAL_LOCALIZATION_SECTIONS,
+  OVERLAY_LOCALES,
   OPTIONAL_STUDENT_FIELDS,
   STUDENT_FIELDS,
   fetchConfig,
@@ -27,6 +30,7 @@ import {
   fetchRaidNames,
   fetchRaids,
   fetchStudents,
+  isUntranslated,
   trimConfig,
   trimLocalization,
   trimRaidNames,
@@ -34,6 +38,8 @@ import {
   trimStudent,
 } from "../schaledb";
 import type { GameConfig, GameDataSnapshot, GameRaids, GameStudent } from "../types";
+
+const THAI = /[\u0e01-\u0e5b]/;
 
 const mockFetchConfig = fetchConfig as jest.MockedFunction<typeof fetchConfig>;
 const mockFetchStudents = fetchStudents as jest.MockedFunction<typeof fetchStudents>;
@@ -300,6 +306,55 @@ describe("trimLocalization", () => {
     delete partial.School;
     expect(trimLocalization(partial)).toBeNull();
   });
+
+  it("drops the Japanese stand-ins of a vi/th file so English shows through", () => {
+    const raw = {
+      ...localization("vi"),
+      Club: { Kohshinjo68: "Đội giải quyết vấn đề 68", Justice: "正義実現委員会" },
+      EventName: { "850": "誰が為の芸術", "801": "Mùa hè náo nhiệt" },
+    };
+    const trimmed = trimLocalization(raw, "vi");
+    expect(trimmed?.Club).toEqual({ Kohshinjo68: "Đội giải quyết vấn đề 68" });
+    expect(trimmed?.EventName).toEqual({ "801": "Mùa hè náo nhiệt" });
+    // Japanese is the translation in ja, not a stand-in.
+    expect(trimLocalization(raw, "ja")?.Club.Justice).toBe("正義実現委員会");
+  });
+
+  it("keeps the ・ that Thai event titles borrow", () => {
+    const trimmed = trimLocalization(
+      { ...localization("th"), EventName: { "856": "คิโวทอส・ปมปริศนาเร้นลับ" } },
+      "th",
+    );
+    expect(trimmed?.EventName?.["856"]).toBe("คิโวทอส・ปมปริศนาเร้นลับ");
+  });
+
+  it("omits an optional section left with nothing but stand-ins", () => {
+    const trimmed = trimLocalization(
+      { ...localization("vi"), EventName: { "850": "誰が為の芸術" } },
+      "vi",
+    );
+    expect(OPTIONAL_LOCALIZATION_SECTIONS).toContain("EventName");
+    expect(trimmed).not.toHaveProperty("EventName");
+  });
+});
+
+describe("isUntranslated", () => {
+  it.each([
+    ["vi", "アリス（メイド）", true],
+    ["vi", "御坂美琴", true],
+    ["th", "ツムギ", true],
+    // English keeps upstream's Japanese titles for JP-only events: they are
+    // the last fallback, and the only title those events have.
+    ["en", "出航！万魔船", false],
+    ["vi", "Azusa (Đồ bơi)", false],
+    ["th", "อารุ", false],
+    ["th", "คิโวทอส・ปมปริศนาเร้นลับ", false],
+    ["ja", "アリス（メイド）", false],
+    ["ko", "아리스", false],
+    ["zh", "爱丽丝", false],
+  ] as const)("%s %s -> %s", (locale, text, expected) => {
+    expect(isUntranslated(locale, text)).toBe(expected);
+  });
 });
 
 describe("trimRaids", () => {
@@ -394,6 +449,22 @@ describe("trimRaids", () => {
     expect(names).toEqual({ raid: { "9": "グレゴリオ" }, multiFloor: { "1000004": "ティファレト" } });
     expect(trimRaidNames({ Raid: [] })).toBeNull();
   });
+
+  it("drops katakana boss names from a vi file, keeping a valid empty result", () => {
+    const vi = trimRaidNames(
+      {
+        Raid: [{ Id: 1, Name: "ビナー" }, { Id: 5, Name: "KAITEN FX Mk.0" }],
+        MultiFloorRaid: [{ Id: 1000004, Name: "ティファレト" }],
+      },
+      "vi",
+    );
+    expect(vi).toEqual({ raid: { "5": "KAITEN FX Mk.0" }, multiFloor: {} });
+    // All stand-ins: well-formed, nothing to add, not "upstream changed shape".
+    expect(trimRaidNames({ Raid: [{ Id: 1, Name: "ビナー" }] }, "vi")).toEqual({
+      raid: {},
+      multiFloor: {},
+    });
+  });
 });
 
 describe("bundled snapshot", () => {
@@ -403,10 +474,40 @@ describe("bundled snapshot", () => {
     expect(bundled.config.TypeEffectiveness?.Sonic?.ElasticArmor).toBeGreaterThan(10000);
     expect(Object.keys(bundled.raids.raid).length).toBeGreaterThan(0);
     expect(Object.keys(bundled.raids.multiFloor).length).toBeGreaterThan(0);
-    for (const locale of ["en", "ja", "ko", "zh"] as const) {
+    for (const locale of ALL_LOCALES) {
       expect(Object.keys(bundled.labels[locale]?.EventName ?? {}).length).toBeGreaterThan(0);
       expect(bundled.labels[locale]?.IsLimited).toBeDefined();
       expect(bundled.labels[locale]?.IsLimitedTooltip).toBeDefined();
+    }
+  });
+
+  it("ships a name and raid overlay for every non-English locale", () => {
+    for (const locale of OVERLAY_LOCALES) {
+      expect(Object.keys(bundled.names[locale] ?? {}).length).toBeGreaterThan(100);
+      expect(bundled.raidNames[locale]).toEqual(
+        expect.objectContaining({ raid: expect.any(Object), multiFloor: expect.any(Object) }),
+      );
+    }
+    // Thai is the official Global translation: every student and school has one.
+    expect(bundled.names.th?.["10000"]).toMatch(THAI);
+    expect(bundled.labels.th?.School.Trinity).toMatch(THAI);
+  });
+
+  it("never ships upstream's Japanese stand-ins as vi or th text", () => {
+    const strings = (value: unknown): string[] =>
+      typeof value === "string"
+        ? [value]
+        : value && typeof value === "object"
+          ? Object.values(value).flatMap(strings)
+          : [];
+    for (const locale of ["vi", "th"] as const) {
+      const shipped = [
+        ...strings(bundled.names[locale]),
+        ...strings(bundled.labels[locale]),
+        ...strings(bundled.raidNames[locale]),
+      ];
+      expect(shipped.length).toBeGreaterThan(0);
+      expect(shipped.filter((text) => isUntranslated(locale, text))).toEqual([]);
     }
   });
 
@@ -443,6 +544,26 @@ describe("loadGameData", () => {
     expect(snapshot.students).toHaveLength(1);
     expect(snapshot.names.ja?.["1"]).toBe("アル");
     expect(snapshot.raids.raid["1"].Name).toBe("Cached Binah");
+    expect(snapshot.raidNames.ja?.raid["1"]).toBe("ビナー");
+  });
+
+  it("fills the overlays a pre-vi/th cache never had from the bundle", async () => {
+    const bundled = bundledSnapshot();
+    // Written by a build that only knew ja/ko/zh.
+    await writeCache(
+      cacheable(bundled.config.build + 1, {
+        names: { ja: { "1": "アル" } },
+        labels: { en: bundled.labels.en },
+        raidNames: { ja: { raid: { "1": "ビナー" }, multiFloor: {} } },
+      }),
+    );
+    const snapshot = await loadGameData();
+    expect(snapshot.source).toBe("cached");
+    expect(snapshot.names.ja?.["1"]).toBe("アル");
+    expect(snapshot.names.th).toBe(bundled.names.th);
+    expect(snapshot.names.vi).toBe(bundled.names.vi);
+    expect(snapshot.labels.th).toBe(bundled.labels.th);
+    expect(snapshot.raidNames.th).toBe(bundled.raidNames.th);
     expect(snapshot.raidNames.ja?.raid["1"]).toBe("ビナー");
   });
 
@@ -575,6 +696,24 @@ describe("refreshGameData", () => {
     expect(mockFetchNameMap).toHaveBeenCalledWith("ko");
     expect(mockFetchRaidNames).toHaveBeenCalledTimes(1);
     expect(mockFetchRaidNames).toHaveBeenCalledWith("ko");
+  });
+
+  it.each(["vi", "th"] as const)("refreshes the %s overlay for that user", async (locale) => {
+    const bundled = bundledSnapshot();
+    mockAllFetches(bundled.config.build + 1);
+    const fresh = await refreshGameData(bundled, now, true, locale);
+    expect(mockFetchNameMap).toHaveBeenCalledTimes(1);
+    expect(mockFetchNameMap).toHaveBeenCalledWith(locale);
+    expect(mockFetchLocalization).toHaveBeenCalledWith(locale);
+    expect(mockFetchRaidNames).toHaveBeenCalledWith(locale);
+    expect(fresh?.names[locale]?.["1"]).toBe(`name-${locale}`);
+    expect(fresh?.labels[locale]?.School.Gehenna).toBe(`Gehenna-${locale}`);
+    expect(fresh?.raidNames[locale]?.raid["1"]).toBe(`binah-${locale}`);
+
+    const persisted = await readCache();
+    expect(persisted?.names[locale]?.["1"]).toBe(`name-${locale}`);
+    expect(persisted?.labels[locale]?.School.Gehenna).toBe(`Gehenna-${locale}`);
+    expect(persisted?.raidNames[locale]?.raid["1"]).toBe(`binah-${locale}`);
   });
 
   it("carries forward the overlays it did not refresh", async () => {

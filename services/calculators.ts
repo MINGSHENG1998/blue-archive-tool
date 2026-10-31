@@ -1,4 +1,6 @@
-import { bondExpData } from '@/constants/bondData';
+import { bondExpData, bondResourceTable } from '@/constants/bondData';
+import { RAID_DIFFICULTY_DATA, RAID_DURATIONS, type RaidDuration } from '@/constants/raidData';
+import { REGION, type GameRaids, type RegionKey } from '@/services/gamedata/types';
 import { charaExpData } from '@/constants/charaLvlData';
 
 export function bondPlan(from: number, to: number, pat: number, monthlyGift: number) {
@@ -41,4 +43,31 @@ export function elephPlan(from: number, to: number, owned: number, weaponRank: n
   const weaponUpgradeFragments = to === 5 && weaponRank > 1 ? [120, 180, 200].slice(0, weaponRank - 1).reduce((a, b) => a + b, 0) : 0;
   neededFragments += weaponUpgradeFragments;
   return { totalFragments: requirement.fragments + weaponUpgradeFragments, neededFragments, totalEligma, totalCost: requirement.cost, weaponUpgradeFragments };
+}
+
+/** How many of each bond source alone would cover `totalExp`, in bondResourceTable order. */
+export function giftEquivalents(totalExp: number) {
+  return bondResourceTable.map(item => ({ key: item.key, exp: item.exp, count: Math.ceil(totalExp / item.exp) }));
+}
+
+/** SchaleDB raid ids for the bosses RAID_DURATIONS lists by English key. */
+export const RAID_BOSS_IDS: Record<string, string> = { Binah: '1', Chesed: '2', Shirokuro: '3', Hieronymus: '4', Kaiten: '5', Perorodzilla: '6', Hod: '7', Goz: '8', Gregorius: '9', Hovercraft: '10', Kurokage: '11', Geburah: '12', Yesod: '13', Drumbarka: '14' };
+
+/** The timer of a live Total/Grand Assault boss; null for multi-floor raids and bosses the table does not list. */
+export function raidTimer(raid: { kind: string; id: number }): RaidDuration | null {
+  if (raid.kind !== 'Raid' && raid.kind !== 'EliminateRaid') return null;
+  const key = Object.keys(RAID_BOSS_IDS).find(name => RAID_BOSS_IDS[name] === String(raid.id));
+  return key ? RAID_DURATIONS.find(option => option.raids.includes(key))?.value ?? null : null;
+}
+
+/**
+ * The hardest difficulty open in a Grand Assault season, as an index into
+ * RAID_DIFFICULTY_DATA (SchaleDB numbers tiers the same way). Null for other
+ * raids or a season the snapshot does not describe.
+ */
+export function raidTopDifficulty(raid: { kind: string; season: number | null }, raids: GameRaids | null | undefined, region: RegionKey = 'global'): number | null {
+  if (raid.kind !== 'EliminateRaid' || raid.season === null) return null;
+  const open = raids?.eliminate?.[REGION[region]]?.[String(raid.season)];
+  const tiers = open ? Object.values(open).filter(tier => Number.isInteger(tier) && tier >= 0 && tier < RAID_DIFFICULTY_DATA.length) : [];
+  return tiers.length ? Math.max(...tiers) : null;
 }

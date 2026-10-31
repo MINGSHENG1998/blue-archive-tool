@@ -23,15 +23,55 @@ export const LOCALE_TO_LANG = {
   ja: "jp",
   ko: "kr",
   zh: "zh",
+  vi: "vi",
+  th: "th",
 } as const;
 
 export type GameLocale = keyof typeof LOCALE_TO_LANG;
 
 /** Locales carried as name-only overlays on top of the English base. */
-export const OVERLAY_LOCALES = ["ja", "ko", "zh"] as const;
+export const OVERLAY_LOCALES = ["ja", "ko", "zh", "vi", "th"] as const;
 
 /** Every locale the app can render, English included. */
-export const ALL_LOCALES = ["en", "ja", "ko", "zh"] as const;
+export const ALL_LOCALES = ["en", "ja", "ko", "zh", "vi", "th"] as const;
+
+// --- Untranslated fallbacks ----------------------------------------------
+// SchaleDB's community datasets fill what nobody has translated yet with the
+// Japanese original rather than leaving it out: the Oct 2026 vi roster has 80
+// names like "アリス（メイド）", its raid file names nearly every boss in
+// katakana, and th spells one student "ツムギ". Shown as-is, a Vietnamese
+// Sensei reads Japanese. Dropped here, the entry falls back to English like
+// any other gap in an overlay.
+
+// Kana letters (the ・ middle dot U+30FB is punctuation Thai titles borrow,
+// so it is spared), CJK ideographs and Hangul syllables.
+const CJK_LETTERS = /[\u3041-\u30fa\u30fc-\u30ff\u3400-\u9fff\uac00-\ud7af]/;
+
+/**
+ * Overlay locales written in a script of their own, where CJK text is a
+ * stand-in, not a translation. English is deliberately not one: it is the
+ * base and the last fallback, and its Japanese titles for JP-only events are
+ * the only title those events have — dropping them would show nothing.
+ */
+const STAND_IN_LOCALES: ReadonlySet<GameLocale> = new Set(["vi", "th"]);
+
+/** True when `text` is upstream's Japanese stand-in for a missing `locale` translation. */
+export function isUntranslated(locale: GameLocale, text: string): boolean {
+  return STAND_IN_LOCALES.has(locale) && CJK_LETTERS.test(text);
+}
+
+/** The entries of a string map that really are in `locale`. */
+export function dropUntranslated(
+  locale: GameLocale,
+  record: Record<string, string>,
+): Record<string, string> {
+  if (!STAND_IN_LOCALES.has(locale)) return record;
+  const out: Record<string, string> = {};
+  for (const [key, value] of Object.entries(record)) {
+    if (!isUntranslated(locale, value)) out[key] = value;
+  }
+  return out;
+}
 
 /** Localization sections every locale must carry. The file upstream has ~48 of them. */
 export const LOCALIZATION_SECTIONS = [
@@ -305,28 +345,43 @@ export async function fetchNameMap(
     throw new Error("SchaleDB names: unexpected shape");
   }
   const names: NameMap = {};
+  let named = 0;
   for (const [id, value] of Object.entries(raw as Record<string, unknown>)) {
     const name = (value as { Name?: unknown } | null)?.Name;
-    if (typeof name === "string") names[id] = name;
+    if (typeof name !== "string") continue;
+    named += 1;
+    // A Japanese stand-in is left out, so nameFor() falls back to English.
+    if (!isUntranslated(locale, name)) names[id] = name;
   }
-  if (Object.keys(names).length === 0) throw new Error("SchaleDB names: empty");
+  if (named === 0) throw new Error("SchaleDB names: empty");
   return names;
 }
 
 // --- Localization ----------------------------------------------------------
 
-export function trimLocalization(raw: unknown): GameLocalization | null {
+/**
+ * The sections the app reads. With `locale`, entries upstream left in
+ * Japanese for that locale are dropped (see isUntranslated), so the English
+ * labels show through instead.
+ */
+export function trimLocalization(
+  raw: unknown,
+  locale?: GameLocale,
+): GameLocalization | null {
   if (typeof raw !== "object" || raw === null) return null;
   const src = raw as Record<string, unknown>;
+  const clean = (value: Record<string, string>) =>
+    locale ? dropUntranslated(locale, value) : value;
   const out: Record<string, Record<string, string>> = {};
   for (const section of LOCALIZATION_SECTIONS) {
     const value = stringRecord(src[section]);
     if (!value) return null;
-    out[section] = value;
+    out[section] = clean(value);
   }
   for (const section of OPTIONAL_LOCALIZATION_SECTIONS) {
     const value = stringRecord(src[section]);
-    if (value && Object.keys(value).length > 0) out[section] = value;
+    const kept = value ? clean(value) : null;
+    if (kept && Object.keys(kept).length > 0) out[section] = kept;
   }
   return out as unknown as GameLocalization;
 }
@@ -340,7 +395,7 @@ export async function fetchLocalization(
     `/data/${LOCALE_TO_LANG[locale]}/localization.min.json`,
     timeoutMs,
   );
-  const localization = trimLocalization(raw);
+  const localization = trimLocalization(raw, locale);
   if (!localization) throw new Error("SchaleDB localization: unexpected shape");
   return localization;
 }
@@ -423,22 +478,30 @@ export function trimRaids(raw: unknown): GameRaids | null {
   return { raid, multiFloor, eliminate: trimEliminateSeasons(raw.RaidSeasons) };
 }
 
-/** Just the boss names out of a localized raids file. */
-export function trimRaidNames(raw: unknown): RaidNames | null {
+/**
+ * Just the boss names out of a localized raids file. With `locale`, names
+ * upstream left in Japanese for it are dropped, so the English one shows.
+ */
+export function trimRaidNames(raw: unknown, locale?: GameLocale): RaidNames | null {
   if (!isRecord(raw)) return null;
+  // Counted before the untranslated ones go: a file of nothing but Japanese
+  // stand-ins is a well-formed file with nothing to add, not a broken one.
+  let named = 0;
   const pick = (list: unknown) => {
     const names: Record<string, string> = {};
     for (const entry of arrayOf(list)) {
       if (!isRecord(entry)) continue;
       const id = positiveId(entry.Id);
       const name = text(entry.Name);
-      if (id !== undefined && name) names[id] = name;
+      if (id === undefined || !name) continue;
+      named += 1;
+      if (locale && isUntranslated(locale, name)) continue;
+      names[id] = name;
     }
     return names;
   };
   const names = { raid: pick(raw.Raid), multiFloor: pick(raw.MultiFloorRaid) };
-  const count = Object.keys(names.raid).length + Object.keys(names.multiFloor).length;
-  return count > 0 ? names : null;
+  return named > 0 ? names : null;
 }
 
 function raidsPath(locale: GameLocale) {
@@ -460,7 +523,7 @@ export async function fetchRaidNames(
   locale: GameLocale,
   timeoutMs = DEFAULT_TIMEOUT_MS,
 ): Promise<RaidNames> {
-  const names = trimRaidNames(await getJson(raidsPath(locale), timeoutMs));
+  const names = trimRaidNames(await getJson(raidsPath(locale), timeoutMs), locale);
   if (!names) throw new Error("SchaleDB raid names: unexpected shape");
   return names;
 }

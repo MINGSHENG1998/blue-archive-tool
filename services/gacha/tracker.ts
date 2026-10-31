@@ -26,6 +26,26 @@ export function addTrackedPulls(state: TrackerState, kind: PullKind, pool: Pool,
 }
 export const undoTrackedPull = (state: TrackerState): TrackerState => ({ ...state, history: state.history.slice(0, -1) });
 
+/** Both gauges (charge guarantee, spark exchange) run out of this many pulls. */
+export const GAUGE_MAX = 200;
+/** The charge step that guarantees a 3★ (half the gauge). */
+export const CHARGE_STEP = 100;
+
+/**
+ * The gauge reading for the active rule: the selected pool's charge, or the
+ * spark points since the last exchange (a 200th spark pull reads full, the
+ * 201st starts the next exchange at 1).
+ */
+export function trackerProgress(state: TrackerState, system: GachaSystem): number {
+  if (system === 'charge') return trackerCharges(state)[state.pool];
+  const spark = state.history.filter(p => p.system === 'spark').length;
+  return spark === 0 ? 0 : (spark - 1) % GAUGE_MAX + 1;
+}
+
+/** Charge sits exactly on a guarantee step: the next pull is the guaranteed one. */
+export const atGuarantee = (progress: number, system: GachaSystem) =>
+  system === 'charge' && progress > 0 && progress % CHARGE_STEP === 0;
+
 const base = createJsonStore('gacha:v2', normalizeTracker, emptyTracker);
 /** Keep v1 intact so upgrading or rolling back never destroys the original session. */
 export const trackerStore: JsonStore<TrackerState> = {

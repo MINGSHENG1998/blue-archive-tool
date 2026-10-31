@@ -52,7 +52,19 @@ export async function loadGameData(): Promise<GameDataSnapshot> {
   if (cached && cached.config.build >= bundledConfig.build) {
     // A cache that lost its raid entry is still the newer roster; the shipped
     // raids are the floor for that one piece.
-    return { ...cached, raids: cached.raids ?? bundledRaids, source: "cached" };
+    //
+    // Overlays work the same way, per locale: a cache written before this
+    // build shipped vi/th has no entry for them, and only the active locale is
+    // ever refreshed, so without the bundled floor a Sensei switching to Thai
+    // would read English names until upstream next moved.
+    return {
+      ...cached,
+      names: { ...bundledNames, ...cached.names },
+      labels: { ...bundledLabels, ...cached.labels },
+      raids: cached.raids ?? bundledRaids,
+      raidNames: { ...bundledRaidNames, ...cached.raidNames },
+      source: "cached",
+    };
   }
   return bundledSnapshot();
 }
@@ -63,11 +75,11 @@ export async function loadGameData(): Promise<GameDataSnapshot> {
  *
  * `locale` scopes the expensive part. SchaleDB publishes no names-only
  * endpoint, so every localized name overlay costs a full roster download
- * (~1.7 MB raw, ~300 KB gzipped); fetching all four would put over a megabyte
- * on a phone's data plan every time upstream moves. Only the locale in use is
- * refreshed, and the other overlays are carried forward from the snapshot we
- * already have — worst case a language the user is not reading stays one build
- * behind. Raid names follow the same rule.
+ * (~1.5–2.2 MB raw, ~300 KB gzipped); fetching all five overlays would put
+ * well over a megabyte on a phone's data plan every time upstream moves. Only
+ * the locale in use is refreshed, and the other overlays are carried forward
+ * from the snapshot we already have — worst case a language the user is not
+ * reading stays one build behind. Raid names follow the same rule.
  *
  * Raids are supplementary: if that file fails or changes shape, the roster
  * still refreshes and the raids already on hand are carried forward.

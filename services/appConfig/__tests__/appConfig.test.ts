@@ -110,6 +110,27 @@ describe("normalizeAnnouncement", () => {
       en: "Hi",
     });
   });
+
+  it("keeps Vietnamese and Thai translations, additively", () => {
+    expect(
+      normalizeAnnouncement({
+        id: "a",
+        en: "Maintenance on Nov 3",
+        vi: "Bảo trì ngày 3/11",
+        th: "ปิดปรับปรุงวันที่ 3 พ.ย.",
+        tw: "11月3日維護",
+      }),
+    ).toEqual({
+      id: "a",
+      en: "Maintenance on Nov 3",
+      vi: "Bảo trì ngày 3/11",
+      th: "ปิดปรับปรุงวันที่ 3 พ.ย.",
+    });
+    expect(normalizeAnnouncement({ id: "a", en: "Hi", vi: "", th: 3 })).toEqual({
+      id: "a",
+      en: "Hi",
+    });
+  });
 });
 
 describe("gachaSystemAt", () => {
@@ -166,6 +187,14 @@ describe("announcementText", () => {
     expect(announcementText(a, "ko")).toBe("Hello");
     expect(announcementText(a, "en")).toBe("Hello");
     expect(announcementText(a, "fr")).toBe("Hello");
+  });
+
+  it("reads vi and th, English when a doc predates them", () => {
+    const a = { id: "a", en: "Hello", vi: "Xin chào", th: "สวัสดี" };
+    expect(announcementText(a, "vi")).toBe("Xin chào");
+    expect(announcementText(a, "th")).toBe("สวัสดี");
+    expect(announcementText({ id: "b", en: "Hello" }, "th")).toBe("Hello");
+    expect(announcementText({ id: "b", en: "Hello", vi: "" }, "vi")).toBe("Hello");
   });
 });
 
