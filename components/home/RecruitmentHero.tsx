@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AppCard, EmptyState, PortraitCrop, PressScale, SignalButton, Stamp } from '@/components/schale';
+import { AppCard, EmptyState, PortraitCrop, PressScale, SignalButton, SlantPortrait, Stamp } from '@/components/schale';
 import { homeStrings } from '@/constants/strings/home';
 import { fmt, useStrings } from '@/constants/strings/define';
 import { useType } from '@/constants/typography';
@@ -9,14 +9,13 @@ import { useGameData } from '@/contexts/gamedata-context';
 import { useLanguage } from '@/contexts/language-context';
 import { useBanners } from '@/contexts/banners-context';
 import { useColors } from '@/hooks/useColors';
-import { studentPortraitUris } from '@/services/gamedata';
+import { characterImageUris, studentPortraitUris } from '@/services/gamedata';
 import { bannerStudentName, localDuration, recruitmentView } from '@/services/home/view';
 import { useFocusedNow } from './useFocusedNow';
 
-const ART_H = 196;
-const ART_W = 108;
-const ART_STEP = 54;
-const MAX_ART = 2;
+const ART_H = 204;
+const ART_W = 140;
+const AVATAR = 28;
 
 /** Live recruitment never depends on the success of the Firestore request. */
 export function RecruitmentHero({ showEmpty = true }: { showEmpty?: boolean }) {
@@ -34,22 +33,23 @@ export function RecruitmentHero({ showEmpty = true }: { showEmpty?: boolean }) {
   const endAt = Math.min(...windows.map(window => window.endAt));
   const characters = [...new Map(windows.flatMap(window => window.characters).map(char => [char.studentId ?? char.id, char])).values()];
   const names = characters.map(char => bannerStudentName(char, locale, byId, displayName));
-  const shown = characters.filter(char => char.studentId).slice(0, MAX_ART);
+  // One featured student carries the art (the first pickup, as the game's own
+  // banner does); everyone on the banner shows as an avatar under the names.
+  const featured = characters.find(char => char.studentId);
+  const featuredName = featured ? names[characters.indexOf(featured)] : '';
   const extra = names.length > 3 ? fmt(s.more, { n: names.length - 3 }) : '';
   const endsLocal = new Date(endAt).toLocaleString(locale, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-  const artWidth = shown.length ? ART_W + ART_STEP * (shown.length - 1) : 0;
+  const artWidth = featured ? ART_W : 0;
+  const openStudent = (id: number) => router.push({ pathname: '/student/[id]', params: { id } });
 
   return <AppCard padding={0} style={styles.card}>
     {/* The stage: a sky wash whose bottom edge crops the figures, like the in-game recruit frame. */}
     <View style={styles.stage}>
       <LinearGradient colors={[c.skyTop, c.skyMid]} start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }} style={StyleSheet.absoluteFill} />
-      <View style={[styles.art, { width: artWidth }]} pointerEvents="box-none">
-        {shown.map((char, i) => <PressScale key={char.studentId} spark={false} haptic={false} accessibilityLabel={names[characters.indexOf(char)]}
-          style={[styles.figure, { right: (shown.length - 1 - i) * ART_STEP, zIndex: MAX_ART - i }]}
-          onPress={() => router.push({ pathname: '/student/[id]', params: { id: char.studentId! } })}>
-          <PortraitCrop uris={studentPortraitUris(char.studentId!)} label={names[characters.indexOf(char)]} width={ART_W} height={ART_H} />
-        </PressScale>)}
-      </View>
+      {featured ? <PressScale spark={false} haptic={false} accessibilityLabel={featuredName} style={styles.art}
+        onPress={() => openStudent(featured.studentId!)}>
+        <PortraitCrop uris={studentPortraitUris(featured.studentId!)} label={featuredName} width={ART_W} height={ART_H} />
+      </PressScale> : null}
       {/* The copy column stops where the art begins, so names never sit on a face. */}
       <View style={[styles.copy, { paddingRight: artWidth + 8 }]}>
         <Stamp label={s.live} tone="live" pulse on={c.skyTop} />
@@ -57,6 +57,10 @@ export function RecruitmentHero({ showEmpty = true }: { showEmpty?: boolean }) {
         <Text style={[type.section, { color: c.textPrimary, marginTop: 2 }]} numberOfLines={4}>
           {names.slice(0, 3).join(', ')}{extra ? <Text style={{ color: c.textSecondary }}>{` ${extra}`}</Text> : null}
         </Text>
+        <View style={styles.avatars}>
+          {characters.map((char, i) => <SlantPortrait key={char.studentId ?? char.id} uris={characterImageUris(char)} label={names[i]} size={AVATAR}
+            onPress={char.studentId ? () => openStudent(char.studentId!) : undefined} />)}
+        </View>
       </View>
     </View>
     <View style={styles.footer}>
@@ -72,9 +76,9 @@ export function RecruitmentHero({ showEmpty = true }: { showEmpty?: boolean }) {
 const styles = StyleSheet.create({
   card: { marginBottom: 28, overflow: 'hidden' },
   stage: { minHeight: ART_H + 14, overflow: 'hidden' },
-  art: { position: 'absolute', right: 6, bottom: 0, height: ART_H },
-  figure: { position: 'absolute', top: 0, width: ART_W, height: ART_H },
+  art: { position: 'absolute', right: 0, bottom: 0, width: ART_W, height: ART_H },
   copy: { paddingTop: 18, paddingLeft: 18, paddingBottom: 18 },
+  avatars: { flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginTop: 12 },
   footer: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 18 },
   flex: { flex: 1 },
 });

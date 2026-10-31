@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { AppCard, FilterPill, Icon, NumberHero, SignalButton, SlantSegmented } from '@/components/schale';
+import { AppCard, FilterPill, Icon, NumberHero, SignalButton, SlantSegmented, RaidBossArt } from '@/components/schale';
 import { CalculatorScreen, CalculatorSection, CalculatorNote, HowItWorks, InputCard } from '@/components/calculators/CalculatorUI';
 import { typeColor } from '@/constants/Colors';
 import { i18n } from '@/constants/i18n';
@@ -39,6 +39,7 @@ function LiveRaidRow({ raid, timer, selected, onUse }: { raid: LiveRaid; timer: 
   const kind = raid.kind === 'Raid' ? r.totalAssault : raid.kind === 'EliminateRaid' ? r.grandAssault : r.multiFloor;
   const timerLabel = RAID_DURATIONS.find(option => option.value === timer)?.label;
   const body = <>
+    <RaidBossArt devName={raid.devName} label={raid.name} style={styles.bossArt} />
     <View style={styles.liveHead}>
       <View style={styles.flex}>
         <Text numberOfLines={1} style={[type.bodyStrong, { color: c.textPrimary }]}>{raid.name}</Text>
@@ -142,6 +143,7 @@ export default function RaidCalculator() {
   </CalculatorScreen>;
 }
 const styles = StyleSheet.create({
+  bossArt: { borderRadius: 12, marginBottom: 12 },
   flex: { flex: 1 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 8 },
   group: { gap: 8 },

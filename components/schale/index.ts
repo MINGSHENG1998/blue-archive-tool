@@ -25,3 +25,4 @@ export { CommandDeck } from "./CommandDeck";
 export { ToolGrid } from "./ToolGrid";
 export { PortraitCrop } from "./PortraitCrop";
 export { ItemAmount, ItemInput } from "./Item";
+export { RaidBossArt } from "./RaidBossArt";

@@ -48,14 +48,14 @@ describe("buildTheme", () => {
 });
 
 describe("THEMES registry", () => {
-  it("default is daylight", () => {
-    expect(DEFAULT_THEME_ID).toBe("daylight");
-    expect(THEMES.daylight.tokens.isDark).toBe(false);
+  it("default is arona", () => {
+    expect(DEFAULT_THEME_ID).toBe("arona");
+    expect(THEMES.arona.tokens.isDark).toBe(false);
   });
 
-  it("has all 8 themes, each with a complete token set", () => {
+  it("has all 9 themes, each with a complete token set", () => {
     const ids = [
-      "baBlue", "daylight", "paper", "cozy", "calico", "sea", "tropical", "cafe",
+      "arona", "plana", "baBlue", "paper", "cozy", "calico", "sea", "tropical", "cafe",
     ];
     expect(Object.keys(THEMES).sort()).toEqual(ids.sort());
     for (const id of ids) {
@@ -97,12 +97,16 @@ describe("THEMES registry", () => {
     }
   });
 
-  it("daylight is the light in-game palette", () => {
-    const t = THEMES.daylight.tokens;
-    expect(t.isDark).toBe(false);
-    expect(t.appBg).toBe("#F3F6FA");
-    expect(t.primaryColor).toBe("#128AFA");
-    expect(t.textPrimary).toBe("#13233D");
+  it("arona is the light sky palette and plana its dark counterpart", () => {
+    const arona = THEMES.arona.tokens;
+    expect(arona.isDark).toBe(false);
+    expect(arona.appBg).toBe("#EEF6FC");
+    expect(arona.primaryColor).toBe("#2A9DF4");
+    expect(arona.textPrimary).toBe("#15304F");
+    const plana = THEMES.plana.tokens;
+    expect(plana.isDark).toBe(true);
+    expect(plana.appBg).toBe("#111318");
+    expect(plana.primaryColor).toBe("#A9BCDD");
   });
 
   it("baBlue keeps the app's signature accent", () => {

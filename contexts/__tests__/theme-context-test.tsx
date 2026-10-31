@@ -30,10 +30,10 @@ describe("ThemeProvider", () => {
     await AsyncStorage.clear();
   });
 
-  it("defaults to daylight when nothing stored", async () => {
+  it("defaults to arona when nothing stored", async () => {
     await renderProvider();
-    expect(captured.themeId).toBe("daylight");
-    expect(captured.theme.tokens.primaryColor).toBe("#128AFA");
+    expect(captured.themeId).toBe("arona");
+    expect(captured.theme.tokens.primaryColor).toBe("#2A9DF4");
   });
 
   it("loads a valid persisted themeId", async () => {
@@ -42,10 +42,10 @@ describe("ThemeProvider", () => {
     expect(captured.themeId).toBe("cafe");
   });
 
-  it("falls back to daylight for an invalid persisted id", async () => {
+  it("falls back to arona for an invalid persisted id", async () => {
     await AsyncStorage.setItem("app_theme_id", "not-a-theme");
     await renderProvider();
-    expect(captured.themeId).toBe("daylight");
+    expect(captured.themeId).toBe("arona");
   });
 
   it("setThemeId updates and persists", async () => {

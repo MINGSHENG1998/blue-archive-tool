@@ -11,7 +11,7 @@
 // are pinned by constants/__tests__/theme-contrast-test.ts.
 
 export type ThemeId =
-  | "baBlue" | "daylight" | "paper" | "cozy" | "calico" | "sea" | "tropical" | "cafe";
+  | "arona" | "plana" | "baBlue" | "paper" | "cozy" | "calico" | "sea" | "tropical" | "cafe";
 
 export interface ThemeCore {
   isDark: boolean;
@@ -263,14 +263,23 @@ const CORES: Record<ThemeId, ThemeCore> = {
     textMuted: "#64748B", primaryColor: "#128AFA", primaryText: "#0F172A",
     hazardColor: "#DC2626", hazardBg: "#2A1620", hazardBorder: "#DC2626",
   },
-  // The default: the game's own daylight UI. Cool near-white page, white
-  // sheets, navy ink, the logo blue as the single accent.
-  daylight: {
+  // The default. Arona, the Shittim Chest's OS: a clear sky-blue world, white
+  // sheets, navy ink, her bright cyan-blue as the accent.
+  arona: {
     isDark: false,
-    appBg: "#F3F6FA", surfaceBg: "#E8EEF5", elevatedBg: "#FFFFFF",
-    surfaceBorder: "#DAE2EC", textPrimary: "#13233D", textSecondary: "#44546C",
-    textMuted: "#5F6E84", primaryColor: "#128AFA", primaryText: "#FFFFFF",
+    appBg: "#EEF6FC", surfaceBg: "#DEEDF8", elevatedBg: "#FFFFFF",
+    surfaceBorder: "#CFE2F1", textPrimary: "#15304F", textSecondary: "#41617F",
+    textMuted: "#56718B", primaryColor: "#2A9DF4", primaryText: "#FFFFFF",
     hazardColor: "#D23F3F", hazardBg: "#FDE8E8", hazardBorder: "#D23F3F",
+  },
+  // Plana, Arona's counterpart: the same tablet after dark. Near-black
+  // sheets, cool silver ink, a pale steel-blue accent.
+  plana: {
+    isDark: true,
+    appBg: "#111318", surfaceBg: "#191C23", elevatedBg: "#20242D",
+    surfaceBorder: "#2E3340", textPrimary: "#ECEEF3", textSecondary: "#AEB5C3",
+    textMuted: "#868E9E", primaryColor: "#A9BCDD", primaryText: "#111318",
+    hazardColor: "#E5675F", hazardBg: "#3A2224", hazardBorder: "#E5675F",
   },
   paper: {
     isDark: false,
@@ -319,7 +328,7 @@ const CORES: Record<ThemeId, ThemeCore> = {
 // English fallback names. Localized names live in constants/strings/themes.ts
 // (`themeStrings`); UI should prefer those via useStrings().
 const NAMES: Record<ThemeId, string> = {
-  baBlue: "BA Blue", daylight: "Schale Daylight", paper: "Paper", cozy: "Cozy",
+  arona: "Arona", plana: "Plana", baBlue: "BA Blue", paper: "Paper", cozy: "Cozy",
   calico: "Calico", sea: "Sea Breeze", tropical: "Tropical", cafe: "Café",
 };
 
@@ -331,7 +340,7 @@ export const THEMES: Record<ThemeId, Theme> = Object.fromEntries(
 ) as Record<ThemeId, Theme>;
 
 export const THEME_ORDER: ThemeId[] = [
-  "daylight", "baBlue", "paper", "cozy", "calico", "sea", "tropical", "cafe",
+  "arona", "plana", "baBlue", "paper", "cozy", "calico", "sea", "tropical", "cafe",
 ];
 
-export const DEFAULT_THEME_ID: ThemeId = "daylight";
+export const DEFAULT_THEME_ID: ThemeId = "arona";

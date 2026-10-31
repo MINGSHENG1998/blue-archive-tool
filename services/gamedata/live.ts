@@ -136,6 +136,8 @@ export interface LiveRaid {
   terrain: string | null;
   /** Season id, when config carries one. */
   season: number | null;
+  /** Upstream asset key for the boss art; null when the snapshot predates it. */
+  devName: string | null;
   /** Unix seconds. */
   start: number;
   end: number;
@@ -201,6 +203,7 @@ export function liveRaids(
         armorTypes: [boss.ArmorType],
         bulletTypes: typed.length > 0 ? typed : unique(boss.BulletTypes),
         terrain: pickTerrain(boss.Terrain),
+        devName: boss.DevName ?? null,
       });
     } else if (entry.type === "Raid" || entry.type === "EliminateRaid") {
       const boss = raids.raid?.[String(id)];
@@ -215,6 +218,7 @@ export function liveRaids(
         armorTypes: grand ? eliminateArmors(raids, region, season) : [boss.ArmorType],
         bulletTypes: [boss.BulletTypeInsane ?? boss.BulletType],
         terrain: pickTerrain(boss.Terrain),
+        devName: boss.DevName ?? null,
       });
     }
     // Any other type (time attack, world raid) has no table in the snapshot.

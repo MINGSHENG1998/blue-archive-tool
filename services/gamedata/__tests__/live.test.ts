@@ -181,10 +181,23 @@ describe("liveRaids", () => {
       bulletTypes: ["Pierce"],
       terrain: "Indoor",
       season: null,
+      devName: null,
       start: tiphareth.start,
       end: tiphareth.end,
       secondsLeft: tiphareth.end - now.getTime() / 1000,
     });
+  });
+
+  it("carries the boss DevName for its art when the snapshot has it", () => {
+    const withArt = {
+      ...raids,
+      multiFloor: {
+        ...raids.multiFloor,
+        "1000004": { ...raids.multiFloor["1000004"], DevName: "EN0011" },
+      },
+    };
+    const [live] = liveRaids(config({}, { CurrentRaid: [tiphareth] }), withArt, now);
+    expect(live.devName).toBe("EN0011");
   });
 
   it("uses the Insane attack type for Total Assault", () => {

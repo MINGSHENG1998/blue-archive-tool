@@ -150,6 +150,8 @@ export interface GameRaid {
   BulletTypeInsane?: string;
   /** Every terrain this boss has been fielded on; the season picks one. */
   Terrain: string[];
+  /** Upstream asset key; names the boss art (raidBossImageUrl). */
+  DevName?: string;
 }
 
 /** A multi-floor raid (Set, Chokmah, Tiphareth): one armor, attack type per floor tier. */
@@ -158,6 +160,8 @@ export interface GameMultiFloorRaid {
   ArmorType: string;
   BulletTypes: string[];
   Terrain: string[];
+  /** Upstream asset key; names the boss art (raidBossImageUrl). */
+  DevName?: string;
 }
 
 /** Highest difficulty tier open per armor type in one Grand Assault season. */

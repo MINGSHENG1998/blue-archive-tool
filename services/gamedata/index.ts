@@ -152,6 +152,7 @@ export {
   LOCALE_TO_LANG,
   OPTIONAL_STUDENT_FIELDS,
   STUDENT_FIELDS,
+  raidBossImageUrl,
   studentIconUrl,
   studentPortraitUrl,
 } from "./schaledb";

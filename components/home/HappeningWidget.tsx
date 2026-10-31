@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AppCard, IndexTab, Stamp } from '@/components/schale';
+import { AppCard, IndexTab, RaidBossArt, Stamp } from '@/components/schale';
 import { homeStrings } from '@/constants/strings/home';
 import { fmt, useStrings } from '@/constants/strings/define';
 import { useGameData, effectiveBulletTypes, liveEvents, liveRaids } from '@/contexts/gamedata-context';
@@ -23,9 +23,12 @@ export function HappeningWidget({ now }: { now: number }) {
         caption={fmt(s.ends, { time: localDuration(event.secondsLeft, s) })} meta={s.event} />)}
       {raids.map((raid, i) => {
         const effective = [...new Set(raid.armorTypes.flatMap(armor => effectiveBulletTypes(armor, game.config)))].map(attack => game.label('BulletType', attack));
-        return <HomeRow key={`${raid.kind}-${raid.id}`} first={!events.length && i === 0} icon="sword-cross" title={raid.name} meta={s.raid}
+        return <View key={`${raid.kind}-${raid.id}`}>
+          <RaidBossArt devName={raid.devName} label={raid.name} style={[styles.art, (events.length || i) ? styles.artInset : null]} />
+          <HomeRow first={!!raid.devName || (!events.length && i === 0)} icon="sword-cross" title={raid.name} meta={s.raid}
           caption={fmt(s.ends, { time: localDuration(raid.secondsLeft, s) })} onPress={() => router.push('/tools/raid')}
-          extra={effective.length ? <View style={styles.tags}>{effective.map(label => <Stamp key={label} label={fmt(s.effective, { types: label })} tone="primary" size="sm" />)}</View> : null} />;
+          extra={effective.length ? <View style={styles.tags}>{effective.map(label => <Stamp key={label} label={fmt(s.effective, { types: label })} tone="primary" size="sm" />)}</View> : null} />
+        </View>;
       })}
     </AppCard>
   </>;
@@ -33,4 +36,7 @@ export function HappeningWidget({ now }: { now: number }) {
 
 const styles = StyleSheet.create({
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 },
+  // The banner sits flush with the card's top edge when it opens the card.
+  art: { borderTopLeftRadius: 16, borderTopRightRadius: 16 },
+  artInset: { borderRadius: 12, marginHorizontal: 12, marginTop: 12, width: 'auto' },
 });

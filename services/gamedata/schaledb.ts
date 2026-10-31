@@ -95,6 +95,13 @@ export const OPTIONAL_LOCALIZATION_SECTIONS = [
 export const studentIconUrl = (id: number) =>
   `${BASE}/images/student/icon/${id}.webp`;
 
+/**
+ * A boss's lobby banner art (650 x 200, transparent). Not mirrored: a blocked
+ * image just hides, it never stands in for data.
+ */
+export const raidBossImageUrl = (devName: string) =>
+  `${BASE}/images/raid/Boss_Portrait_${encodeURIComponent(devName)}_Lobby.png`;
+
 /** Full character art, transparent background. ~120 KB, so use it sparingly. */
 export const studentPortraitUrl = (id: number) =>
   `${BASE}/images/student/portrait/${id}.webp`;
@@ -450,12 +457,14 @@ export function trimRaids(raw: unknown): GameRaids | null {
     const BulletType = text(entry.BulletType);
     if (id === undefined || !Name || !ArmorType || !BulletType) continue;
     const BulletTypeInsane = text(entry.BulletTypeInsane);
+    const DevName = text(entry.DevName);
     raid[id] = {
       Name,
       ArmorType,
       BulletType,
       ...(BulletTypeInsane ? { BulletTypeInsane } : {}),
       Terrain: textList(entry.Terrain),
+      ...(DevName ? { DevName } : {}),
     };
   }
 
@@ -469,7 +478,14 @@ export function trimRaids(raw: unknown): GameRaids | null {
     // plural shows at every use site.
     const BulletTypes = textList(entry.BulletType);
     if (id === undefined || !Name || !ArmorType || BulletTypes.length === 0) continue;
-    multiFloor[id] = { Name, ArmorType, BulletTypes, Terrain: textList(entry.Terrain) };
+    const DevName = text(entry.DevName);
+    multiFloor[id] = {
+      Name,
+      ArmorType,
+      BulletTypes,
+      Terrain: textList(entry.Terrain),
+      ...(DevName ? { DevName } : {}),
+    };
   }
 
   if (Object.keys(raid).length === 0 && Object.keys(multiFloor).length === 0) {
