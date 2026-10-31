@@ -3,8 +3,12 @@ import { StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
 
 import { FallbackImage } from "@/components/FallbackImage";
 
-// SchaleDB portraits are full-body art on a transparent canvas (679 x 1280).
-const ART_ASPECT = 679 / 1280;
+// SchaleDB portraits are full-body art on a transparent canvas 1280 tall,
+// but the width varies by student (Hikari 574, Nozomi 660, Kisaki 679). The
+// art box is a little wider than any of them and the image is CONTAINED in
+// it, so the canvas top always meets the box top: "cover" would enlarge a
+// narrow canvas and trim its top, which is exactly where hats and halos are.
+const ART_ASPECT = 0.6;
 
 type Props = {
   /** Portrait first, then any fallbacks (icon art is cropped the same way). */
@@ -42,7 +46,7 @@ export function PortraitCrop({ uris, label, width, height, span = 0.5, top = 0, 
 
   return (
     <View style={[styles.window, { width: windowWidth, height }, style]} accessibilityRole="image" accessibilityLabel={label}>
-      <FallbackImage uris={uris} label={label} style={art} resizeMode="cover" />
+      <FallbackImage uris={uris} label={label} style={art} resizeMode="contain" />
     </View>
   );
 }
