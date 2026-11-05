@@ -352,6 +352,11 @@ describe("isUntranslated", () => {
     ["ja", "アリス（メイド）", false],
     ["ko", "아리스", false],
     ["zh", "爱丽丝", false],
+    // zh and ko: only kana is a stand-in; ideographs and ・ are their own.
+    ["zh", "ヒフミ（レーシング）", true],
+    ["ko", "ヒフミ（レーシング）", true],
+    ["zh", "星野", false],
+    ["ko", "키보토스・미확인 미스테리", false],
   ] as const)("%s %s -> %s", (locale, text, expected) => {
     expect(isUntranslated(locale, text)).toBe(expected);
   });
@@ -500,7 +505,7 @@ describe("bundled snapshot", () => {
         : value && typeof value === "object"
           ? Object.values(value).flatMap(strings)
           : [];
-    for (const locale of ["vi", "th"] as const) {
+    for (const locale of ["vi", "th", "zh", "ko"] as const) {
       const shipped = [
         ...strings(bundled.names[locale]),
         ...strings(bundled.labels[locale]),

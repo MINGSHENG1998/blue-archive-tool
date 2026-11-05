@@ -55,9 +55,17 @@ const CJK_LETTERS = /[\u3041-\u30fa\u30fc-\u30ff\u3400-\u9fff\uac00-\ud7af]/;
  */
 const STAND_IN_LOCALES: ReadonlySet<GameLocale> = new Set(["vi", "th"]);
 
+// zh and ko share ideographs or punctuation with Japanese, so only kana
+// (again sparing ・, which Korean titles use) marks a stand-in there.
+// Upstream repeats the Japanese for anything not yet named: zh has
+// "ヒフミ（レーシング）" for a new student until it is translated.
+const KANA = /[\u3041-\u30fa\u30fc-\u30ff]/;
+const KANA_STAND_IN_LOCALES: ReadonlySet<GameLocale> = new Set(["zh", "ko"]);
+
 /** True when `text` is upstream's Japanese stand-in for a missing `locale` translation. */
 export function isUntranslated(locale: GameLocale, text: string): boolean {
-  return STAND_IN_LOCALES.has(locale) && CJK_LETTERS.test(text);
+  if (STAND_IN_LOCALES.has(locale)) return CJK_LETTERS.test(text);
+  return KANA_STAND_IN_LOCALES.has(locale) && KANA.test(text);
 }
 
 /** The entries of a string map that really are in `locale`. */
@@ -65,7 +73,7 @@ export function dropUntranslated(
   locale: GameLocale,
   record: Record<string, string>,
 ): Record<string, string> {
-  if (!STAND_IN_LOCALES.has(locale)) return record;
+  if (!STAND_IN_LOCALES.has(locale) && !KANA_STAND_IN_LOCALES.has(locale)) return record;
   const out: Record<string, string> = {};
   for (const [key, value] of Object.entries(record)) {
     if (!isUntranslated(locale, value)) out[key] = value;
