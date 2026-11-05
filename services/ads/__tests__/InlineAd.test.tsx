@@ -13,6 +13,8 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 
 jest.mock('react-native', () => ({
   View: 'View',
+  StyleSheet: { create: (styles: object) => styles },
+  useWindowDimensions: () => ({ width: 393, height: 852 }),
   AppState: { addEventListener: jest.fn(() => ({ remove: jest.fn() })) },
 }));
 

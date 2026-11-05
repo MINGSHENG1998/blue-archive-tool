@@ -65,6 +65,8 @@ const styles = StyleSheet.create({
   grid: { gap: 8 },
   row: { flexDirection: 'row', gap: 8 },
   cell: { flex: 1 },
-  tile: { minHeight: 84, height: '100%', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  // flexGrow, not height '100%' (see ToolGrid): Android blows a percentage of
+  // the auto-height row up to a huge tile.
+  tile: { minHeight: 84, flexGrow: 1, alignItems: 'center', justifyContent: 'center', gap: 8 },
   label: { textAlign: 'center' },
 });

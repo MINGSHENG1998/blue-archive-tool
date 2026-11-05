@@ -53,6 +53,8 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   tile: { flexGrow: 1, flexBasis: '45%' },
   wide: { width: '100%' },
-  panel: { minHeight: 118, height: '100%', justifyContent: 'space-between', gap: 14 },
+  // flexGrow, not height '100%': the tile stretches to its row's height, and a
+  // percentage of the auto-height row resolves to a huge height on Android.
+  panel: { minHeight: 118, flexGrow: 1, justifyContent: 'space-between', gap: 14 },
   text: { gap: 2 },
 });
