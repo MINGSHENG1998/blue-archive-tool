@@ -11,7 +11,11 @@ export const supported = true;
 export type Permission = 'granted' | 'denied' | 'undetermined' | 'unavailable';
 export async function permission(): Promise<Permission> {
   const p = await Notifications.getPermissionsAsync();
-  return p.granted || p.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL ? 'granted' : p.status;
+  if (p.granted || p.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL) return 'granted';
+  // Android 13+ reports "denied" whenever notifications are off, including a
+  // fresh install that was never asked. canAskAgain says the OS will still prompt.
+  if (p.status === 'denied' && p.canAskAgain) return 'undetermined';
+  return p.status;
 }
 export async function requestPermission(locale: Locale): Promise<Permission> {
   // Android 13 needs the channel to exist before its first permission prompt.

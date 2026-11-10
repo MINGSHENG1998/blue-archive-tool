@@ -31,6 +31,9 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   const latest = useRef({ preferences, locale, banners, bannersStatus, students, displayName, watch, roster, ap });
   latest.current = { preferences, locale, banners, bannersStatus, students, displayName, watch, roster, ap };
   const hydratedRef = useRef(false), loading = useRef<Promise<void> | null>(null);
+  // The app prompts once. Once that is spent, an OS-level "could still ask" is
+  // a dead end in this UI, so show it as blocked with the device-settings link.
+  const shown = (p: native.Permission): native.Permission => (p === 'undetermined' && asked.current ? 'denied' : p);
   const readPreferences = useCallback(() => {
     if (loading.current) return loading.current;
     loading.current = AsyncStorage.getItem(KEY).then(raw => {
@@ -55,7 +58,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
         const plan = p === 'granted' ? planReminders({ now: Date.now(), preferences: current.preferences, banners: current.banners.map(b => ({ id: b.id, startAt: b.startAt, endAt: b.endAt, studentIds: b.characters.flatMap(c => c.studentId ? [c.studentId] : []) })), students: current.students.map(s => ({ id: s.Id, name: current.displayName(s), birthday: s.BirthDay, family: s.LinkedCharacterId })), watched: current.watch.ids, owned: Object.keys(current.roster.entries).map(Number), fullAt: current.ap.fullAt() }) : [];
         const preserve: ReminderKind[] = p === 'granted' && current.bannersStatus !== 'ready' ? (['bannerStart','bannerEnd'] as const).filter(kind => current.preferences[kind]) : [];
         const result = await native.reconcile(plan, current.locale, preserve);
-        if (mounted.current) { setPermission(p); setScheduled(result.scheduled); setError(result.errors > 0); }
+        if (mounted.current) { setPermission(shown(p)); setScheduled(result.scheduled); setError(result.errors > 0); }
       } catch { if (mounted.current) setError(true); }
     };
     queue.current = queue.current.then(work, work);
@@ -86,7 +89,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
         await AsyncStorage.setItem(KEY, JSON.stringify({ asked: true, preferences: latest.current.preferences }));
         p = await native.requestPermission(latest.current.locale);
       }
-      setPermission(p);
+      setPermission(shown(p));
       if (value === true && p !== 'granted') return;
       const next = { ...latest.current.preferences, [key]: value };
       await AsyncStorage.setItem(KEY, JSON.stringify({ asked: asked.current, preferences: next }));

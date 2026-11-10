@@ -48,3 +48,19 @@ test('launch never asks permission; first explicit enable asks once and persists
  await act(async()=>{await result.current.setPreference('birthdays',true);});
  expect(native.requestPermission).toHaveBeenCalledTimes(1);
 });
+test('a fresh install shows "asked on first enable", not Blocked, and a declined prompt then shows Blocked',async()=>{
+ (native.permission as jest.Mock).mockResolvedValue('undetermined');
+ (native.requestPermission as jest.Mock).mockResolvedValueOnce('undetermined');
+ const {result}=renderHook(()=>useReminders(),{wrapper});await act(async()=>{});
+ expect(result.current.permission).toBe('undetermined');
+ await act(async()=>{await result.current.setPreference('dailyReset',true);});
+ // The app asks once; with no second prompt coming, only device settings can help.
+ expect(result.current.permission).toBe('denied');
+ expect(result.current.preferences.dailyReset).toBe(false);
+});
+test('after the one prompt was used up, a restart still shows Blocked',async()=>{
+ (AsyncStorage.getItem as jest.Mock).mockResolvedValue(JSON.stringify({asked:true,preferences:DEFAULT_REMINDERS}));
+ (native.permission as jest.Mock).mockResolvedValue('undetermined');
+ const {result}=renderHook(()=>useReminders(),{wrapper});await act(async()=>{});
+ expect(result.current.permission).toBe('denied');
+});
