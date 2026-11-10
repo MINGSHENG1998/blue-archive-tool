@@ -115,7 +115,20 @@
       "Bash(rm -rf .claude/skills .agents skills-lock.json)",
       "mcp__godot__get_godot_version",
       "mcp__godot__run_project",
-      "mcp__godot__get_debug_output"
+      "mcp__godot__get_debug_output",
+      "Bash(curl -sL \"https://docs.google.com/spreadsheets/d/1_Zjt_OM9XXidY3uYYDK92W9GrR3DN5cQsZ0IJsoEbjY/export?format=csv&gid=1749530612\" -o sheet.csv)",
+      "Bash(curl -sL \"https://schaledb.com/data/en/students.min.json\" -o students_en.json)",
+      "Bash(curl -sL \"https://schaledb.com/data/zh/students.min.json\" -o students_zh.json)",
+      "Bash(node -e \"const s=require\\('./students_en.json'\\); const arr=Object.values\\(s\\); console.log\\('count:',arr.length\\); const st=arr.find\\(x=>x.Name==='Yuzu \\(Maid\\)'\\)||arr[0]; console.log\\(JSON.stringify\\({Id:st.Id,Name:st.Name,PathName:st.PathName,StarGrade:st.StarGrade,IsLimited:st.IsLimited,SquadType:st.SquadType,BulletType:st.BulletType,ArmorType:st.ArmorType,TacticRole:st.TacticRole},null,1\\)\\); const zh=require\\('./students_zh.json'\\); const z=Object.values\\(zh\\).find\\(x=>x.Id===st.Id\\); console.log\\('zh name:',z&&z.Name\\);\")",
+      "Bash(node -e ' *)",
+      "Bash(curl -sIL \"https://schaledb.com/data/jp/students.min.json\")",
+      "Bash(curl -sIL \"https://schaledb.com/data/kr/students.min.json\")",
+      "Bash(curl -sIL \"https://schaledb.com/images/student/icon/26009.webp\")",
+      "Bash(curl -sI \"https://schaledb.com/data/en/students.min.json\")",
+      "Bash(curl -sI -L \"https://docs.google.com/spreadsheets/d/1_Zjt_OM9XXidY3uYYDK92W9GrR3DN5cQsZ0IJsoEbjY/export?format=csv&gid=1749530612\")",
+      "Bash(curl -sI \"https://docs.google.com/spreadsheets/d/1_Zjt_OM9XXidY3uYYDK92W9GrR3DN5cQsZ0IJsoEbjY/gviz/tq?tqx=out:csv&gid=1749530612\")",
+      "Bash(curl -sI -H \"Origin: https://personal-backoffice-ms.web.app\" \"https://docs.google.com/spreadsheets/d/1_Zjt_OM9XXidY3uYYDK92W9GrR3DN5cQsZ0IJsoEbjY/export?format=csv&gid=1749530612\")",
+      "Bash(curl -sI -H \"Origin: https://personal-backoffice-ms.web.app\" \"https://docs.google.com/spreadsheets/d/1_Zjt_OM9XXidY3uYYDK92W9GrR3DN5cQsZ0IJsoEbjY/gviz/tq?tqx=out:csv&gid=1749530612\")"
     ]
   }
 }

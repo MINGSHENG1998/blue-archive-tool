@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "backoffice",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:/project/personal-backoffice-react", "run", "dev"],
+      "port": 5173
+    },
+    {
+      "name": "app-web",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["expo", "start", "--web", "--port", "8081"],
+      "port": 8081
+    }
+  ]
+}
