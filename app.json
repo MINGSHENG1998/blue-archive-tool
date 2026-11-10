@@ -71,7 +71,9 @@
             "compileSdkVersion": 36,
             "targetSdkVersion": 36,
             "buildToolsVersion": "36.0.0",
-            "kotlinVersion": "1.9.25"
+            "kotlinVersion": "1.9.25",
+            "enableProguardInReleaseBuilds": true,
+            "extraProguardRules": "-keepclassmembers class * implements java.io.Serializable {\n    static final long serialVersionUID;\n    private static final java.io.ObjectStreamField[] serialPersistentFields;\n    !static !transient <fields>;\n    private void writeObject(java.io.ObjectOutputStream);\n    private void readObject(java.io.ObjectInputStream);\n    private void readObjectNoData();\n    java.lang.Object writeReplace();\n    java.lang.Object readResolve();\n}\n-keep,includedescriptorclasses class expo.modules.notifications.** { *; }"
           }
         }
       ]
