@@ -70,7 +70,8 @@ export function RecruitmentHero({ showEmpty = true }: { showEmpty?: boolean }) {
     </View>
     <View style={styles.footer}>
       <View style={styles.flex}>
-        <Text style={[type.numXL, { color: c.secondaryInk }]}>{localDuration((endAt - now) / 1000, s)}</Text>
+        {/* One line: "3天19小时" at numXL is wider than the half of the footer it gets. */}
+        <Text style={[type.numXL, { color: c.secondaryInk }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{localDuration((endAt - now) / 1000, s)}</Text>
         <Text style={[type.caption, { color: c.textMuted }]}>{fmt(s.endsAt, { date: endsLocal })}</Text>
       </View>
       <SignalButton label={s.plan} icon="chart-timeline-variant" onPress={() => router.push('/tools/planner')} />

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   Image,
   StyleSheet,
@@ -14,6 +14,20 @@ import { RADIUS } from "@/constants/layout";
 import type { ThemeTokens } from "@/constants/theme";
 import { useType } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
+
+/** Saira's tabular digits are ~0.6em wide; a little slack covers the caret. */
+const DIGIT_EM = 0.62;
+
+/**
+ * Largest font size (max → min) at which `text` fits `width`. A TextInput
+ * cannot adjustsFontSizeToFit, and three tiles share a phone-width row, so a
+ * 5-digit Pyroxene balance at the full size would scroll out of view.
+ */
+export function fitNumberFont(width: number, text: string, max = 20, min = 12) {
+  if (!(width > 0)) return max;
+  const fit = Math.floor(width / (Math.max(text.length, 1) * DIGIT_EM));
+  return Math.max(min, Math.min(max, fit));
+}
 
 const grouped = (n: number) =>
   Number.isFinite(n) ? Math.round(n).toLocaleString() : "0";
@@ -88,11 +102,14 @@ export function ItemInput({
   const c = useColors();
   const type = useType();
   const s = useMemo(() => makeStyles(c), [c]);
+  const [inputWidth, setInputWidth] = useState(0);
+  const fontSize = fitNumberFont(inputWidth, value ? String(value) : "0");
   return (
     <View style={[s.tile, style]}>
       <View style={s.head}>
         <Image source={gameIcons[icon]} style={s.icon} resizeMode="contain" />
         <TextInput
+          onLayout={(e) => setInputWidth(e.nativeEvent.layout.width)}
           accessibilityLabel={label}
           keyboardType="number-pad"
           inputMode="numeric"
@@ -102,7 +119,7 @@ export function ItemInput({
           placeholder="0"
           placeholderTextColor={c.textMuted}
           onChangeText={(text) => onChange(Number(text.replace(/[^0-9]/g, "")) || 0)}
-          style={[type.num, s.input, { color: c.textPrimary }]}
+          style={[type.num, s.input, { color: c.textPrimary, fontSize, lineHeight: Math.round(fontSize * 1.3) }]}
         />
       </View>
       <Text
