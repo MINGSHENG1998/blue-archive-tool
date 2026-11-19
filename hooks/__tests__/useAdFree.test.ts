@@ -49,6 +49,13 @@ describe('useAdFree', () => {
     await act(async () => {});
   });
 
+  it('is settled once the cached purchase flag was read', async () => {
+    const { result } = renderHook(() => useAdFree());
+    expect(result.current.settled).toBe(false);
+    await act(async () => {});
+    expect(result.current.settled).toBe(true);
+  });
+
   it('exposes store-localized price labels', async () => {
     (RNIap.fetchProducts as jest.Mock).mockResolvedValue([{id:TIP_SKUS.SMALL,displayPrice:'RM 4.90'}]);
     const {result} = renderHook(() => useAdFree());

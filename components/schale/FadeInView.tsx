@@ -22,8 +22,8 @@ type Props = {
  * On Android Fabric, reanimated 3 starts a layout animation from a lambda
  * queued on the UI thread; if the view is removed before that lambda runs, it
  * still emits an Update for a view whose Delete is already queued and the app
- * dies with "Unable to find viewState for tag N" (software-mansion/
- * react-native-reanimated#7493, fixed only in 4.3.2 / 4.4.2). That crash put
+ * dies with "Unable to find viewState for tag N" (react-native-reanimated
+ * issue 7493, fixed only in 4.3.2 / 4.4.2). That crash put
  * 2.0.1-2.0.3 over Play's bad-behavior crash threshold.
  *
  * A shared value + useAnimatedStyle commits through a clone of the live shadow

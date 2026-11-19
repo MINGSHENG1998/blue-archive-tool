@@ -3,6 +3,7 @@ import { AppState } from "react-native";
 import { AppOpenAd, AdEventType } from "react-native-google-mobile-ads";
 
 import { adUnitId } from "./adUnits";
+import { fullscreenBusy } from "./fullscreen";
 
 // Only treat it as a "return to the app" after a real absence — short blips
 // (permission dialogs, IAP sheet, notification shade, a quick glance at the
@@ -79,6 +80,8 @@ export function useAppOpenAd(enabled: boolean, personalized: boolean) {
       backgroundedAtRef.current = 0;
 
       if (showingRef.current) return;
+      // Coming back from our own rewarded/interstitial ad, not from elsewhere.
+      if (fullscreenBusy(now)) return;
       if (awayFor < MIN_BACKGROUND_MS) return;
       if (now - lastShownAtRef.current < MIN_INTERVAL_MS) return;
       if (!adRef.current) {

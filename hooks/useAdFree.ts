@@ -31,6 +31,8 @@ type PendingPurchase = {
 
 export interface AdFreeHookResult {
   isAdFree: boolean;
+  /** False until the cached purchase flag has been read. */
+  settled: boolean;
   /** Store-localized prices. Missing entries mean the store is unavailable. */
   productPrices?: Readonly<Record<string, string>>;
   purchaseTip: (sku: string) => Promise<'success' | 'cancelled'>;
@@ -39,6 +41,7 @@ export interface AdFreeHookResult {
 
 export function useAdFree(): AdFreeHookResult {
   const [isAdFree, setIsAdFree] = useState(false);
+  const [settled, setSettled] = useState(false);
   const [productPrices, setProductPrices] = useState<Record<string, string>>({});
   const pendingRef = useRef<PendingPurchase | null>(null);
 
@@ -54,6 +57,7 @@ export function useAdFree(): AdFreeHookResult {
       const cached = await AsyncStorage.getItem(STORAGE_KEY);
       if (!mounted) return;
       if (cached === 'true') setIsAdFree(true);
+      setSettled(true);
 
       await initConnection();
       if (!mounted) return;
@@ -149,5 +153,5 @@ export function useAdFree(): AdFreeHookResult {
     return 'not_found';
   }, [markAdFree]);
 
-  return { isAdFree, productPrices, purchaseTip, restorePurchase };
+  return { isAdFree, settled, productPrices, purchaseTip, restorePurchase };
 }

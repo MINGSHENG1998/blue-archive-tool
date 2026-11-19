@@ -68,6 +68,10 @@ jest.mock('expo-iap', () => ({
 
 const mockAdFree = (isAdFree: boolean) => ({
   isAdFree,
+  hasTipped: isAdFree,
+  passUntil: 0,
+  settled: true,
+  grantPass: jest.fn(),
   purchaseTip: jest.fn(),
   restorePurchase: jest.fn(),
 });

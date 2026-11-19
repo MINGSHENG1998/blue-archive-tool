@@ -1,6 +1,7 @@
 import { InterstitialAd, AdEventType } from "react-native-google-mobile-ads";
 
 import { adUnitId } from "./adUnits";
+import { fullscreenBegin, fullscreenEnd } from "./fullscreen";
 
 // Show on every Nth calculate press, but never more often than the minimum
 // interval. Tune with real revenue/retention data before tightening.
@@ -13,11 +14,19 @@ let npa = true;
 let calcCount = 0;
 let lastShownAt = 0;
 let allowed = false;
+let showing = false;
 let dispose: (() => void) | null = null;
+
+function endShowing() {
+  if (!showing) return;
+  showing = false;
+  fullscreenEnd();
+}
 
 /** Invalidates both a loaded request and callbacks from its old consent state. */
 export function stopInterstitial() {
   allowed = false;
+  endShowing();
   dispose?.();
   dispose = null;
   ad = null;
@@ -42,6 +51,7 @@ function load() {
     adLoaded = false;
     ad = null;
   }), request.addAdEventListener(AdEventType.CLOSED, () => {
+    if (ad === request) endShowing();
     if (allowed && ad === request) load(); // preload the next one
   })];
   dispose = () => listeners.forEach(remove => remove?.());
@@ -73,7 +83,10 @@ export function maybeShowCalcInterstitial(isAdFree: boolean) {
   if (!adLoaded) return;
   lastShownAt = Date.now();
   adLoaded = false;
+  showing = true;
+  fullscreenBegin();
   ad.show().catch(() => {
+    endShowing();
     load();
   });
 }

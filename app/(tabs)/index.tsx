@@ -10,6 +10,7 @@ import { HappeningWidget } from '@/components/home/HappeningWidget';
 import { homeStyles } from '@/components/home/HomeRow';
 import { LobbyResources } from '@/components/home/LobbyResources';
 import { RecruitmentHero } from '@/components/home/RecruitmentHero';
+import { SupportPromptCard } from '@/components/home/SupportPromptCard';
 import { ToolsWidget } from '@/components/home/ToolsWidget';
 import { useFocusedNow } from '@/components/home/useFocusedNow';
 import { useHomeLayout } from '@/components/home/useHomeLayout';
@@ -54,6 +55,7 @@ export default function HomeScreen() {
   return <ScreenLayout title={s[greetingKey(now)]} subtitle={today} onRefresh={() => void refresh()} refreshing={refreshing}
     headerRight={<PressScale spark={false} onPress={customize} accessibilityLabel={s.customize} style={styles.edit}><Icon name="view-dashboard-edit-outline" size={24} color={c.primaryInk} /></PressScale>}>
     <AnnouncementCard now={now} />
+    <SupportPromptCard now={now} />
 
     {home.settled ? home.visible.length ? home.visible.flatMap((id, i) => i === homeAdSlot(home.visible)
         ? [widget(id), <View key="ad" style={styles.ad}><InlineAd /></View>] : [widget(id)])

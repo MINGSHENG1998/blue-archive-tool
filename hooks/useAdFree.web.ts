@@ -7,6 +7,7 @@ export const TIP_SKUS = {
 
 export interface AdFreeHookResult {
   isAdFree: boolean;
+  settled: boolean;
   productPrices?: Readonly<Record<string, string>>;
   purchaseTip: (sku: string) => Promise<'success' | 'cancelled'>;
   restorePurchase: () => Promise<'success' | 'not_found'>;
@@ -15,6 +16,7 @@ export interface AdFreeHookResult {
 export function useAdFree(): AdFreeHookResult {
   return {
     isAdFree: false,
+    settled: true,
     productPrices: {},
     purchaseTip: () => Promise.reject('Purchases are not available on web'),
     restorePurchase: async () => 'not_found',

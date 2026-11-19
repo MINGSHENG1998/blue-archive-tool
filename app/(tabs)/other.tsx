@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Constants from 'expo-constants';
 import * as Application from 'expo-application';
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { AppCard } from '@/components/AppCard';
 import { ScreenLayout } from '@/components/ScreenLayout';
 import { BottomSheet, FilterPill, Icon, IndexTab, SignalButton, Stamp, type IconName } from '@/components/schale';
@@ -11,6 +11,7 @@ import { THEMES, THEME_ORDER, type ThemeId } from '@/constants/theme';
 import { useType } from '@/constants/typography';
 import { fmt, useStrings } from '@/constants/strings/define';
 import { senseiStrings } from '@/constants/strings/sensei';
+import { supportStrings } from '@/constants/strings/support';
 import { themeName } from '@/constants/strings/themes';
 import { useAdFreeContext } from '@/contexts/ad-free-context';
 import { useAds } from '@/contexts/ads-context';
@@ -20,6 +21,7 @@ import { useTheme } from '@/contexts/theme-context';
 import { TIP_SKUS } from '@/hooks/useAdFree';
 import { useColors } from '@/hooks/useColors';
 import InlineAd from '@/services/ads/InlineAd';
+import { rewardedAvailable, watchRewardedAd } from '@/services/ads/rewarded';
 import { readCheckedAt } from '@/services/gamedata/cache';
 
 const languages: { id: Locale; label: string }[] = [{id:'en',label:'English'},{id:'zh',label:'中文'},{id:'ko',label:'한국어'},{id:'ja',label:'日本語'},{id:'vi',label:'Tiếng Việt'},{id:'th',label:'ไทย'}];
@@ -63,9 +65,15 @@ export default function SenseiScreen() {
  const c=useColors(),type=useType(),s=useStrings(senseiStrings),{locale,setLocale}=useLanguage(),t=i18n[locale],game=useGameData(),ad=useAdFreeContext(),ads=useAds();
  const [sheet,setSheet]=useState<'support'|'feedback'|null>(null),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[dataMessage,setDataMessage]=useState(''),[privacyMessage,setPrivacyMessage]=useState(''),[checking,setChecking]=useState(false),[checked,setChecked]=useState(0),[subject,setSubject]=useState(''),[description,setDescription]=useState('');
  const lastSent=useRef<number|null>(null),purchaseLock=useRef(false);
+ const p=useStrings(supportStrings),params=useLocalSearchParams<{support?:string}>(),[watching,setWatching]=useState(false),[passMessage,setPassMessage]=useState('');
+ // Hidden until a rewarded unit ID is configured, and when consent forbids ad requests.
+ const passOffered=rewardedAvailable()&&(ads.ready||ad.passUntil>0);
  useEffect(()=>{void readCheckedAt().then(setChecked);},[game.config.build,game.source]);
  useFocusEffect(React.useCallback(()=>{void readCheckedAt().then(setChecked);},[]));
  const open=(next:'support'|'feedback')=>{setMessage('');setSheet(next);};
+ // Home's one-time support card links here with ?support=1.
+ useEffect(()=>{if(params.support==='1'){setMessage('');setSheet('support');router.setParams({support:undefined});}},[params.support]);
+ const watch=async()=>{if(watching)return;setWatching(true);setPassMessage('');try{const outcome=await watchRewardedAd(ads.personalized);if(outcome==='earned'){await ad.grantPass();setPassMessage(p.passGranted);}else setPassMessage(outcome==='skipped'?p.passSkipped:p.passUnavailable);}catch{setPassMessage(p.passUnavailable);}finally{setWatching(false);}};
  const refresh=async()=>{if(checking)return;setChecking(true);setDataMessage('');try{await game.refresh();setChecked(await readCheckedAt());setDataMessage(s.refreshed);}finally{setChecking(false);}};
  const buy=async(sku:string)=>{if(purchaseLock.current)return;purchaseLock.current=true;setBusy(true);setMessage('');try{if(await ad.purchaseTip(sku)==='success')setMessage(s.success);}catch{setMessage(s.purchaseError);}finally{purchaseLock.current=false;setBusy(false);}};
  const restore=async()=>{if(purchaseLock.current)return;purchaseLock.current=true;setBusy(true);setMessage('');try{setMessage(await ad.restorePurchase()==='success'?s.restored:s.restoreMissing);}catch{setMessage(s.restoreError);}finally{purchaseLock.current=false;setBusy(false);}};
@@ -78,16 +86,21 @@ export default function SenseiScreen() {
  const caption=[type.caption,{color:c.textSecondary}],body=[type.body,{color:c.textSecondary}],section=[type.section,{color:c.textPrimary}];
  const input={minHeight:48,padding:12,borderWidth:1,borderColor:c.hairline,color:c.textPrimary,backgroundColor:c.surfaceBg,borderRadius:12,...type.body};
  return <>
-  <ScreenLayout title={s.title} headerRight={ad.isAdFree?<Stamp label={s.supporterBadge} tone="success"/>:undefined}>
+  <ScreenLayout title={s.title} headerRight={ad.hasTipped?<Stamp label={s.supporterBadge} tone="success"/>:undefined}>
    <IndexTab title={s.theme} style={{marginBottom:10}}/>
    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{marginHorizontal:-20}} contentContainerStyle={{paddingHorizontal:20}}>{THEME_ORDER.map(id=><ThemePreview key={id} id={id}/>)}</ScrollView>
    <IndexTab title={s.language} style={{marginTop:24,marginBottom:6}}/>
    <View style={{flexDirection:'row',flexWrap:'wrap',gap:8}}>{languages.map(l=><FilterPill key={l.id} selected={locale===l.id} label={l.label} onPress={()=>setLocale(l.id)}/>)}</View>
 
-   {!ad.isAdFree?<AppCard padding={18} style={{marginTop:28}}>
+   {!ad.hasTipped?<AppCard padding={18} style={{marginTop:28}}>
     <Text style={section}>{s.supporter}</Text>
     <Text style={[...caption,{marginTop:4}]}>{s.supportBody}</Text>
     <SignalButton style={{marginTop:16}} label={t.miscCoffeeButton} icon="heart-outline" onPress={()=>open('support')}/>
+    {passOffered?<View style={{marginTop:18,paddingTop:16,borderTopWidth:StyleSheet.hairlineWidth,borderTopColor:c.isDark?c.hairline:c.surfaceBorder}}>
+     {ad.passUntil?<View style={{flexDirection:'row',alignItems:'center',gap:8}}><Icon name="check-circle-outline" size={18} color={c.primaryInk}/><Text style={[...caption,{flex:1}]}>{fmt(p.passActive,{time:new Date(ad.passUntil).toLocaleString(locale,{weekday:'short',hour:'numeric',minute:'2-digit'})})}</Text></View>
+      :<><Text style={caption}>{p.passBody}</Text><SignalButton style={{marginTop:12}} variant="ghost" label={watching?p.passLoading:p.passButton} icon="play-circle-outline" loading={watching} onPress={()=>{void watch();}}/></>}
+    </View>:null}
+    {passMessage?<Text accessibilityRole="alert" style={[type.body,{color:c.primaryInk,marginTop:12}]}>{passMessage}</Text>:null}
    </AppCard>:null}
 
    <AppCard padding={0} style={{marginTop:28}}>
@@ -115,9 +128,9 @@ export default function SenseiScreen() {
    <View style={{marginTop:24}}><InlineAd/></View>
   </ScreenLayout>
   <BottomSheet visible={sheet!==null} onClose={()=>{if(!busy)setSheet(null);}} title={sheet==='support'?s.supporter:s.feedback}>
-   {sheet==='support'?<><Text style={[...body,{marginBottom:16}]}>{ad.isAdFree?s.supportThanks:s.supportBody}</Text>{Platform.OS==='web'?<Text style={[...caption,{marginBottom:12}]}>{s.unavailable}</Text>:null}
+   {sheet==='support'?<><Text style={[...body,{marginBottom:16}]}>{ad.hasTipped?s.supportThanks:s.supportBody}</Text>{Platform.OS==='web'?<Text style={[...caption,{marginBottom:12}]}>{s.unavailable}</Text>:null}
     {([{sku:TIP_SKUS.SMALL,label:s.small,icon:'coffee-outline'},{sku:TIP_SKUS.LARGE,label:s.large,icon:'food-outline'}] as const).map(item=><View key={item.sku} style={{marginBottom:12,padding:16,borderRadius:16,backgroundColor:c.surfaceBg}}><View style={{flexDirection:'row',gap:10,alignItems:'center',marginBottom:12}}><Icon name={item.icon} size={26} color={c.primaryInk}/><View style={{flex:1}}><Text style={[type.bodyStrong,{color:c.textPrimary}]}>{item.label}</Text><Text style={[...caption,{marginTop:5}]}>{ad.productPrices?.[item.sku]??s.storePrice}</Text></View></View><SignalButton variant="ink" label={t.miscCoffeeButton} loading={busy} disabled={Platform.OS==='web'||busy} onPress={()=>{void buy(item.sku);}}/></View>)}
-    {!ad.isAdFree?<SignalButton variant="ghost" label={s.restore} disabled={busy||Platform.OS==='web'} onPress={()=>{void restore();}}/>:null}
+    {!ad.hasTipped?<SignalButton variant="ghost" label={s.restore} disabled={busy||Platform.OS==='web'} onPress={()=>{void restore();}}/>:null}
    </>:<><Text style={[...body,{marginBottom:16}]}>{s.feedbackBody}</Text><TextInput accessibilityLabel={s.feedbackTitle} placeholder={s.feedbackTitle} placeholderTextColor={c.textMuted} value={subject} onChangeText={setSubject} style={input}/><TextInput accessibilityLabel={s.feedbackDescription} placeholder={s.feedbackDescription} placeholderTextColor={c.textMuted} value={description} onChangeText={setDescription} multiline textAlignVertical="top" style={[input,{minHeight:140,marginVertical:12}]}/><SignalButton variant="ink" label={s.send} icon="email-outline" loading={busy} onPress={()=>{void send();}}/></>}
    {message?<Text accessibilityRole="alert" style={[type.body,{color:c.primaryInk,marginTop:16}]}>{message}</Text>:null}<SignalButton style={{marginTop:14}} variant="ghost" label={s.close} disabled={busy} onPress={()=>setSheet(null)}/>
   </BottomSheet>
