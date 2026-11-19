@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from "react-native";
 import Animated, {
-  FadeIn,
   cancelAnimation,
   useAnimatedStyle,
   useReducedMotion,
@@ -20,6 +19,7 @@ import { display, fontFor } from "@/constants/typography";
 import type { Locale } from "@/constants/i18n";
 import { useLanguage } from "@/contexts/language-context";
 import { useColors } from "@/hooks/useColors";
+import { FadeInView } from "./FadeInView";
 import { PressScale } from "./PressScale";
 import { useScreenFocused } from "./useScreenFocused";
 
@@ -106,13 +106,10 @@ export function MomoTalkCard({
               {name}
             </Text>
             {typed ? (
-              <Animated.View
-                entering={FadeIn.duration(reduced ? DUR_REDUCED : DUR.short)}
-                style={styles.bubble}
-              >
+              <FadeInView duration={reduced ? DUR_REDUCED : DUR.short} style={styles.bubble}>
                 <View style={styles.tail} />
                 <Text style={styles.message}>{message}</Text>
-              </Animated.View>
+              </FadeInView>
             ) : (
               <View style={[styles.bubble, styles.typingBubble]} testID="momotalk-typing">
                 <View style={styles.tail} />
@@ -122,12 +119,13 @@ export function MomoTalkCard({
           </View>
         </View>
         {reply && typed ? (
-          <Animated.View
-            entering={FadeIn.delay(reduced ? 0 : 240).duration(reduced ? DUR_REDUCED : DUR.short)}
+          <FadeInView
+            delay={reduced ? 0 : 240}
+            duration={reduced ? DUR_REDUCED : DUR.short}
             style={styles.replyBubble}
           >
             <Text style={styles.message}>{reply}</Text>
-          </Animated.View>
+          </FadeInView>
         ) : null}
         {footer ? <View style={styles.footer}>{footer}</View> : null}
       </View>

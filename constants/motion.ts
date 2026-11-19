@@ -4,15 +4,12 @@
 // Reduced motion: every non-essential animation checks reanimated's
 // useReducedMotion() and falls back to a plain fade <= 150ms (or nothing).
 // Ambient loops also pause while their screen is unfocused (useIsFocused).
+//
+// No layout animations (`entering` / `exiting` / `layout` props): on Android
+// Fabric they crash reanimated 3 with "Unable to find viewState for tag N".
+// Mount fades go through components/schale/FadeInView. ESLint enforces this.
 
-import {
-  Easing,
-  FadeIn,
-  withDelay,
-  withTiming,
-  type EntryExitAnimationFunction,
-  type WithSpringConfig,
-} from "react-native-reanimated";
+import { Easing, type WithSpringConfig } from "react-native-reanimated";
 
 export const DUR = {
   micro: 120,
@@ -40,33 +37,3 @@ export const STAGGER_CAP = 6;
 
 /** Scale a pressed surface springs to. */
 export const PRESS_SCALE = 0.97;
-
-/**
- * Entering animation for the i-th panel of a screen: it travels in along the
- * 12-degree slant (down 10px and right 12px) while fading up. With reduced
- * motion it is a short plain fade.
- */
-export function enterAlongSlant(
-  i: number,
-  reduced = false
-): FadeIn | EntryExitAnimationFunction {
-  if (reduced) return FadeIn.duration(DUR_REDUCED);
-  const delay = Math.min(i, STAGGER_CAP) * STAGGER;
-  const timing = { duration: DUR.medium, easing: EASE_OUT };
-  return () => {
-    'worklet';
-    return {
-      initialValues: {
-        opacity: 0,
-        transform: [{ translateY: 10 }, { translateX: -12 }],
-      },
-      animations: {
-        opacity: withDelay(delay, withTiming(1, timing)),
-        transform: [
-          { translateY: withDelay(delay, withTiming(0, timing)) },
-          { translateX: withDelay(delay, withTiming(0, timing)) },
-        ],
-      },
-    };
-  };
-}
